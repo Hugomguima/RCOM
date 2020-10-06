@@ -27,7 +27,8 @@ enum state current = START;
 
 int receiverInteraction(int serialPort){
 
-    char c; // char reaad. Changes the state
+    char c; // char read. Changes the state
+    char check = 0; // I haveno clue what this does
 
     //Colocar aqui o código da espera pelo byte
 
@@ -44,6 +45,7 @@ int receiverInteraction(int serialPort){
             if(c == A){
                 puts("A Received");
                 current = A_RCV;
+                check ^= c;
             }
             else if(c == FLAG);
             else{
@@ -51,9 +53,19 @@ int receiverInteraction(int serialPort){
             }
             break;
         case A_RCV:
-            if(c == C_SET) current = C_RCV;
+            if(c == C_SET){
+                puts("C Received");
+                current = C_RCV;
+            }
+            else if (c = FLAG){
+                current = FLAG;
+            }
+            else current = START;
             break;
         case C_RCV:
+            if(c = BCC_OK){
+                current = BCC_OK
+            }
           break;
         case BCC_OK:
           break;
