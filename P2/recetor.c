@@ -11,7 +11,42 @@
 #define FALSE 0
 #define TRUE 1
 
+#define FLAG 0x7E
+#define A 0x03
+#define C_SET 0x03
+#define C_UA 0x07
+
 volatile int STOP=FALSE;
+
+void waitSetMachine(int fd) {
+  tcflush(fd, TCIOFLUSH); //limpa informacao recebida mas nao lida e informacao escrita mas nao transmitida
+
+  enum state {START,FLAG_RCV,A_RCV,C_RCV,BCC_OK,STOP};
+  enum state current = START;
+
+  int finish = FALSE;
+
+  while(finish == FALSE) {
+    
+    switch(current){
+      case START:
+        break;
+      case FLAG_RCV:
+        break;
+      case A_RCV:
+        break;
+      case C_RCV:
+        break;
+      case BCC_OK:
+        break;
+      case STOP:
+        break;
+      default:
+        break;
+    }
+  }
+
+}
 
 int main(int argc, char** argv)
 {
