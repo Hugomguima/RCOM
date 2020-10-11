@@ -25,19 +25,62 @@ void waitSetMachine(int fd) {
   enum state current = START;
 
   int finish = FALSE;
+  char r, check;
 
   while(finish == FALSE) {
-    
+    read(fd, &r, 1);
+
     switch(current){
       case START:
+        if(r == FLAG) {
+          puts("Flag Received");
+          current = FLAG_RCV;
+        }
         break;
       case FLAG_RCV:
+        if (r == A) {
+          puts("A Received");
+          current = A_RCV;
+          check ^= r;
+        }
+        else if (r == FLAG);
+        else {
+          current = START;
+        }
         break;
       case A_RCV:
+        if (r == C_SET) {
+          puts("C_SET Received");
+          current = C_RCV;
+          check ^= r;
+        }
+        else if (r == FLAG) {
+          current = FLAG_RCV;
+        }
+        else {
+          current = START;
+        }
         break;
       case C_RCV:
+        if (r == check) {
+          puts("BCC OK");
+          current = BCC_OK;
+        }
+        else if (r == FLAG) {
+          current = FLAG_RCV;
+        }
+        else {
+          current = START;
+        }
         break;
       case BCC_OK:
+        if (r == FLAG) {
+          puts("SET correct");
+          current = STOP;
+        }
+        else {
+          current = START;
+        }
         break;
       case STOP:
         break;
@@ -45,7 +88,6 @@ void waitSetMachine(int fd) {
         break;
     }
   }
-
 }
 
 int main(int argc, char** argv)
@@ -61,12 +103,10 @@ int main(int argc, char** argv)
     exit(1);
   }
 
-
 /*
   Open serial port device for reading and writing and not as controlling tty
   because we don't want to get killed if linenoise sends CTRL-C.
 */
-
   
   fd = open(argv[1], O_RDWR | O_NOCTTY );
   if (fd <0) {perror(argv[1]); exit(-1); }
@@ -87,14 +127,10 @@ int main(int argc, char** argv)
   newtio.c_cc[VTIME]    = 0;   /* inter-character timer unused */
   newtio.c_cc[VMIN]     = 5;   /* blocking read until 5 chars received */
 
-
-
 /* 
   VTIME e VMIN devem ser alterados de forma a proteger com um temporizador a 
   leitura do(s) pr�ximo(s) caracter(es)
 */
-
-
 
   tcflush(fd, TCIOFLUSH);
 
@@ -108,28 +144,19 @@ int main(int argc, char** argv)
   ssize_t res;
   size_t num_bytes_read = 0;
 
+  waitSetMachine(fd);
 
-  while (1) {       /* loop for input */
-    res = read(fd, &byte, 1);
+  tcflush(fd, TCIOFLUSH);
 
-    if(res == -1) {
-      fprintf(stderr, "Error on reading from serial port \n" );
-      exit(-3);
-    }
+  unsigned char message[5];
 
-    message[num_bytes_read++] = byte;
-    
-    if(byte == '\0') {
-      break;
-    }
-  }
+  message[0] = FLAG;
+  message[1] = A;
+  message[2] = C_UA;
+  message[3] = A ^ C_UA;
+  message[4] = FLAG;
 
-  printf("\n%zd bytes read from the serial port\n", num_bytes_read);
-  printf("Message read: %s\n", message);
-
-  printf("Sending message...\n");
-
-  res = write(fd, message, strlen(message)+1);
+  res = write(fd, message, 5);
 
   if(res == -1) {
     fprintf(stderr, "Error writing to serial port\n");
@@ -148,7 +175,8 @@ int main(int argc, char** argv)
 */
 
   sleep(2);
-  tcsetattr(fd,TCSANOW,&oldtio);
+  tcsetattr(fd, TCSANOW, &oldtio);
   close(fd);
+  
   return 0;
 }

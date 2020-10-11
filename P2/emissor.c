@@ -58,7 +58,7 @@ int receiverInteraction(int serialPort){
                 current = C_RCV;
             }
             else if (c = FLAG){
-                current = FLAG;
+                current = FLAG_RCV;
             }
             else current = START;
             break;
