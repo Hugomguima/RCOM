@@ -6,6 +6,7 @@
 #include <termios.h>
 #include <stdio.h>
 
+#include <errno.h>
 #include <signal.h>;
 
 #define BAUDRATE B38400
@@ -43,7 +44,13 @@ int receiverInteraction(int serialPort){
       puts("Awaiting byte");
       nr = read(serialPort,&c,1);
 
-    
+      if (nr < 0) {
+      if (errno == EINTR) {
+        puts("Timed out. Sending again.");
+        return ERROR;
+      }
+      continue;
+    }
 
     //State Machine
     switch(current){
@@ -178,7 +185,7 @@ int main(int argc, char** argv)
   printf("New termios structure set\n");
 
 
-  // INstalling Alarm Handler
+  // Installing Alarm Handler
 
   if(signal(SIGALRM,alarmHandler) || siginterrupt(SIGALRM,1)){
       printf("Signal instalation failed");
