@@ -33,8 +33,8 @@ enum state current = START;
 
 int receiverInteraction(int serialPort){
 
-    char c; // char read. Changes the state
-    char check = 0;
+    unsigned char c; // char read. Changes the state
+    unsigned char check = 0;
     int nr;
 
 

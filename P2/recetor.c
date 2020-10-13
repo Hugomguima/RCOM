@@ -25,7 +25,7 @@ void waitSetMachine(int fd) {
   enum state current = START;
 
   int finish = FALSE;
-  char r, check;
+  unsigned char r, check;
 
   while(finish == FALSE) {
     read(fd, &r, 1);
@@ -94,7 +94,7 @@ int main(int argc, char** argv)
 {
   int fd,c;
   struct termios oldtio,newtio;
-  char message[4096], byte;
+  //unsigned char message[4096], byte;
 
   if ( (argc < 2) || 
         ((strcmp("/dev/ttyS0", argv[1])!=0) && 
