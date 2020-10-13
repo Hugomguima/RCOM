@@ -43,12 +43,14 @@ void waitSetMachine(int fd) {
           current = A_RCV;
           check ^= r;
         }
-        else if (r == FLAG);
+        else if (r == FLAG){
+          puts("still a flag");
+        }
         else {
           current = START;
         }
         break;
-      case A_RCV:
+      case A_RCV: 
         if (r == C_SET) {
           puts("C_SET Received");
           current = C_RCV;
@@ -56,9 +58,11 @@ void waitSetMachine(int fd) {
         }
         else if (r == FLAG) {
           current = FLAG_RCV;
+          puts("entra aqui");
         }
         else {
           current = START;
+          puts("volta para o start");      
         }
         break;
       case C_RCV:
@@ -76,7 +80,7 @@ void waitSetMachine(int fd) {
       case BCC_OK:
         if (r == FLAG) {
           puts("SET correct");
-          current = STOP;
+          finish = TRUE;
         }
         else {
           current = START;
@@ -88,6 +92,8 @@ void waitSetMachine(int fd) {
         break;
     }
   }
+
+  puts("exited the loop");
 }
 
 int main(int argc, char** argv)
@@ -162,19 +168,17 @@ int main(int argc, char** argv)
     fprintf(stderr, "Error writing to serial port\n");
     exit(-3);
   }
-
-  else if(res != strlen(message) + 1) {
+  else if(res != 5) {
     fprintf(stderr, "Error: could not send the whole message!\n");
     exit(-4);
   }
-
   printf("Message sent\n");
 
 /* 
   O ciclo WHILE deve ser alterado de modo a respeitar o indicado no gui�o 
 */
 
-  sleep(2);
+  sleep(1);
   tcsetattr(fd, TCSANOW, &oldtio);
   close(fd);
   

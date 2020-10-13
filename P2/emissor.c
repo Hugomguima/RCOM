@@ -72,7 +72,7 @@ int receiverInteraction(int serialPort){
             }
             break;
         case A_RCV:
-            if(c == C_SET){
+            if(c == C_UA){ //testa agora
                 puts("C_SET Received");
                 current = C_RCV;
             }
@@ -97,6 +97,7 @@ int receiverInteraction(int serialPort){
           if(c == FLAG){
             puts("Set received");
             current = STOP;
+            STP = TRUE;
           }
           else{
             current = START;
@@ -197,8 +198,8 @@ int main(int argc, char** argv)
 
     message[0] = FLAG;
     message[1] = A;
-    message[2] = C_UA;
-    message[3] = A ^ C_UA;
+    message[2] = C_SET;
+    message[3] = A ^ C_SET;
     message[4] = FLAG;
 
     tcflush(fd,TCIOFLUSH);
@@ -207,10 +208,10 @@ int main(int argc, char** argv)
 
     printf("SET message sent: %d \n",wr);
 
-    alarm(4);
+    alarm(8);
 
     if(receiverInteraction(fd) == 0){
-      printf("Interaction received");
+      printf("Interaction received\n");
       STP = TRUE;
       counter = 0;
     }
