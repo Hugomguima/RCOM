@@ -6,6 +6,8 @@
 #include <termios.h>
 #include <stdio.h>
 
+#include <signal.h>;
+
 #define BAUDRATE B38400
 #define MODEMDEVICE "/dev/ttyS1"
 #define _POSIX_SOURCE 1 /* POSIX compliant source */
@@ -19,8 +21,11 @@
 
 
 #define ERROR -1
+#define MAXTRIES 3
 
 volatile int STOP=FALSE;
+
+int counter = 0;
 
 enum state {START,FLAG_RCV,A_RCV,C_RCV,BCC_OK,STOP};
 enum state current = START;
@@ -54,20 +59,34 @@ int receiverInteraction(int serialPort){
             break;
         case A_RCV:
             if(c == C_SET){
-                puts("C Received");
+                puts("C_SET Received");
                 current = C_RCV;
             }
-            else if (c = FLAG){
+            else if (c == FLAG){
                 current = FLAG_RCV;
             }
             else current = START;
             break;
         case C_RCV:
-            if(c = BCC_OK){
-                current = BCC_OK
+            if(c == BCC_OK){
+                puts("BCC ok");
+                current = BCC_OK;
             }
-          break;
+            else if( c == FLAG){
+              current = FLAG_RCV;
+            }
+            else{
+              current = START;
+            }
+            break;
         case BCC_OK:
+          if(c == FLAG){
+            puts("Set received");
+            current = STOP;
+          }
+          else{
+            current = START;
+          }
           break;
         case STOP:
           break;
@@ -75,6 +94,17 @@ int receiverInteraction(int serialPort){
           break;
   }
 
+  puts("exiting state machine");
+  return 0;
+
+}
+
+
+void alarmHandler(int signo){
+
+  puts("Entered Alarm handler");
+
+  return;
 }
 
 int main(int argc, char** argv)
@@ -136,6 +166,38 @@ int main(int argc, char** argv)
   printf("New termios structure set\n");
 
 
+  // INstalling Alarm Handler
+
+  if(signal(SIGALRM,alarmHandler) || siginterrupt(SIGALRM,1)){
+      printf("Signal instalation failed");
+  }
+
+
+  while(STOP == FALSE && counter < MAXTRIES){
+    unsigned char message[5];
+
+    message[0] = FLAG;
+    message[1] = A;
+    message[2] = C_UA;
+    message[3] = A ^ C_UA;
+    message[4] = FLAG;
+
+    tcflush(fd,TCIOFLUSH);
+
+    int wr = write(fd,message,5);
+
+    printf("SET message sent: %d \n",wr);
+
+    alarm(4);
+
+    if(receiverInteraction(fd) == 0){
+      printf("Interaction received");
+      STOP = TRUE;
+      counter = 0;
+    }
+    alarm(0);
+
+  }
 
   /*for (i = 0; i < 255; i++) {
     buf[i] = 'a';
@@ -143,6 +205,8 @@ int main(int argc, char** argv)
 
 
   buf[25] = '\n';*/
+  
+  /*
 
   size_t n;
   ssize_t n_bytes;
@@ -168,10 +232,11 @@ int main(int argc, char** argv)
   printf("%zd bytes written\n", n_bytes);
 
 
-  /* 
-  O ciclo FOR e as instru��es seguintes devem ser alterados de modo a respeitar 
-  o indicado no gui�o 
-  */
+   
+  //O ciclo FOR e as instru��es seguintes devem ser alterados de modo a respeitar 
+  //o indicado no gui�o 
+  
+ 
 
   char message[4096];
   char byte;
@@ -198,6 +263,8 @@ int main(int argc, char** argv)
   sleep(2);
 
   free(buf);
+
+  */
 
   if ( tcsetattr(fd,TCSANOW,&oldtio) == -1) {
     perror("tcsetattr");
