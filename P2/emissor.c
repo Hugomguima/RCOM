@@ -23,7 +23,7 @@
 #define ERROR -1
 #define MAXTRIES 3
 
-volatile int STOP=FALSE;
+volatile int STP=FALSE;
 
 int counter = 0;
 
@@ -33,10 +33,17 @@ enum state current = START;
 int receiverInteraction(int serialPort){
 
     char c; // char read. Changes the state
-    char check = 0; // I haveno clue what this does
+    char check = 0;
+    int nr;
+
 
     //Colocar aqui o código da espera pelo byte
+    int STP = FALSE;
+    while(STP == FALSE){
+      puts("Awaiting byte");
+      nr = read(serialPort,&c,1);
 
+    
 
     //State Machine
     switch(current){
@@ -92,7 +99,9 @@ int receiverInteraction(int serialPort){
           break;
         default:
           break;
-  }
+      }
+    }
+
 
   puts("exiting state machine");
   return 0;
@@ -103,7 +112,10 @@ int receiverInteraction(int serialPort){
 void alarmHandler(int signo){
 
   puts("Entered Alarm handler");
-
+  counter++;
+  if(counter >= MAXTRIES){
+    printf("Exceeded maximum amount of tries: (%d)\n",MAXTRIES);
+  }
   return;
 }
 
@@ -173,7 +185,7 @@ int main(int argc, char** argv)
   }
 
 
-  while(STOP == FALSE && counter < MAXTRIES){
+  while(STP == FALSE && counter < MAXTRIES){
     unsigned char message[5];
 
     message[0] = FLAG;
@@ -192,7 +204,7 @@ int main(int argc, char** argv)
 
     if(receiverInteraction(fd) == 0){
       printf("Interaction received");
-      STOP = TRUE;
+      STP = TRUE;
       counter = 0;
     }
     alarm(0);
