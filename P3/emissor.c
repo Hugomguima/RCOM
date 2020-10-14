@@ -1,37 +1,28 @@
 /*Non-Canonical Input Processing*/
+#include "emissor.h"
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <termios.h>
-#include <stdio.h>
-
-#include <errno.h>
-#include <signal.h>;
-
-#define BAUDRATE B38400
-#define MODEMDEVICE "/dev/ttyS1"
-#define _POSIX_SOURCE 1 /* POSIX compliant source */
-#define FALSE 0
-#define TRUE 1
-
-#define FLAG 0x7e
-#define A 0x03
-#define C_SET 0x03
-#define C_UA 0x07
-
-
-#define ERROR -1
-#define MAXTRIES 3
-
+struct termios oldtio,newtio;
 volatile int STP=FALSE;
-
 int counter = 0;
 
-enum state {START,FLAG_RCV,A_RCV,C_RCV,BCC_OK,STOP};
-enum state current = START;
+void sendMessage(int fd,unsigned char c){
 
-int receiverInteraction(int serialPort){
+    unsigned char message[5];
+
+    message[0] = FLAG;
+    message[1] = A;
+    message[2] = c;
+    message[3] = A ^ c;
+    message[4] = FLAG;
+
+    tcflush(fd,TCIOFLUSH);
+
+    int wr = write(fd,message,5);
+
+    printf("%c message sent: %d \n",c,wr);
+}
+
+int receiveUA(int serialPort){
 
     unsigned char c; // char read. Changes the state
     unsigned char check = 0;
@@ -116,6 +107,62 @@ int receiverInteraction(int serialPort){
 
 }
 
+void llopen(int fd){
+    if ( tcgetattr(fd,&oldtio) == -1) { /* save current port settings */
+      perror("tcgetattr");
+      exit(-1);
+    }
+
+    bzero(&newtio, sizeof(newtio));
+    newtio.c_cflag = BAUDRATE | CS8 | CLOCAL | CREAD;
+    newtio.c_iflag = IGNPAR;
+    newtio.c_oflag = 0;
+
+    /* set input mode (non-canonical, no echo,...) */
+    newtio.c_lflag = 0;
+
+    newtio.c_cc[VTIME]    = 0;   /* inter-character timer unused */
+    newtio.c_cc[VMIN]     = 5;   /* blocking read until 5 chars received */
+
+
+
+    /* 
+    VTIME e VMIN devem ser alterados de forma a proteger com um temporizador a 
+    leitura do(s) pr�ximo(s) caracter(es)
+    */
+
+
+    tcflush(fd, TCIOFLUSH);
+
+    if ( tcsetattr(fd,TCSANOW,&newtio) == -1) {
+      perror("tcsetattr");
+      exit(-1);
+    }
+
+    printf("New termios structure set\n");
+
+
+    while(STP == FALSE && counter < MAXTRIES){
+
+      sendMessage(fd,C_SET);
+      alarm(TIMEOUT);
+
+      if(receiveUA(fd) == 0){
+        printf("Interaction received\n");
+        STP = TRUE;
+        counter = 0;
+      }
+      alarm(0);
+
+    }
+
+    if ( tcsetattr(fd,TCSANOW,&oldtio) == -1) {
+      perror("tcsetattr");
+      exit(-1);
+    }
+
+}
+
 
 void alarmHandler(int signo){
 
@@ -130,7 +177,6 @@ void alarmHandler(int signo){
 int main(int argc, char** argv)
 {
   int fd,c;
-  struct termios oldtio,newtio;
   char *buf = NULL;
   int i, sum = 0, speed = 0;
 
@@ -151,78 +197,14 @@ int main(int argc, char** argv)
   fd = open(argv[1], O_RDWR | O_NOCTTY );
   if (fd <0) {perror(argv[1]); exit(-1); }
 
-  if ( tcgetattr(fd,&oldtio) == -1) { /* save current port settings */
-    perror("tcgetattr");
-    exit(-1);
-  }
-
-  bzero(&newtio, sizeof(newtio));
-  newtio.c_cflag = BAUDRATE | CS8 | CLOCAL | CREAD;
-  newtio.c_iflag = IGNPAR;
-  newtio.c_oflag = 0;
-
-  /* set input mode (non-canonical, no echo,...) */
-  newtio.c_lflag = 0;
-
-  newtio.c_cc[VTIME]    = 0;   /* inter-character timer unused */
-  newtio.c_cc[VMIN]     = 5;   /* blocking read until 5 chars received */
-
-
-
-  /* 
-  VTIME e VMIN devem ser alterados de forma a proteger com um temporizador a 
-  leitura do(s) pr�ximo(s) caracter(es)
-  */
-
-
-
-  tcflush(fd, TCIOFLUSH);
-
-  if ( tcsetattr(fd,TCSANOW,&newtio) == -1) {
-    perror("tcsetattr");
-    exit(-1);
-  }
-
-  printf("New termios structure set\n");
-
-
   // Installing Alarm Handler
 
   if(signal(SIGALRM,alarmHandler) || siginterrupt(SIGALRM,1)){
       printf("Signal instalation failed");
   }
 
-
-  while(STP == FALSE && counter < MAXTRIES){
-    unsigned char message[5];
-
-    message[0] = FLAG;
-    message[1] = A;
-    message[2] = C_SET;
-    message[3] = A ^ C_SET;
-    message[4] = FLAG;
-
-    tcflush(fd,TCIOFLUSH);
-
-    int wr = write(fd,message,5);
-
-    printf("SET message sent: %d \n",wr);
-
-    alarm(8);
-
-    if(receiverInteraction(fd) == 0){
-      printf("Interaction received\n");
-      STP = TRUE;
-      counter = 0;
-    }
-    alarm(0);
-
-  }
-
-  if ( tcsetattr(fd,TCSANOW,&oldtio) == -1) {
-    perror("tcsetattr");
-    exit(-1);
-  }
+  // Dealing with the SET and UA
+  llopen(fd);
 
   close(fd);
   return 0;
