@@ -92,8 +92,6 @@ void waitSetMachine(int fd) {
         break;
     }
   }
-
-  puts("exited the loop");
 }
 
 int main(int argc, char** argv)
