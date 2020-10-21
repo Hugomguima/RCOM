@@ -1,0 +1,1 @@
+int readSetMessage(int fd);

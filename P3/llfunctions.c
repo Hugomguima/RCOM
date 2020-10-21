@@ -7,11 +7,14 @@
 #include <termios.h>
 #include <errno.h>
 #include <signal.h>
+#include "stateMachines.h"
 
 
 #define TRANSMITTER 0
 #define RECEIVER 1
 #define BAUDRATE B38400
+#define FALSE 0
+#define TRUE 1
 
 struct termios oldtio,newtio;
 
@@ -80,10 +83,19 @@ int llopen(int fd, int status) {
 
         printf("Waiting for a message...\n");
 
-        //falta ler a mensagem SET e enviar a mensagem UA
+        if(readSetMessage(fd) == TRUE) {
+            printf("READ SET MESSAGE CORRECTLY");
+            if(sendUAMessage(fd) == -1) {
+                fprintf(stderr, "Error writing to serial port\n");
+                return -1;
+            }
+            else {
+                print("SEND UA MESSAGE");
+            }
 
+        }
     }
-    return ;
+    return 0;
 }
 
 int llwrite(int fd, char *buffer, int lenght) {
@@ -92,7 +104,8 @@ int llwrite(int fd, char *buffer, int lenght) {
 
 int llread(int fd, char *buffer) {
     // le a trama
-    // casos trama I recebida sem erros detetados no cabecalho e no campo de dados:
+    // tramas I, S ou U com cabecalho errado são ignoradas, sem qualquer acao
+    // caso trama I recebida sem erros detetados no cabecalho e no campo de dados:
     // caso seja uma nova trama, a trama é aceite e passada à aplicação, e envia-se RR para o emissor para confirmar
     // caso seja duplicado, descarta-se a trama e envia-se RR para o emissor 
     // casos trama I sem erro no cabecalho mas com erro detetado pelo BCC no campo de dados:
