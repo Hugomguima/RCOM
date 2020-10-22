@@ -33,7 +33,7 @@ enum state current = START;
  * @param fd filedescriptor for serial port
  * @param c message specification
  */
-void sendMessage(int fd,unsigned char c);
+int sendMessage(int fd,unsigned char c);
 
 /**
  * \brief handles the alarm
@@ -46,13 +46,6 @@ void alarmHandler(int signo);
  * @param serialPort file descriptor for the serial port
  */
 int receiveUA(int serialPort);
-
-
-/**
- * \brief Sends SET Frame and receives UA
- * @param fd File descriptor for the serial port
- */
-void llopen(int fd);
 
 /**
  * \brief main function that starts the proggram flow
