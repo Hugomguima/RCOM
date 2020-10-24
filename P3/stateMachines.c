@@ -96,74 +96,6 @@ int readSetMessage(int fd) {
     return TRUE;
 }
 
-
-int receiverRead_StateMachine(int fd) {
-    unsigned char buf, check;
-    int res, finish = FALSE, trama = 0;
-    enum state current = START;
-
-    while(finish = FALSE) {
-        
-        res = read(fd, &buf, 1);
-
-        if(res == -1) {
-            fprintf(stderr, "llread() - Error reading from buffer");
-            return -1;
-        }
-
-        switch (current)
-        {
-        case START:
-            if(buf == FLAG) {
-                current = FLAG_RCV;
-            }
-            break;
-
-        case FLAG_RCV: 
-            if(buf == A_EE) {
-                current = A_RCV;
-                check ^= buf;
-            }
-            else if(buf == FLAG) {
-                current == FLAG_RCV;
-            }
-            else {
-                current == START;
-            }
-            break;
-        
-        case A_RCV: 
-            if(buf == NS0) {
-                current = C_RCV;
-                check ^= buf;
-                trama = 0;
-            }
-
-            else if(buf == Ns1) {
-                current = C_RCV;
-                check ^= buf;
-                trama = 1;
-            }
-
-            else if(buf == FLAG) {
-                current = FLAG_RCV;
-            }
-
-            else {
-                current == START;
-            }
-            break;
-
-        case C_RCV:
-            
-
-        default:
-            break;
-        }
-    }
-}
-
-
 int receiveUA(int serialPort){
 
     unsigned char c; // char read. Changes the state
@@ -248,4 +180,207 @@ int receiveUA(int serialPort){
   puts("exiting state machine");
   return 0;
 
+}
+
+
+int receiverRead_StateMachine(int fd, unsigned long *size) { //nao sei se size leva pointer ou nao
+    unsigned char buf, check;
+    int res, finish = FALSE, trama = 0, expectedTrama = 0;
+    enum state current = START;
+    unsigned char *frame = (unsigned char *)malloc(0);
+    int correctBCC2 = 0; // if no errors in BCC2, correctBCC2 = 1; else correctBCC2 = 0
+    int errorOnDestuffing = 0; // if no errors occur on destuffing, the var stays equal to 0, else the value is 1
+
+    while(finish = FALSE) {
+        
+        res = read(fd, &buf, 1);
+
+        if(res == -1) {
+            fprintf(stderr, "llread() - Error reading from buffer");
+            return -1;
+        }
+
+        switch (current)
+        {
+        case START:
+            if(buf == FLAG) {
+                current = FLAG_RCV;
+            }
+            break;
+
+        case FLAG_RCV: 
+            if(buf == A_EE) {
+                current = A_RCV;
+                check ^= buf;
+            }
+
+            else if(buf == FLAG) {
+                current == FLAG_RCV;
+            }
+
+            else {
+                current == START;
+            }
+            break;
+        
+        case A_RCV: 
+            //como fazer caso seja informaçao repetida?
+            if(buf == NS0) {
+                current = C_RCV;
+                check ^= buf;
+                trama = 0;
+            }
+
+            else if(buf == Ns1) {
+                current = C_RCV;
+                check ^= buf;
+                trama = 1;
+            }
+
+            else if(buf == FLAG) {
+                current = FLAG_RCV;
+            }
+
+            else {
+                current == START;
+            }
+            break;
+
+        case C_RCV:
+            if(buf == check) {
+                current = BCC_OK;   
+            }
+
+            else if(buf == FLAG) {
+                current = FLAG_RCV;
+            }
+
+            else {
+                current = START;
+            }
+            break;
+
+        case BCC_OK:
+            if(buf == FLAG) {
+                if(checkBCC2(trama, *size) == 0) { //pointer?
+                    correctBCC2 = 1;
+                    current = STOP;
+                }
+
+                else {
+                    correctBCC2 = 0;
+                    current = STOP;
+                }
+            }
+
+            else if(buf == ESCAPE_BYTE) {
+                current = BYTE_DESTUFFING;
+            }
+
+            else {
+                frame = (unsigned char *)realloc(frame, ++(*size)); 
+                frame[*size - 1] = buf; // still receiving data
+			}
+
+            break;
+            
+        case BYTE_DESTUFFING:
+            if(buf == ESCAPE_FLAG) {
+                frame = (unsigned char *)realloc(frame, ++(*size));
+				frame[*size - 1] = FLAG;
+            }
+
+            else if(buf == ESCAPE_ESCAPE) {
+                frame = (unsigned char *)realloc(frame, ++(*size));
+                frame[*size - 1] = ESCAPE_BYTE;
+            }
+
+            else {
+                printf("Character after escape character not recognized\n"); //can occur if there is an interference
+                errorOnDestuffing = 1;
+            }
+
+            current = BCC_OK;
+            break;
+        
+        default:
+            break;
+        }
+    }
+
+    frame = (unsigned char *)realloc(frame, *size-1);
+	*size = *size - 1;
+
+    printf("Expected trama: %i", expectedTrama);
+    printf("Received trama: %i", trama);
+    
+    if(correctBCC2 == 1 && errorOnDestuffing == 0) {
+        if(trama == expectedTrama) {
+            if(trama == 0) {
+                //send RR(Nr = 1)
+            }
+            
+            else {
+                //send RR(Nr = 0)
+            }
+            
+            expectedTrama = (expectedTrama + 1) % 2;
+        }
+
+        else {
+            *size = 0;
+
+            if(expectedTrama == 0) {  //acho que é isto ou faz-se com trama?
+                //send RR(Nr = 0)
+            }
+
+            else {
+                //send RR(Nr = 1)
+            }
+        }
+    }
+    else {
+        if(trama != expectedTrama) { //sera isto suficiente para verificar informaçao repetida?
+            if(trama == 0) {
+                //send RR(Nr = 1)
+                expectedTrama = 1;
+            }
+            else {
+                //send RR(Nr=0)
+                expectedTrama = 0;
+            }
+        }
+
+        else {
+            *size = 0;
+
+            if(trama == 0) {
+                //send REJ 0
+                expectedTrama = 0;
+            }
+
+            else {
+                //send REJ1
+                expectedTrama = 1;
+            }
+        }
+    }
+    
+
+}
+
+
+int checkBCC2(unsigned char *packet, int size) {
+    int i;
+    unsigned char byte = packet[0];
+
+    for(i = 0; i < size; i++) {
+        byte ^= packet[i];
+    }
+
+    if(byte == packet[size - 1]) {
+        return 0;
+    }
+    else 
+        return 1;
 }

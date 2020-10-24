@@ -16,7 +16,7 @@ struct termios oldtio,newtio;
 
 int counter = 0;
 volatile int STP=FALSE;
-int trama = 0;
+
 
 int llopen(int fd, int status) {
     
@@ -101,6 +101,7 @@ int llwrite(int fd, char *buffer, int lenght) {
 
     while(STP == FALSE && counter < MAXTRIES){
             unsigned char message[5];
+            int trama = 0;
 
             message[0] = FLAG;
             message[1] = A_EE;
@@ -138,7 +139,7 @@ int llwrite(int fd, char *buffer, int lenght) {
 
 }
 
-int llread(int fd, char *buffer) {
+int llread(int fd, unsigned long *size) {
 // le a trama
 // tramas I, S ou U com cabecalho errado são ignoradas, sem qualquer acao
 // caso trama I recebida sem erros detetados no cabecalho e no campo de dados:
@@ -149,7 +150,7 @@ int llread(int fd, char *buffer) {
 // caso seja duplicado, confirma-se com RR para o transmissor
 
 
-receiverRead_StateMachine(fd);
+receiverRead_StateMachine(fd, *size); //nao sei se se passa o pointer ou nao
 }
 
 int llclose(int fd) {
