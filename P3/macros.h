@@ -11,7 +11,7 @@
 #define C_SET 0x03
 #define C_UA 0x07
 #define NS0 0x00 //valor de ns na primeira trama do write
-#define Ns1 0x40 //valor de ns segunda trama do write
+#define NS1 0x40 //valor de ns segunda trama do write
 #define ESCAPE_BYTE 0x7d 
 #define ESCAPE_FLAG 0x5e
 #define ESCAPE_ESCAPE 0x5d

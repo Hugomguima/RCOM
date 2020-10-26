@@ -96,11 +96,39 @@ int llopen(int fd, int status) {
     return 0;
 }
 
+unsigned char getBCC2(unsigned char *mensagem, int size){
+
+    unsigned char bcc2 = mensagem[0];
+    for(int i = 0; i < size; i++){
+        bcc2 ^= mensagem[i];
+    }
+    return bcc2;
+}
+
+unsigned char stuffBCC2(unsigned char bcc2){
+    unsigned char stuffed[2];
+    if(bcc2 == FLAG){
+        stuffed[0] = ESCAPE_BYTE;
+        stuffed[1] = ESCAPE_FLAG; 
+    }
+    else if(bcc2 == ESCAPE_BYTE){
+        stuffed[0] = ESCAPE_BYTE;
+        stuffed[1] = ESCAPE_ESCAPE; 
+    }
+    else{
+        stuffed[0] = bcc2;
+        stuffed[1] = NULL;
+    }
+    return stuffed;
+    
+}
+
 int llwrite(int fd, char *buffer, int lenght) {
 // escreve a trama e fica a espera de receber uma mensagem RR ou REJ para saber o que enviar a seguir
 
     while(STP == FALSE && counter < MAXTRIES){
-            unsigned char message[5];
+            // Inventei aqui um pouco na declaração porque simplesmente sei que o array não é de tamanho constante.
+            unsigned char *message = (unsigned char *)malloc(6 * sizeof(unsigned char)); 
             int trama = 0;
 
             message[0] = FLAG;
@@ -112,12 +140,33 @@ int llwrite(int fd, char *buffer, int lenght) {
             else{
                 message[2] = NS1;
             }
-            message[3] = message[1] ^ messagem[2]
-            message[4] = FLAG; // N sei o que eter aqui no pacote de dados para já
-            message[5] = 
+            message[3] = message[1] ^ message[2];
 
+            // Começa a ler do 4 e o tamanho depende da mensagem a ser enviada
+            int i = 4;
+            int j = 0;
+            for(int j = 0; j < lenght; j++){
+                if(buffer[j] == FLAG){
+                    message[i] = ESCAPE_BYTE;
+                    message[i + 1] = ESCAPE_FLAG;
+                    i+=2;
+                }
+                else if(buffer[j] == ESCAPE_BYTE){
+                    message[i] = ESCAPE_BYTE;
+                    message[i+1] = ESCAPE_ESCAPE;
+                    i+=2;
+                }
+                else{
+                    message[i] = buffer[i];
+                    i++;
+                }
+            }
+
+
+            // Processo de escrita
             tcflush(fd,TCIOFLUSH);
 
+            // Para já ainda não sei qual é o tamanho
             int wr = write(fd,message,5);
 
             printf("SET message sent: %d \n",wr);
