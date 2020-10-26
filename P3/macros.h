@@ -27,5 +27,3 @@
 #define ERROR -1
 #define MAXTRIES 3
 #define TIMEOUT 7 //Time to wait fora  repsonse from the receiver
-
-extern int stop;

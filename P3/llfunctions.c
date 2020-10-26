@@ -14,8 +14,9 @@
 
 struct termios oldtio,newtio;
 
-int counter = 0;
 volatile int STP=FALSE;
+extern unsigned char rcv;
+extern int counter = 0;
 
 
 int llopen(int fd, int status) {
@@ -57,11 +58,11 @@ int llopen(int fd, int status) {
             printf("Signal instalation failed");
         }
 
-
+        int counter = 0;
         while(STP == FALSE && counter < MAXTRIES){
-
-            if(sendMessage(C_SET) != -1){
-                printf("%c message sent: %d \n",c,wr);
+            int wr;
+            if((wr = sendMessage(fd,C_SET)) != ERROR){
+                printf("C_SET message sent: %d \n",wr);
             }
             else{
                 printf("Error sending message");
@@ -109,83 +110,136 @@ unsigned char getBCC2(unsigned char *mensagem, int size){
     return bcc2;
 }
 
-unsigned char stuffBCC2(unsigned char bcc2){
-    unsigned char stuffed[2];
+unsigned char* stuffBCC2(unsigned char bcc2,unsigned int *size){
+    unsigned char* stuffed;
     if(bcc2 == FLAG){
+        stuffed = malloc(2*sizeof(unsigned char));
         stuffed[0] = ESCAPE_BYTE;
         stuffed[1] = ESCAPE_FLAG; 
+        (*size) = 2;
     }
     else if(bcc2 == ESCAPE_BYTE){
+        stuffed = malloc(2*sizeof(unsigned char));
         stuffed[0] = ESCAPE_BYTE;
-        stuffed[1] = ESCAPE_ESCAPE; 
+        stuffed[1] = ESCAPE_ESCAPE;
+        (*size) = 2; 
     }
     else{
+        stuffed = malloc(sizeof(unsigned char));
         stuffed[0] = bcc2;
-        stuffed[1] = NULL;
+        (*size) = 1;
     }
+    
     return stuffed;
+    
     
 }
 
-int llwrite(int fd, char *buffer, int lenght) {
+int llwrite(int fd, char *buffer, int length) {
 // escreve a trama e fica a espera de receber uma mensagem RR ou REJ para saber o que enviar a seguir
+    unsigned char bcc2;
+    unsigned int sizebcc2 = 1;
+    unsigned int messageSize = length+6;
+    unsigned char *bcc2Stuffed = (unsigned char *)malloc(sizeof(unsigned char));
+    unsigned char *message = (unsigned char *)malloc(messageSize * sizeof(unsigned char));
+    int trama = 0;
 
-    while(STP == FALSE && counter < MAXTRIES){
-            // Inventei aqui um pouco na declaração porque simplesmente sei que o array não é de tamanho constante.
-            unsigned char *message = (unsigned char *)malloc(6 * sizeof(unsigned char)); 
-            int trama = 0;
+    bcc2 = getBCC2(buffer,length);
+    bcc2Stuffed = stuffBCC2(bcc2, &sizebcc2);
 
-            message[0] = FLAG;
-            message[1] = A_EE;
+    
+    // Inicio do preenchimento da mensagem
+    message[0] = FLAG;
+    message[1] = A_EE;
+    if(trama = 0){
+        message[2] = NS0;
+    }
+    else{
+        message[2] = NS1;
+    }
+    message[3] = message[1] ^ message[2];
 
-            if(trama = 0){
-                message[2] = NS0;
-            }
-            else{
-                message[2] = NS1;
-            }
-            message[3] = message[1] ^ message[2];
-
-            // Começa a ler do 4 e o tamanho depende da mensagem a ser enviada
-            int i = 4;
-            int j = 0;
-            for(int j = 0; j < lenght; j++){
-                if(buffer[j] == FLAG){
-                    message[i] = ESCAPE_BYTE;
-                    message[i + 1] = ESCAPE_FLAG;
-                    i+=2;
-                }
-                else if(buffer[j] == ESCAPE_BYTE){
-                    message[i] = ESCAPE_BYTE;
-                    message[i+1] = ESCAPE_ESCAPE;
-                    i+=2;
-                }
-                else{
-                    message[i] = buffer[i];
-                    i++;
-                }
-            }
-
-
-            // Processo de escrita
-            tcflush(fd,TCIOFLUSH);
-
-            // Para já ainda não sei qual é o tamanho
-            int wr = write(fd,message,5);
-
-            printf("SET message sent: %d \n",wr);
-
-            alarm(8);
-
-            if(receiveUA(fd) == 0){
-                printf("Interaction received\n");
-                STP = TRUE;
-                counter = 0;
-            }
-
-            alarm(0);
-
+    // Começa a ler do 4 e o tamanho depende da mensagem a ser enviada
+    int i = 4;
+    for(int j = 0; j < length; j++){
+        if(buffer[j] == FLAG){
+            messageSize++;
+            realloc(message,(messageSize)*sizeof(unsigned char));
+            message[i] = ESCAPE_BYTE;
+            message[i + 1] = ESCAPE_FLAG;
+            i+=2;
         }
+        else if(buffer[j] == ESCAPE_BYTE){
+            messageSize++;
+            realloc(message,(messageSize)*sizeof(unsigned char));
+            message[i] = ESCAPE_BYTE;
+            message[i+1] = ESCAPE_ESCAPE;
+            i+=2;
+        }
+        else{
+            message[i] = buffer[i];
+            i++;
+        }
+    }
+
+    if(sizebcc2 == 2){
+        messageSize++;
+        realloc(message,(messageSize)*sizeof(unsigned char));
+        message[i] = bcc2Stuffed[0];
+        message[i + 1]  = bcc2Stuffed[1];
+        i+=2;
+    }
+    else{
+        message[i] = bcc2;
+        i++;
+    }
+    message[i] = FLAG;
+
+    //Mensagem preenchida Trama I feita
+    
+
+    int counter = 0;
+
+    // Envio da trama
+    while(STP == FALSE && counter < MAXTRIES){
+        // Processo de escrita
+        tcflush(fd,TCIOFLUSH);
+
+        counter++;
+
+        // Para já ainda não sei qual é o tamanho
+        int wr = write(fd,message,messageSize);
+
+        printf("SET message sent: %d \n",wr);
+
+        alarm(TIMEOUT);
+
+
+        // Mudar o processo de espera não é receiveUA
+        if(readMessage(fd) == 0){
+            printf("Interaction received\n");
+            STP = TRUE;
+            counter = 0;
+        }
+        alarm(0);
+    }
+
+    // Tratar do rcv
+
+    if(rcv == RR0){
+
+    }
+    else if(rcv == RR1){
+        
+    }
+    else if(rcv == REJ0){
+        
+    }
+    else if(rcv == REJ1){
+
+    }
+
+
 
 
     

@@ -5,6 +5,8 @@
 #include "macros.h"
 #include "emissor.h"
 
+unsigned char rcv;
+
 
 int readSetMessage(int fd) {
     tcflush(fd, TCIOFLUSH); //limpa informacao recebida mas nao lida e informacao escrita mas nao transmitida
@@ -15,8 +17,7 @@ int readSetMessage(int fd) {
     int finish = FALSE;
     unsigned char r, check;
 
-    while (finish == FALSE)
-    {
+    while (finish == FALSE && current != STOP){
         read(fd, &r, 1);
 
         switch (current)
@@ -45,16 +46,17 @@ int readSetMessage(int fd) {
             }
             break;
         case A_RCV:
-            if (r == C_SET)
+            if (r == C_SET || r == REJ0 || r == REJ1 || r == RR0 || r == RR1 )
             {
-                puts("C_SET Received");
                 current = C_RCV;
                 check ^= r;
+                puts("Received C");
+                rcv = r;
             }
             else if (r == FLAG)
             {
                 current = FLAG_RCV;
-                puts("entra aqui");
+                puts("Recebe Flag novamente");
             }
             else
             {
@@ -88,13 +90,11 @@ int readSetMessage(int fd) {
                 current = START;
             }
             break;
-        case STOP:
-            break;
         default:
             break;
         }
     }
-    return TRUE;
+    return finish;
 }
 
 int receiveUA(int fd){
@@ -233,7 +233,7 @@ int receiverRead_StateMachine(int fd, unsigned long *size) { //nao sei se size l
                 trama = 0;
             }
 
-            else if(buf == Ns1) {
+            else if(buf == NS1) {
                 current = C_RCV;
                 check ^= buf;
                 trama = 1;
