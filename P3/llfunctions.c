@@ -83,7 +83,7 @@ int llopen(int fd, int status) {
     }
     else if(status == RECEIVER) {
         if(readSetMessage(fd) == TRUE) {
-            printf("READ SET MESSAGE CORRECfTLY");
+            printf("READ SET MESSAGE CORRECTLY");
             if(sendMessage(fd, C_UA) == -1) {
                 fprintf(stderr, "llopen - Error writing to serial port (Receiver)\n");
                 return -1;
@@ -91,6 +91,10 @@ int llopen(int fd, int status) {
             else {
                 print("SEND UA MESSAGE");
             }
+        }
+        else {
+            fprintf(stderr, "llopen - Error reading from serial port (Receiver)\n");
+            return -1;
         }
     }
     return 0;
@@ -198,14 +202,45 @@ int llread(int fd, unsigned long *size) {
 // caso seja uma nova trama, a informacao e descartada mas envia-se REJ para o emissor para pedir a retransmissao
 // caso seja duplicado, confirma-se com RR para o transmissor
 
+    receiverRead_StateMachine(fd, *size); //nao sei se se passa o pointer ou nao;
 
-receiverRead_StateMachine(fd, *size); //nao sei se se passa o pointer ou nao
+    
 }
 
-int llclose(int fd) {
+int llclose(int fd, int status) {
 //emissor:
 // envia DISC, espera por DISC e envia UA
+    if(status == TRANSMITTER) {
+
+    }
 
 //recetor:
 // le a mensagem DISC enviada pelo emissor, envia DISC e recebe UA
+    else if(status == RECEIVER) {
+        if (receiveDISC(fd) == TRUE) {
+            printf("READ DISC MESSAGE");
+            if(sendMessage(fd, C_DISC)) {
+                printf("SEND DISC MESSAGE");
+                if(receiveUA(fd) == TRUE) {
+                    printf("READ UA MESSAGE");
+                }
+                
+                else {
+                    fprintf(stderr, "llclose- Error reading UA message (Receiver)\n");
+                    return -1;
+                }
+            }
+
+            else {
+                fprintf(stderr, "llclose- Error writing DISC message to serial port (Receiver)\n");
+                return -1;
+            }
+        }
+
+        else {
+            fprintf(stderr, "llclose - Error reading DISC message (Receiver)\n");
+            return -1;
+        }
+    }
+    return 0;
 }

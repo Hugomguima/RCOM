@@ -3,6 +3,7 @@
 #include "stateMachines.h"
 #include <errno.h>
 #include "macros.h"
+#include "emissor.h"
 
 
 int readSetMessage(int fd) {
@@ -96,7 +97,8 @@ int readSetMessage(int fd) {
     return TRUE;
 }
 
-int receiveUA(int serialPort){
+int receiveUA(int fd){
+    tcflush(fd, TCIOFLUSH);
 
     unsigned char c; // char read. Changes the state
     unsigned char check = 0;
@@ -108,7 +110,7 @@ int receiveUA(int serialPort){
     int STP = FALSE;
     while(STP == FALSE){
       puts("Awaiting byte");
-      nr = read(serialPort,&c,1);
+      nr = read(fd,&c,1);
 
       if (nr < 0) {
       if (errno == EINTR) {
@@ -178,7 +180,7 @@ int receiveUA(int serialPort){
 
 
   puts("exiting state machine");
-  return 0;
+  return TRUE;
 
 }
 
@@ -318,57 +320,153 @@ int receiverRead_StateMachine(int fd, unsigned long *size) { //nao sei se size l
         if(trama == expectedTrama) {
             if(trama == 0) {
                 //send RR(Nr = 1)
+                sendMessage(fd, RR1);
             }
             
             else {
                 //send RR(Nr = 0)
+                sendMessage(fd, RR0);
             }
             
             expectedTrama = (expectedTrama + 1) % 2;
         }
 
-        else {
+        else { //ao fazermos isto ja garantimos que a trama recebida e repetida?
             *size = 0;
 
             if(expectedTrama == 0) {  //acho que é isto ou faz-se com trama?
                 //send RR(Nr = 0)
+                sendMessage(fd, RR0);
             }
 
             else {
                 //send RR(Nr = 1)
+                sendMessage(fd, RR1);
             }
         }
     }
-    else {
+    else { //caso BCC2 tenha erros ou tenha havido interferencias
         if(trama != expectedTrama) { //sera isto suficiente para verificar informaçao repetida?
             if(trama == 0) {
                 //send RR(Nr = 1)
+                sendMessage(fd, RR1);
                 expectedTrama = 1;
             }
             else {
                 //send RR(Nr=0)
+                sendMessage(fd, RR0);
                 expectedTrama = 0;
             }
         }
 
-        else {
+        else { //trama correta, mas com erro em BCC2
             *size = 0;
 
             if(trama == 0) {
                 //send REJ 0
+                sendMessage(fd, REJ0);
                 expectedTrama = 0;
             }
 
             else {
                 //send REJ1
+                sendMessage(fd, REJ1);
                 expectedTrama = 1;
             }
         }
     }
-    
-
+    return ;
 }
 
+int receiveDISC(int fd) {
+    tcflush(fd, TCIOFLUSH); //limpa informacao recebida mas nao lida e informacao escrita mas nao transmitida
+
+    enum state current = START;
+
+    int finish = FALSE;
+    unsigned char r, check;
+
+    while (finish == FALSE)
+    {
+        read(fd, &r, 1);
+
+        switch (current)
+        {
+        case START:
+            if (r == FLAG)
+            {
+                puts("Flag Received");
+                current = FLAG_RCV;
+            }
+            break;
+        case FLAG_RCV:
+            if (r == A_EE)
+            {
+                puts("A Received");
+                current = A_RCV;
+                check ^= r;
+            }
+            else if (r == FLAG)
+            {
+                puts("still a flag");
+            }
+            else
+            {
+                current = START;
+            }
+            break;
+        case A_RCV:
+            if (r == C_DISC)
+            {
+                puts("C_DISC Received");
+                current = C_RCV;
+                check ^= r;
+            }
+            else if (r == FLAG)
+            {
+                current = FLAG_RCV;
+                puts("entra aqui");
+            }
+            else
+            {
+                current = START;
+                puts("volta para o start");
+            }
+            break;
+        case C_RCV:
+            if (r == check)
+            {
+                puts("BCC OK");
+                current = BCC_OK;
+            }
+            else if (r == FLAG)
+            {
+                current = FLAG_RCV;
+            }
+            else
+            {
+                current = START;
+            }
+            break;
+        case BCC_OK:
+            if (r == FLAG)
+            {
+                puts("SET correct");
+                finish = TRUE;
+            }
+            else
+            {
+                current = START;
+            }
+            break;
+        case STOP:
+            break;
+        default:
+            break;
+        }
+    }
+    return TRUE;
+}
 
 int checkBCC2(unsigned char *packet, int size) {
     int i;
