@@ -7,8 +7,8 @@
 #include <termios.h>
 #include <errno.h>
 #include <signal.h>
+
 #include "stateMachines.h"
-#include "emissor.h"
 #include "macros.h"
 
 int llopen(int fd, int status);
@@ -22,3 +22,9 @@ int llwrite(int fd, unsigned char *buffer, int length);
 unsigned int llread(int fd, unsigned char *buffer);
 
 int llclose(int fd, int status);
+
+/**
+ * \brief handles the alarm
+ * @param signo signal number to be handled
+ */
+void alarmHandler(int signo);

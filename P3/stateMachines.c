@@ -7,6 +7,22 @@
 
 unsigned char rcv;
 
+int sendMessage(int fd, unsigned char c){
+
+  unsigned char message[5];
+
+  message[0] = FLAG;
+  message[1] = A_EE;
+  message[2] = c;
+  message[3] = A_EE ^ c;
+  message[4] = FLAG;
+
+  tcflush(fd,TCIOFLUSH);
+
+  return write(fd,message,5);
+
+}
+
 
 int readSetMessage(int fd) {
     tcflush(fd, TCIOFLUSH); //limpa informacao recebida mas nao lida e informacao escrita mas nao transmitida

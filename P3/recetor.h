@@ -5,9 +5,9 @@
 #include <fcntl.h>
 #include <termios.h>
 #include <stdio.h>
+#include <string.h>
 
 
 // Created files
 
-#include "macros.h"
 #include "llfunctions.h"

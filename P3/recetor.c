@@ -1,11 +1,8 @@
 #include "recetor.h"
 
-volatile int STOP=FALSE;
-
 int main(int argc, char** argv)
 {
-  int fd,c;
-  struct termios oldtio,newtio;
+  int fd;
   unsigned int size;
   //unsigned char message[4096], byte;
 

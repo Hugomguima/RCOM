@@ -40,10 +40,12 @@ int llopen(int fd, int status) {
 
         printf("New termios structure set\n");
 
-    if(status == TRANSMITTER) {
-        // Installing Alarm Handler
+        
 
-        if(signal(SIGALRM,alarmHandler) || siginterrupt(SIGALRM,1)){
+    if(status == TRANSMITTER) {
+
+        // Installing Alarm Handler
+        if(signal(SIGALRM, alarmHandler) || siginterrupt(SIGALRM,1)){
             printf("Signal instalation failed");
         }
 
@@ -68,8 +70,6 @@ int llopen(int fd, int status) {
             alarm(0);
 
         }
-
-        //falta enviar a mensagem SET e esperar pela mensagem UA, com alarm
     }
     else if(status == RECEIVER) {
         if(readSetMessage(fd) == TRUE) {
@@ -312,4 +312,16 @@ int llclose(int fd, int status) {
         tcsetattr(fd, TCSANOW, &oldtio);
     }
     return 0;
+}
+
+
+
+void alarmHandler(int signo){
+
+  puts("Entered Alarm handler");
+  counter++;
+  if(counter >= MAXTRIES){
+    printf("Exceeded maximum amount of tries: (%d)\n",MAXTRIES);
+  }
+  return;
 }

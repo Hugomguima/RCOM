@@ -9,6 +9,8 @@ enum state {
         STOP
     };
 
+int sendMessage(int fd,unsigned char c);
+
 int readSetMessage(int fd);
 
 int receiverRead_StateMachine(int fd, unsigned char* frame ,unsigned int *size);
