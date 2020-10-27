@@ -8,22 +8,7 @@
 #include <signal.h>
 #include <stdlib.h>
 
-
-#define BAUDRATE B38400
-#define MODEMDEVICE "/dev/ttyS1"
-#define _POSIX_SOURCE 1 /* POSIX compliant source */
-#define FALSE 0
-#define TRUE 1
-
-#define FLAG 0x7e
-#define A 0x03
-#define C_SET 0x03
-#define C_UA 0x07
-
-
-#define ERROR -1
-#define MAXTRIES 3
-#define TIMEOUT 5
+#include "macros.h"
 
 enum state {START,FLAG_RCV,A_RCV,C_RCV,BCC_OK,STOP};
 enum state current = START;
@@ -41,11 +26,6 @@ int sendMessage(int fd,unsigned char c);
  */
 void alarmHandler(int signo);
 
-/**
- * \brief State machine for receiving the UA frame
- * @param serialPort file descriptor for the serial port
- */
-int receiveUA(int serialPort);
 
 /**
  * \brief main function that starts the proggram flow

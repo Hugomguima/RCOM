@@ -185,15 +185,14 @@ int receiveUA(int fd){
 }
 
 
-int receiverRead_StateMachine(int fd, unsigned long *size) { //nao sei se size leva pointer ou nao
+int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) { 
     unsigned char buf, check;
     int res, finish = FALSE, trama = 0, expectedTrama = 0;
     enum state current = START;
-    unsigned char *frame = (unsigned char *)malloc(0);
     int correctBCC2 = 0; // if no errors in BCC2, correctBCC2 = 1; else correctBCC2 = 0
     int errorOnDestuffing = 0; // if no errors occur on destuffing, the var stays equal to 0, else the value is 1
 
-    while(finish = FALSE) {
+    while(current != FALSE) {
         
         res = read(fd, &buf, 1);
 
@@ -375,7 +374,7 @@ int receiverRead_StateMachine(int fd, unsigned long *size) { //nao sei se size l
             }
         }
     }
-    return ;
+    return 0;
 }
 
 int receiveDISC(int fd) {

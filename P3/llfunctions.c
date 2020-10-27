@@ -1,15 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <termios.h>
-#include <errno.h>
-#include <signal.h>
-#include "stateMachines.h"
-#include "emissor.h"
-#include "macros.h"
+#include "llfunctions.h"
 
 
 struct termios oldtio,newtio;
@@ -135,7 +124,7 @@ unsigned char* stuffBCC2(unsigned char bcc2,unsigned int *size){
     
 }
 
-int llwrite(int fd, char *buffer, int length) {
+int llwrite(int fd, unsigned char *buffer, int length) {
 // escreve a trama e fica a espera de receber uma mensagem RR ou REJ para saber o que enviar a seguir
     unsigned char bcc2;
     unsigned int sizebcc2 = 1;
@@ -253,7 +242,7 @@ int llwrite(int fd, char *buffer, int length) {
     return 0;
 }
 
-int llread(int fd, unsigned long *size) {
+unsigned int llread(int fd, unsigned char* buffer) {
 // le a trama
 // tramas I, S ou U com cabecalho errado são ignoradas, sem qualquer acao
 // caso trama I recebida sem erros detetados no cabecalho e no campo de dados:
@@ -263,9 +252,10 @@ int llread(int fd, unsigned long *size) {
 // caso seja uma nova trama, a informacao e descartada mas envia-se REJ para o emissor para pedir a retransmissao
 // caso seja duplicado, confirma-se com RR para o transmissor
 
-    receiverRead_StateMachine(fd, *size); //nao sei se se passa o pointer ou nao;
+    unsigned int size = 0;
+    receiverRead_StateMachine(fd,buffer, &size);
 
-    
+    return size;
 }
 
 int llclose(int fd, int status) {

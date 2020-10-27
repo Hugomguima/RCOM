@@ -1,5 +1,7 @@
 /*Non-Canonical Input Processing*/
 #include "emissor.h"
+#include "macros.h"
+#include "llfunctions.h"
 
 struct termios oldtio,newtio;
 volatile int STP=FALSE;
@@ -51,9 +53,14 @@ int main(int argc, char** argv)
   because we don't want to get killed if linenoise sends CTRL-C.
   */
 
-
   fd = open(argv[1], O_RDWR | O_NOCTTY );
-  if (fd <0) {perror(argv[1]); exit(-1); }
+  if (fd <0) {
+    perror(argv[1]);
+    exit(-1);
+  }
+
+  unsigned char message[2] = {0x11,0x22};
+
 
   // Installing Alarm Handler
 
@@ -62,7 +69,11 @@ int main(int argc, char** argv)
   }
 
   // Dealing with the SET and UA
-  llopen(fd);
+  llopen(fd,TRANSMITTER);
+
+  llwrite(fd,message,2);
+
+  llclose(fd,TRANSMITTER);
 
   close(fd);
   return 0;

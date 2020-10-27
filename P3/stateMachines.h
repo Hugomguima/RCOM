@@ -11,7 +11,7 @@ enum state {
 
 int readSetMessage(int fd);
 
-int receiverRead_StateMachine(int fd, unsigned long *size);
+int receiverRead_StateMachine(int fd, unsigned char* frame ,unsigned int *size);
 
 int receiveUA(int serialPort);
 
