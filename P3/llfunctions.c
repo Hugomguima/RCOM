@@ -163,15 +163,13 @@ int llwrite(int fd, char *buffer, int length) {
     int i = 4;
     for(int j = 0; j < length; j++){
         if(buffer[j] == FLAG){
-            messageSize++;
-            realloc(message,(messageSize)*sizeof(unsigned char));
+            message = (unsigned char *)realloc(message, ++messageSize);
             message[i] = ESCAPE_BYTE;
             message[i + 1] = ESCAPE_FLAG;
             i+=2;
         }
         else if(buffer[j] == ESCAPE_BYTE){
-            messageSize++;
-            realloc(message,(messageSize)*sizeof(unsigned char));
+            message = (unsigned char *)realloc(message, ++messageSize);
             message[i] = ESCAPE_BYTE;
             message[i+1] = ESCAPE_ESCAPE;
             i+=2;
@@ -200,8 +198,10 @@ int llwrite(int fd, char *buffer, int length) {
 
     int counter = 0;
 
+    STP = FALSE;
+
     // Envio da trama
-    while(STP == FALSE && counter < MAXTRIES){
+    do {
         // Processo de escrita
         tcflush(fd,TCIOFLUSH);
 
@@ -214,36 +214,43 @@ int llwrite(int fd, char *buffer, int length) {
 
         alarm(TIMEOUT);
 
-
         // Mudar o processo de espera não é receiveUA
         if(readMessage(fd) == 0){
             printf("Interaction received\n");
-            STP = TRUE;
-            counter = 0;
         }
-        alarm(0);
-    }
 
-    // Tratar do rcv
+        // Tratar do rcv
+        if((rcv == RR0 && trama == 1) || (rcv == RR1 && trama == 0)) {
+            counter = 0;
+            trama = (trama + 1) % 2;
+            STP = FALSE;
+            if(rcv == RR0) {
+                printf("TRANSMITTER: Received RR0\n");
+            }
+            else {
+                printf("TRANSMITTER: Received RR1\n");
+            }
+            break;
+        }
 
-    if(rcv == RR0){
+        else if(rcv == REJ0 || rcv == REJ1) {
+            STP = TRUE;
+            if(rcv == REJ0) {
+                printf("TRANSMITTER: Received REJ0");
+            }
+            else {
+                printf("TRANSMITTER: Received REJ1");
+            }
+        }
 
-    }
-    else if(rcv == RR1){
-        
-    }
-    else if(rcv == REJ0){
-        
-    }
-    else if(rcv == REJ1){
+        else {
+            printf("TRANSMITTER: Received an invalid message");
+        }
 
-    }
+        // alarm(0); //ao fazer isto, o alarme nao e cancelado e perde-se o efeito do counter??
+    } while(STP || counter < MAXTRIES); //verificar esta condicao
 
-
-
-
-    
-
+    return 0;
 }
 
 int llread(int fd, unsigned long *size) {
@@ -264,19 +271,36 @@ int llread(int fd, unsigned long *size) {
 int llclose(int fd, int status) {
 //emissor:
 // envia DISC, espera por DISC e envia UA
-    if(status == TRANSMITTER) {
+    unsigned char ret;
 
+    if(status == TRANSMITTER) {
+        if(sendMessage(fd, C_DISC)) {
+            printf("TRANSMITTER: Send DISC\n");
+        }
+
+        ret = receiveDISC(fd);
+
+        while (ret != C_DISC) { //adaptar maquinas de estado 
+            ret = receiveDISC(fd);
+        } 
+
+        printf("TRANSMITTER: Read DISC\n");
+
+        if(sendMessage(fd, C_UA)) {
+            printf("TRANSMITTER: Send UA\n");
+        }
+        tcsetattr(fd, TCSANOW, &oldtio);
     }
 
 //recetor:
 // le a mensagem DISC enviada pelo emissor, envia DISC e recebe UA
     else if(status == RECEIVER) {
-        if (receiveDISC(fd) == TRUE) {
-            printf("READ DISC MESSAGE");
+        if (receiveDISC(fd) == C_DISC) {
+            printf("RECEIVER: Read DISC\n");
             if(sendMessage(fd, C_DISC)) {
-                printf("SEND DISC MESSAGE");
+                printf("RECEIVER: Send DISC\n");
                 if(receiveUA(fd) == TRUE) {
-                    printf("READ UA MESSAGE");
+                    printf("RECEIVER: Read UA\n");
                 }
                 
                 else {
@@ -295,6 +319,7 @@ int llclose(int fd, int status) {
             fprintf(stderr, "llclose - Error reading DISC message (Receiver)\n");
             return -1;
         }
+        tcsetattr(fd, TCSANOW, &oldtio);
     }
     return 0;
 }

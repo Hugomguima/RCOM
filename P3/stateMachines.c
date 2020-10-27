@@ -453,6 +453,7 @@ int receiveDISC(int fd) {
             {
                 puts("SET correct");
                 finish = TRUE;
+                return C_DISC;
             }
             else
             {
@@ -465,7 +466,7 @@ int receiveDISC(int fd) {
             break;
         }
     }
-    return TRUE;
+    return C_DISC;
 }
 
 int checkBCC2(unsigned char *packet, int size) {
