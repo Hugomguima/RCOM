@@ -1,3 +1,10 @@
+#include <stdlib.h>
+#include <termios.h>
+#include <stdio.h>
+#include <errno.h>
+
+#include "macros.h"
+
 
 enum state {
         START,

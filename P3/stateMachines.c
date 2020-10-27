@@ -1,9 +1,4 @@
-#include <termios.h>
-#include <stdio.h>
 #include "stateMachines.h"
-#include <errno.h>
-#include "macros.h"
-#include "emissor.h"
 
 unsigned char rcv;
 

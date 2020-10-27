@@ -26,7 +26,6 @@ int main(int argc, char** argv)
 
   unsigned char message[2] = {0x11,0x22};
 
-
   // Dealing with the SET and UA
   llopen(fd, TRANSMITTER);
 

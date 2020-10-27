@@ -49,7 +49,7 @@ int llopen(int fd, int status) {
             printf("Signal instalation failed");
         }
 
-        int counter = 0;
+        counter = 0;
         while(STP == FALSE && counter < MAXTRIES){
             int wr;
             if((wr = sendMessage(fd,C_SET)) != ERROR){
@@ -79,7 +79,7 @@ int llopen(int fd, int status) {
                 return -1;
             }
             else {
-                print("SEND UA MESSAGE");
+                printf("SEND UA MESSAGE");
             }
         }
         else {
@@ -204,7 +204,7 @@ int llwrite(int fd, unsigned char *buffer, int length) {
         alarm(TIMEOUT);
 
         // Mudar o processo de espera não é receiveUA
-        if(readMessage(fd) == 0){
+        if(readSetMessage(fd) == 0){
             printf("Interaction received\n");
         }
 
