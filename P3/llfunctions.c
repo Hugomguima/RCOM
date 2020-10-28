@@ -50,7 +50,7 @@ int llopen(int fd, int status) {
         }
 
         counter = 0;
-        while(STP == FALSE && counter < MAXTRIES){
+        do{
             int wr;
             if((wr = sendMessage(fd,C_SET)) != ERROR){
                 printf("C_SET message sent: %d \n", wr);
@@ -59,17 +59,17 @@ int llopen(int fd, int status) {
                 printf("Error sending message");
             }
 
-            alarm(8); // Call an alarm to wait for the message
+            alarm(5); // Call an alarm to wait for the message
 
-            if(receiveUA(fd) == 0){
+            if(receiveUA(fd) == TRUE){
                 printf("Interaction received\n");
                 STP = TRUE;
                 counter = 0;
+                alarm(0);
             }
+            //sleep(1);
 
-            alarm(0);
-
-        }
+        }while(STP == FALSE && counter < MAXTRIES);
     }
     else if(status == RECEIVER) {
         if(readSetMessage(fd) == TRUE) {
@@ -92,10 +92,11 @@ int llopen(int fd, int status) {
 
 unsigned char getBCC2(unsigned char *mensagem, int size){
 
-    unsigned char bcc2 = mensagem[0];
+    unsigned char bcc2;
     for(int i = 0; i < size; i++){
         bcc2 ^= mensagem[i];
     }
+    printf("0x%.8X",bcc2);
     return bcc2;
 }
 
@@ -136,11 +137,13 @@ int llwrite(int fd, unsigned char *buffer, int length) {
     bcc2 = getBCC2(buffer,length);
     bcc2Stuffed = stuffBCC2(bcc2, &sizebcc2);
 
+    printf("0x%.8X 0x%.8X\n",(unsigned)buffer[0],buffer[1]);
+
     
     // Inicio do preenchimento da mensagem
     message[0] = FLAG;
     message[1] = A_EE;
-    if(trama = 0){
+    if(trama == 0){
         message[2] = NS0;
     }
     else{
@@ -164,7 +167,7 @@ int llwrite(int fd, unsigned char *buffer, int length) {
             i+=2;
         }
         else{
-            message[i] = buffer[i];
+            message[i] = buffer[j];
             i++;
         }
     }
@@ -182,9 +185,14 @@ int llwrite(int fd, unsigned char *buffer, int length) {
     message[i] = FLAG;
 
     //Mensagem preenchida Trama I feita
+    // printMessage
+
+    for(int j = 0; j < messageSize; j++){
+        printf("message: 0x%.8X\n",message[j]);
+    }
     
 
-    int counter = 0;
+    counter = 0;
 
     STP = FALSE;
 
@@ -212,6 +220,7 @@ int llwrite(int fd, unsigned char *buffer, int length) {
             counter = 0;
             trama = (trama + 1) % 2;
             STP = FALSE;
+            alarm(0);
             if(rcv == RR0) {
                 printf("TRANSMITTER: Received RR0\n");
             }
@@ -223,6 +232,7 @@ int llwrite(int fd, unsigned char *buffer, int length) {
 
         else if(rcv == REJ0 || rcv == REJ1) {
             STP = TRUE;
+            alarm(0);
             if(rcv == REJ0) {
                 printf("TRANSMITTER: Received REJ0");
             }
@@ -235,8 +245,9 @@ int llwrite(int fd, unsigned char *buffer, int length) {
             printf("TRANSMITTER: Received an invalid message");
         }
 
-        // alarm(0); //ao fazer isto, o alarme nao e cancelado e perde-se o efeito do counter??
     } while(STP || counter < MAXTRIES); //verificar esta condicao
+
+    
 
     return 0;
 }

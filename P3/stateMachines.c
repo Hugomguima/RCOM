@@ -125,7 +125,7 @@ int receiveUA(int fd){
     //Colocar aqui o código da espera pelo byte
     int STP = FALSE;
     while(STP == FALSE){
-      puts("Awaiting byte");
+      //puts("Awaiting byte");
       nr = read(fd,&c,1);
 
       if (nr < 0) {
@@ -189,7 +189,7 @@ int receiveUA(int fd){
             break;
         case BCC_OK:
           if(c == FLAG){
-            puts("Set received");
+            puts("UA received");
             current = STOP;
             STP = TRUE;
           }
@@ -219,8 +219,10 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
     int errorOnDestuffing = 0; // if no errors occur on destuffing, the var stays equal to 0, else the value is 1
 
     while(current != STOP) {
-        puts("Receiver reading frames");
+        //puts("Receiver reading frames");
         res = read(fd, &buf, 1);
+
+        printf( "read : 0x%.8X\n",buf);
 
         if(res == -1) {
             fprintf(stderr, "llread() - Error reading from buffer");
@@ -260,14 +262,14 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
                 current = C_RCV;
                 check ^= buf;
                 trama = 0;
-                puts("Reading frames: C Received");
+                puts("Reading frames: C Received trama 0");
             }
 
             else if(buf == NS1) {
                 current = C_RCV;
                 check ^= buf;
                 trama = 1;
-                puts("Reading frames: C Received");
+                puts("Reading frames: C Received trama 1");
             }
 
             else if(buf == FLAG) {
@@ -283,7 +285,7 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
 
         case C_RCV:
             if(buf == check) {
-                current = BCC_OK;   
+                current = BCC_OK;
                 puts("Reading frames: BCC OK");
             }
 
@@ -312,7 +314,6 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
                     puts("Reading frames: Errors on BCC2");
                 }
             }
-
             else if(buf == ESCAPE_BYTE) {
                 current = BYTE_DESTUFFING;
                 puts("Reading frames: Needs destuffing");
@@ -321,6 +322,7 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
             else {
                 frame = (unsigned char *)realloc(frame, ++(*size)); 
                 frame[*size - 1] = buf; // still receiving data
+                
 			}
 
             break;
@@ -523,9 +525,9 @@ int receiveDISC(int fd) {
 
 int checkBCC2(unsigned char *packet, int size) {
     int i;
-    unsigned char byte = packet[0];
+    unsigned char byte;
 
-    for(i = 0; i < size; i++) {
+    for(i = 0; i < size - 1; i++) {
         byte ^= packet[i];
     }
 
@@ -534,4 +536,5 @@ int checkBCC2(unsigned char *packet, int size) {
     }
     else 
         return 1;
+
 }

@@ -24,10 +24,11 @@ int main(int argc, char** argv)
     exit(-1);
   }
 
-  unsigned char message[2] = {0x11,0x22};
+  unsigned char message[2] = {0x01,0x02};
 
   // Dealing with the SET and UA
   llopen(fd, TRANSMITTER);
+
 
   llwrite(fd, message, 2);
 
