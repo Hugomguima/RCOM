@@ -26,7 +26,7 @@ int main(int argc, char** argv)
   unsigned char* buffer = malloc(0);
   size = llread(fd,buffer);
 
-  //write(fd,buffer,size); // Aqui deve escrever a mesagem do llread
+  write(fd,buffer,size); // Aqui deve escrever a mesagem do llread
 
   llclose(fd,RECEIVER);
 

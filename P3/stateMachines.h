@@ -20,8 +20,10 @@ int sendMessage(int fd,unsigned char c);
 
 int readSetMessage(int fd);
 
+int receiveUA(int serialPort);
+
 int receiverRead_StateMachine(int fd, unsigned char* frame ,unsigned int *size);
 
-int receiveUA(int serialPort);
+int receiveDISC(int fd);
 
 int checkBCC2(unsigned char *packet, int size);

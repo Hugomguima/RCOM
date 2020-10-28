@@ -5,7 +5,7 @@ struct termios oldtio,newtio;
 
 volatile int STP=FALSE;
 extern unsigned char rcv;
-extern int counter = 0;
+int counter = 0;
 
 
 int llopen(int fd, int status) {
@@ -53,7 +53,7 @@ int llopen(int fd, int status) {
         while(STP == FALSE && counter < MAXTRIES){
             int wr;
             if((wr = sendMessage(fd,C_SET)) != ERROR){
-                printf("C_SET message sent: %d \n",wr);
+                printf("C_SET message sent: %d \n", wr);
             }
             else{
                 printf("Error sending message");
@@ -73,13 +73,13 @@ int llopen(int fd, int status) {
     }
     else if(status == RECEIVER) {
         if(readSetMessage(fd) == TRUE) {
-            printf("READ SET MESSAGE CORRECTLY");
+            printf("Read SET message correctly\n");
             if(sendMessage(fd, C_UA) == -1) {
                 fprintf(stderr, "llopen - Error writing to serial port (Receiver)\n");
                 return -1;
             }
             else {
-                printf("SEND UA MESSAGE");
+                printf("Send UA message\n");
             }
         }
         else {
@@ -170,8 +170,7 @@ int llwrite(int fd, unsigned char *buffer, int length) {
     }
 
     if(sizebcc2 == 2){
-        messageSize++;
-        realloc(message,(messageSize)*sizeof(unsigned char));
+        message = (unsigned char *)realloc(message, ++messageSize);
         message[i] = bcc2Stuffed[0];
         message[i + 1]  = bcc2Stuffed[1];
         i+=2;
@@ -323,5 +322,5 @@ void alarmHandler(int signo){
   if(counter >= MAXTRIES){
     printf("Exceeded maximum amount of tries: (%d)\n",MAXTRIES);
   }
-  return;
+  return ;
 }

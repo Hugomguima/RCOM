@@ -7,6 +7,7 @@
 #include <termios.h>
 #include <errno.h>
 #include <signal.h>
+#include <string.h>
 
 #include "stateMachines.h"
 #include "macros.h"
