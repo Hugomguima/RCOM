@@ -67,7 +67,6 @@ int llopen(int fd, int status) {
                 counter = 0;
                 alarm(0);
             }
-            //sleep(1);
 
         }while(STP == FALSE && counter < MAXTRIES);
     }
