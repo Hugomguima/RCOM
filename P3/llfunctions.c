@@ -92,11 +92,12 @@ int llopen(int fd, int status) {
 
 unsigned char getBCC2(unsigned char *mensagem, int size){
 
-    unsigned char bcc2;
-    for(int i = 0; i < size; i++){
+    unsigned char bcc2 = mensagem[0];
+    
+    for(int i = 1; i < size; i++){
         bcc2 ^= mensagem[i];
     }
-    printf("0x%.8X",bcc2);
+    printf("BCC2: 0x%.8X\n",bcc2);
     return bcc2;
 }
 

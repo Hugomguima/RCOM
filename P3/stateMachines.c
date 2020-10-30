@@ -213,7 +213,7 @@ int receiveUA(int fd){
 
 int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) { 
     unsigned char buf, check;
-    int res, finish = FALSE, trama = 0, expectedTrama = 0;
+    int res, trama = 0, expectedTrama = 0;
     enum state current = START;
     int correctBCC2 = 0; // if no errors in BCC2, correctBCC2 = 1; else correctBCC2 = 0
     int errorOnDestuffing = 0; // if no errors occur on destuffing, the var stays equal to 0, else the value is 1
@@ -525,9 +525,9 @@ int receiveDISC(int fd) {
 
 int checkBCC2(unsigned char *packet, int size) {
     int i;
-    unsigned char byte;
+    unsigned char byte = packet[0];
 
-    for(i = 0; i < size - 1; i++) {
+    for(i = 1; i < size - 1; i++) {
         byte ^= packet[i];
     }
 
