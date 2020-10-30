@@ -29,10 +29,10 @@
 #define CT_END 0x03
 #define T1 0x00
 #define T2 0x01
-#define L1 0x04
 
 // Macros for Data Packet
 #define CONTROL 0x01
+#define PACKETSIZE 128
 
 #define ERROR -1
 #define MAXTRIES 3

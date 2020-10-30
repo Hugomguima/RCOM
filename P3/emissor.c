@@ -1,6 +1,8 @@
 /*Non-Canonical Input Processing*/
 #include "emissor.h"
 
+
+
 int main(int argc, char** argv)
 {
   int fd;
@@ -26,10 +28,9 @@ int main(int argc, char** argv)
   
   // Criar método  openFile para abrir o ficheiro que será recebido como argunmento da função main
 
-  unsigned char message[2] = {0x01,0x02};
-
   // Dealing with the SET and UA
   if(llopen(fd, TRANSMITTER) == ERROR){
+    puts("Error on LLOPEN");
     return -3;
   }
 
@@ -47,8 +48,25 @@ int main(int argc, char** argv)
   if(llwrite(fd,start,*sizeControlPacket) != 0 ){
     puts("error writing start control packet");
   }
+  free(start);
 
   // Ciclo de envio dos packets
+  int packetSize = PACKETSIZE;
+  off_t index = 0;
+
+  while(index < fileSize && packetSize != PACKETSIZE){
+    unsigned char* packet = splitPacket(data,&index,&packetSize,fileSize);
+
+    int length = packetSize;
+    
+    unsigned char* message =  parseDataPacket(packet,fileSize,&length);
+
+    if(llwrite(fd,message,length) != 0){
+      puts("error sending data packet");
+      return -5;
+    }
+    free(message);
+  }
 
 
   // End Control packet
@@ -56,12 +74,21 @@ int main(int argc, char** argv)
   if(llwrite(fd,end,*sizeControlPacket) != 0 ){
     puts("error writing end control packet");
   }
+  free(end);
 
 
-  // llwrite(fd, message, 2);
+  if(llclose(fd, TRANSMITTER) == ERROR){
+    puts("Error on LLCLOSE");
+    return -3;
+  }
 
-  llclose(fd, TRANSMITTER);
+  sleep(2);
 
   close(fd);
+
+  free(filename);
+  free(data);
+
+
   return 0;
 }
