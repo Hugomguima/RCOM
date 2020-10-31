@@ -119,7 +119,7 @@ unsigned char* splitPacket(unsigned char *packet,off_t *index, int *packetSize, 
 
 }
 
-int checkStart( char* start, unsigned int *filesize,unsigned char *name, unsigned int *nameSize){
+int checkStart(unsigned char* start, unsigned int *filesize,unsigned char *name, unsigned int *nameSize){
 
     unsigned char* packet;
     int fileSizeBytes;

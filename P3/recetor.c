@@ -30,7 +30,7 @@ int main(int argc, char** argv)
 
   puts("llopen done");
 
-  char* start = malloc(0);
+  unsigned char* start = malloc(0);
   unsigned int size, sizeStart;
 
   
