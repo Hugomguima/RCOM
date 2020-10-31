@@ -30,6 +30,8 @@ int main(int argc, char** argv)
 
   llclose(fd,RECEIVER);
 
+  sleep(1);
+
   close(fd);
 
   return 0;

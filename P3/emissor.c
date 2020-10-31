@@ -34,6 +34,8 @@ int main(int argc, char** argv)
 
   llclose(fd, TRANSMITTER);
 
+  sleep(1);
+
   close(fd);
   return 0;
 }

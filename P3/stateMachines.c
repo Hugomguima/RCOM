@@ -12,9 +12,9 @@ int sendMessage(int fd, unsigned char c){
   message[3] = A_EE ^ c;
   message[4] = FLAG;
 
-  tcflush(fd,TCIOFLUSH);
+  //tcflush(fd,TCIOFLUSH);
 
-  return write(fd,message,5);
+  return write(fd, message, 5);
 
 }
 
@@ -222,7 +222,7 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
         //puts("Receiver reading frames");
         res = read(fd, &buf, 1);
 
-        printf( "read : 0x%.8X\n",buf);
+        printf("read : 0x%.8X\n", buf);
 
         if(res == -1) {
             fprintf(stderr, "llread() - Error reading from buffer");
