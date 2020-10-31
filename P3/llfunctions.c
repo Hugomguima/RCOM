@@ -67,6 +67,7 @@ int llopen(int fd, int status) {
                 counter = 0;
                 alarm(0);
             }
+            //sleep(1);
 
         }while(STP == FALSE && counter < MAXTRIES);
     }
@@ -181,7 +182,6 @@ int llwrite(int fd, unsigned char *buffer, int length) {
     }
     message[i] = FLAG;
 
-
     //Mensagem preenchida Trama I feita
     // printMessage
 
@@ -246,8 +246,8 @@ int llwrite(int fd, unsigned char *buffer, int length) {
 
     } while(STP || counter < MAXTRIES); //verificar esta condicao
 
-    free(message);
-    free(bcc2Stuffed);
+    
+
     return 0;
 }
 
