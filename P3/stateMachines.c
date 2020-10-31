@@ -12,15 +12,15 @@ int sendMessage(int fd, unsigned char c){
   message[3] = A_EE ^ c;
   message[4] = FLAG;
 
-  //tcflush(fd,TCIOFLUSH);
+  tcflush(fd,TCIOFLUSH);
 
-  return write(fd, message, 5);
+  return write(fd,message,5);
 
 }
 
 
 int readSetMessage(int fd) {
-    //tcflush(fd, TCIOFLUSH); //limpa informacao recebida mas nao lida e informacao escrita mas nao transmitida
+    tcflush(fd, TCIOFLUSH); //limpa informacao recebida mas nao lida e informacao escrita mas nao transmitida
 
     
     enum state current = START;
@@ -34,64 +34,76 @@ int readSetMessage(int fd) {
         switch (current)
         {
         case START:
-            if (r == FLAG){
-                //puts("Flag Received");
+            if (r == FLAG)
+            {
+                puts("Flag Received");
                 current = FLAG_RCV;
             }
             break;
         case FLAG_RCV:
-            if (r == A_EE){
-                //puts("A Received");
+            if (r == A_EE)
+            {
+                puts("A Received");
                 current = A_RCV;
                 check ^= r;
             }
-            else if (r == FLAG){
-                //puts("Received a FLAG on FLAG_RCV");
+            else if (r == FLAG)
+            {
+                puts("Received a FLAG on FLAG_RCV");
                 current = FLAG_RCV;
             }
-            else{
+            else
+            {
                 current = START;
-                //puts("Return to START on FLAG_RCV");
+                puts("Return to START on FLAG_RCV");
             }
             break;
         case A_RCV:
-            if (r == C_SET || r == REJ0 || r == REJ1 || r == RR0 || r == RR1 ){
+            if (r == C_SET || r == REJ0 || r == REJ1 || r == RR0 || r == RR1 )
+            {
                 current = C_RCV;
                 check ^= r;
-                //puts("C Received");
+                puts("C Received");
                 rcv = r;
             }
-            else if (r == FLAG){
+            else if (r == FLAG)
+            {
                 current = FLAG_RCV;
-                //puts("Received a FLAG on A_RCV");
+                puts("Received a FLAG on A_RCV");
             }
-            else{
+            else
+            {
                 current = START;
-                //puts("Return to START on A_RCV");
+                puts("Return to START on A_RCV");
             }
             break;
         case C_RCV:
-            if (r == check){
-                //puts("BCC OK");
+            if (r == check)
+            {
+                puts("BCC OK");
                 current = BCC_OK;
             }
-            else if (r == FLAG){
+            else if (r == FLAG)
+            {
                 current = FLAG_RCV;
-                //puts("Received a FLAG on C_RCV");
+                puts("Received a FLAG on C_RCV");
             }
-            else{
+            else
+            {
                 current = START;
-                //puts("Return to START on C_RCV");
+                puts("Return to START on C_RCV");
             }
             break;
         case BCC_OK:
-            if (r == FLAG){
-                //puts("SET correct");
+            if (r == FLAG)
+            {
+                puts("SET correct");
                 finish = TRUE;
             }
-            else{
+            else
+            {
                 current = START;
-                //puts("Return to START on BCC_OK");
+                puts("Return to START on BCC_OK");
             }
             break;
         default:
@@ -102,7 +114,7 @@ int readSetMessage(int fd) {
 }
 
 int receiveUA(int fd){
-    //tcflush(fd, TCIOFLUSH);
+    tcflush(fd, TCIOFLUSH);
 
     unsigned char c; // char read. Changes the state
     unsigned char check = 0;
@@ -128,56 +140,56 @@ int receiveUA(int fd){
     switch(current){
         case START:
             if(c == FLAG){
-                //puts("Flag Received");
+                puts("Flag Received");
                 current = FLAG_RCV;
             }
             break;
         case FLAG_RCV:
             if(c == A_EE){
-                //puts("A Received");
+                puts("A Received");
                 current = A_RCV;
                 check ^= c;
             }
             else if(c == FLAG) {
-                //puts("Received a FLAG on FLAG_RCV");
+                puts("Received a FLAG on FLAG_RCV");
                 current = FLAG_RCV;
             }
             else{
                 current = START;
-                //puts("Return to START on FLAG_RCV");
+                puts("Return to START on FLAG_RCV");
             }
             break;
         case A_RCV:
             if(c == C_UA){ //testa agora
-                //puts("C_SET Received");
+                puts("C_SET Received");
                 current = C_RCV;
             }
             else if (c == FLAG){
-                //puts("Received a FLAG on A_RCV");
+                puts("Received a FLAG on A_RCV");
                 current = FLAG_RCV;
             }
             else {
                 current = START;
-                //puts("Return to START on A_RCV");
+                puts("Return to START on A_RCV");
             } 
             break;
         case C_RCV:
             if(c == BCC_OK){
-                //puts("BCC OK");
+                puts("BCC OK");
                 current = BCC_OK;
             }
             else if( c == FLAG){
               current = FLAG_RCV;
-              //puts("Received a FLAG on C_RCV");
+              puts("Received a FLAG on C_RCV");
             }
             else{
               current = START;
-              //puts("Return to START on C_RCV");
+              puts("Return to START on C_RCV");
             }
             break;
         case BCC_OK:
           if(c == FLAG){
-            //puts("UA received");
+            puts("UA received");
             current = STOP;
             STP = TRUE;
           }
@@ -192,7 +204,8 @@ int receiveUA(int fd){
       }
     }
 
-  //puts("exiting state machine");
+
+  puts("exiting state machine");
   return TRUE;
 
 }
@@ -200,7 +213,7 @@ int receiveUA(int fd){
 
 int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) { 
     unsigned char buf, check;
-    int res, trama = 0, expectedTrama = 0;
+    int res, finish = FALSE, trama = 0, expectedTrama = 0;
     enum state current = START;
     int correctBCC2 = 0; // if no errors in BCC2, correctBCC2 = 1; else correctBCC2 = 0
     int errorOnDestuffing = 0; // if no errors occur on destuffing, the var stays equal to 0, else the value is 1
@@ -209,7 +222,7 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
         //puts("Receiver reading frames");
         res = read(fd, &buf, 1);
 
-        printf("read : 0x%X\n", buf);
+        printf( "read : 0x%.8X\n",buf);
 
         if(res == -1) {
             fprintf(stderr, "llread() - Error reading from buffer");
@@ -221,7 +234,7 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
         case START:
             if(buf == FLAG) {
                 current = FLAG_RCV;
-                //puts("Reading frames: FLAG Received");
+                puts("Reading frames: FLAG Received");
             }
             break;
 
@@ -229,17 +242,17 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
             if(buf == A_EE) {
                 current = A_RCV;
                 check ^= buf;
-                //puts("Reading frames: A Received");
+                puts("Reading frames: A Received");
             }
 
             else if(buf == FLAG) {
                 current == FLAG_RCV;
-                //puts("Reading frames: Received FLAG on FLAG_RCV");
+                puts("Reading frames: Received FLAG on FLAG_RCV");
             }
 
             else {
                 current == START;
-                //puts("Reading frames: Return to START on FLAG_RCV");
+                puts("Reading frames: Return to START on FLAG_RCV");
             }
             break;
         
@@ -249,41 +262,41 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
                 current = C_RCV;
                 check ^= buf;
                 trama = 0;
-                //puts("Reading frames: C Received trama 0");
+                puts("Reading frames: C Received trama 0");
             }
 
             else if(buf == NS1) {
                 current = C_RCV;
                 check ^= buf;
                 trama = 1;
-                //puts("Reading frames: C Received trama 1");
+                puts("Reading frames: C Received trama 1");
             }
 
             else if(buf == FLAG) {
                 current = FLAG_RCV;
-                //puts("Reading frames: Received a FLAG on A_RCV");
+                puts("Reading frames: Received a FLAG on A_RCV");
             }
 
             else {
                 current == START;
-                //puts("Reading frames: Return to START on A_RCV");
+                puts("Reading frames: Return to START on A_RCV");
             }
             break;
 
         case C_RCV:
             if(buf == check) {
                 current = BCC_OK;
-                //puts("Reading frames: BCC OK");
+                puts("Reading frames: BCC OK");
             }
 
             else if(buf == FLAG) {
                 current = FLAG_RCV;
-                //puts("Reading frames: Received a FLAG in C_RCV");
+                puts("Reading frames: Received a FLAG in C_RCV");
             }
 
             else {
                 current = START;
-                //puts("Reading frames: Return to START on C_RCV");
+                puts("Reading frames: Return to START on C_RCV");
             }
             break;
 
@@ -292,18 +305,18 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
                 if(checkBCC2(frame, *size) == 0) {
                     correctBCC2 = 1;
                     current = STOP;
-                    //puts("Receiver: frame with correct BCC2");
+                    puts("Receiver: frame with correct BCC2");
                 }
 
                 else {
                     correctBCC2 = 0;
                     current = STOP;
-                    //puts("Reading frames: Errors on BCC2");
+                    puts("Reading frames: Errors on BCC2");
                 }
             }
             else if(buf == ESCAPE_BYTE) {
                 current = BYTE_DESTUFFING;
-                //puts("Reading frames: Needs destuffing");
+                puts("Reading frames: Needs destuffing");
             }
 
             else {
@@ -318,17 +331,17 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
             if(buf == ESCAPE_FLAG) {
                 frame = (unsigned char *)realloc(frame, ++(*size));
 				frame[*size - 1] = FLAG;
-                //puts("Reading frames: Destuffing done");
+                puts("Reading frames: Destuffing done");
             }
 
             else if(buf == ESCAPE_ESCAPE) {
                 frame = (unsigned char *)realloc(frame, ++(*size));
                 frame[*size - 1] = ESCAPE_BYTE;
-                //puts("Reading frames: Destuffing done");
+                puts("Reading frames: Destuffing done");
             }
 
             else {
-                //printf("Character after escape character not recognized\n"); //can occur if there is an interference
+                printf("Character after escape character not recognized\n"); //can occur if there is an interference
                 errorOnDestuffing = 1;
             }
 
@@ -371,6 +384,7 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
                 sendMessage(fd, RR0);
                 puts("Receiver send RR0 after repeated information");
             }
+
             else {
                 //send RR(Nr = 1)
                 sendMessage(fd, RR1);
@@ -416,7 +430,7 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
 }
 
 int receiveDISC(int fd) {
-    //tcflush(fd, TCIOFLUSH); //limpa informacao recebida mas nao lida e informacao escrita mas nao transmitida
+    tcflush(fd, TCIOFLUSH); //limpa informacao recebida mas nao lida e informacao escrita mas nao transmitida
 
     enum state current = START;
 
@@ -430,64 +444,76 @@ int receiveDISC(int fd) {
         switch (current)
         {
         case START:
-            if (r == FLAG){
-                //puts("Flag Received");
+            if (r == FLAG)
+            {
+                puts("Flag Received");
                 current = FLAG_RCV;
             }
             break;
         case FLAG_RCV:
-            if (r == A_EE){
-                //puts("A Received");
+            if (r == A_EE)
+            {
+                puts("A Received");
                 current = A_RCV;
                 check ^= r;
             }
-            else if (r == FLAG){
-                //puts("Received a FLAG on FLAG_RCV");
+            else if (r == FLAG)
+            {
+                puts("Received a FLAG on FLAG_RCV");
                 current = FLAG_RCV;
             }
-            else{
+            else
+            {
                 current = START;
-                //puts("Return to START on FLAG_RCV");
+                puts("Return to START on FLAG_RCV");
             }
             break;
         case A_RCV:
-            if (r == C_DISC){
-                //puts("C_DISC Received");
+            if (r == C_DISC)
+            {
+                puts("C_DISC Received");
                 current = C_RCV;
                 check ^= r;
             }
-            else if (r == FLAG){
+            else if (r == FLAG)
+            {
                 current = FLAG_RCV;
-                //puts("Received a FLAG on A_RCV");
+                puts("Received a FLAG on A_RCV");
             }
-            else{
+            else
+            {
                 current = START;
-                //puts("Return to START on A_RCV");
+                puts("Return to START on A_RCV");
             }
             break;
         case C_RCV:
-            if (r == check){
-                //puts("BCC OK");
+            if (r == check)
+            {
+                puts("BCC OK");
                 current = BCC_OK;
             }
-            else if (r == FLAG){
+            else if (r == FLAG)
+            {
                 current = FLAG_RCV;
-                //puts("Received a FLAG on C_RCV");
+                puts("Received a FLAG on C_RCV");
             }
-            else{
+            else
+            {
                 current = START;
-                //puts("Return to START on C_RCV");
+                puts("Return to START on C_RCV");
             }
             break;
         case BCC_OK:
-            if (r == FLAG){
-                //puts("SET correct");
+            if (r == FLAG)
+            {
+                puts("SET correct");
                 finish = TRUE;
                 return C_DISC;
             }
-            else{
+            else
+            {
                 current = START;
-                //puts("Return to START on BCC_OK");
+                puts("Return to START on BCC_OK");
             }
             break;
         default:
@@ -499,9 +525,9 @@ int receiveDISC(int fd) {
 
 int checkBCC2(unsigned char *packet, int size) {
     int i;
-    unsigned char byte = packet[0];
+    unsigned char byte;
 
-    for(i = 1; i < size - 1; i++) {
+    for(i = 0; i < size - 1; i++) {
         byte ^= packet[i];
     }
 
