@@ -20,7 +20,7 @@ int sendMessage(int fd, unsigned char c){
 
 
 int readSetMessage(int fd) {
-    tcflush(fd, TCIOFLUSH); //limpa informacao recebida mas nao lida e informacao escrita mas nao transmitida
+    //tcflush(fd, TCIOFLUSH); //limpa informacao recebida mas nao lida e informacao escrita mas nao transmitida
 
     
     enum state current = START;
@@ -114,7 +114,7 @@ int readSetMessage(int fd) {
 }
 
 int receiveUA(int fd){
-    tcflush(fd, TCIOFLUSH);
+    //tcflush(fd, TCIOFLUSH);
 
     unsigned char c; // char read. Changes the state
     unsigned char check = 0;
@@ -430,7 +430,7 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
 }
 
 int receiveDISC(int fd) {
-    tcflush(fd, TCIOFLUSH); //limpa informacao recebida mas nao lida e informacao escrita mas nao transmitida
+    //tcflush(fd, TCIOFLUSH); //limpa informacao recebida mas nao lida e informacao escrita mas nao transmitida
 
     enum state current = START;
 

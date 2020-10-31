@@ -200,7 +200,7 @@ int llwrite(int fd, unsigned char *buffer, int length) {
     // Envio da trama
     do {
         // Processo de escrita
-        tcflush(fd,TCIOFLUSH);
+        //tcflush(fd,TCIOFLUSH);
 
         counter++;
 
