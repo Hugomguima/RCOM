@@ -206,7 +206,7 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
     int errorOnDestuffing = 0; // if no errors occur on destuffing, the var stays equal to 0, else the value is 1
 
     while(current != STOP) {
-        //puts("Receiver reading frames");
+        puts("Receiver reading frames");
         res = read(fd, &buf, 1);
 
         printf("read : 0x%X\n", buf);
@@ -221,7 +221,7 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
         case START:
             if(buf == FLAG) {
                 current = FLAG_RCV;
-                //puts("Reading frames: FLAG Received");
+                puts("Reading frames: FLAG Received");
             }
             break;
 
@@ -229,17 +229,17 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
             if(buf == A_EE) {
                 current = A_RCV;
                 check ^= buf;
-                //puts("Reading frames: A Received");
+                puts("Reading frames: A Received");
             }
 
             else if(buf == FLAG) {
                 current == FLAG_RCV;
-                //puts("Reading frames: Received FLAG on FLAG_RCV");
+                puts("Reading frames: Received FLAG on FLAG_RCV");
             }
 
             else {
                 current == START;
-                //puts("Reading frames: Return to START on FLAG_RCV");
+                puts("Reading frames: Return to START on FLAG_RCV");
             }
             break;
         
@@ -249,41 +249,41 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
                 current = C_RCV;
                 check ^= buf;
                 trama = 0;
-                //puts("Reading frames: C Received trama 0");
+                puts("Reading frames: C Received trama 0");
             }
 
             else if(buf == NS1) {
                 current = C_RCV;
                 check ^= buf;
                 trama = 1;
-                //puts("Reading frames: C Received trama 1");
+                puts("Reading frames: C Received trama 1");
             }
 
             else if(buf == FLAG) {
                 current = FLAG_RCV;
-                //puts("Reading frames: Received a FLAG on A_RCV");
+                puts("Reading frames: Received a FLAG on A_RCV");
             }
 
             else {
                 current == START;
-                //puts("Reading frames: Return to START on A_RCV");
+                puts("Reading frames: Return to START on A_RCV");
             }
             break;
 
         case C_RCV:
             if(buf == check) {
                 current = BCC_OK;
-                //puts("Reading frames: BCC OK");
+                puts("Reading frames: BCC OK");
             }
 
             else if(buf == FLAG) {
                 current = FLAG_RCV;
-                //puts("Reading frames: Received a FLAG in C_RCV");
+                puts("Reading frames: Received a FLAG in C_RCV");
             }
 
             else {
                 current = START;
-                //puts("Reading frames: Return to START on C_RCV");
+                puts("Reading frames: Return to START on C_RCV");
             }
             break;
 
@@ -292,22 +292,23 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
                 if(checkBCC2(frame, *size) == 0) {
                     correctBCC2 = 1;
                     current = STOP;
-                    //puts("Receiver: frame with correct BCC2");
+                    puts("Receiver: frame with correct BCC2");
                 }
-
                 else {
                     correctBCC2 = 0;
                     current = STOP;
-                    //puts("Reading frames: Errors on BCC2");
+                    puts("Reading frames: Errors on BCC2");
                 }
             }
             else if(buf == ESCAPE_BYTE) {
                 current = BYTE_DESTUFFING;
-                //puts("Reading frames: Needs destuffing");
+                puts("Reading frames: Needs destuffing");
             }
-
             else {
-                frame = (unsigned char *)realloc(frame, ++(*size)); 
+                (*size)++;
+                printf("size2 = %d\n",*size);
+                frame = (unsigned char *)realloc(frame, *size);
+                puts("realloc worked");
                 frame[*size - 1] = buf; // still receiving data
                 
 			}
@@ -318,17 +319,17 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
             if(buf == ESCAPE_FLAG) {
                 frame = (unsigned char *)realloc(frame, ++(*size));
 				frame[*size - 1] = FLAG;
-                //puts("Reading frames: Destuffing done");
+                puts("Reading frames: Destuffing done");
             }
 
             else if(buf == ESCAPE_ESCAPE) {
                 frame = (unsigned char *)realloc(frame, ++(*size));
                 frame[*size - 1] = ESCAPE_BYTE;
-                //puts("Reading frames: Destuffing done");
+                puts("Reading frames: Destuffing done");
             }
 
             else {
-                //printf("Character after escape character not recognized\n"); //can occur if there is an interference
+                printf("Character after escape character not recognized\n"); //can occur if there is an interference
                 errorOnDestuffing = 1;
             }
 
@@ -340,6 +341,7 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
         }
     }
 
+    printf("total size: %d\n",*size);
     frame = (unsigned char *)realloc(frame, *size-1);
 	*size = *size - 1;
 

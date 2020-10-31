@@ -264,6 +264,8 @@ unsigned int llread(int fd, unsigned char* buffer) {
     unsigned int size = 0;
     receiverRead_StateMachine(fd,buffer, &size);
 
+    printf("size llread = %d\n",size);
+
     return size;
 }
 

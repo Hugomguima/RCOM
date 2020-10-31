@@ -15,12 +15,14 @@ sudo socat -d  -d  PTY,link=/dev/ttyS0,mode=777   PTY,link=/dev/ttyS1,mode=777
 ````
 gcc read.c -o read
 gcc recetor.c llfunctions.c stateMachines.c -o recetor
+gcc recetor.c llfunctions.c stateMachines.c application.c -o recetor
 ````
 
 
 ````
 gcc write.c -o write
 gcc emissor.c llfunctions.c stateMachines.c -o emissor
+gcc emissor.c llfunctions.c stateMachines.c application.c -o emissor
 ````
 
 4. num terminal escrever:

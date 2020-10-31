@@ -34,18 +34,24 @@ int main(int argc, char** argv)
     return -3;
   }
 
+  
   int fileNameSize = strlen(argv[2]);
   unsigned char* filename = (unsigned char*)malloc(fileNameSize);
   filename = (unsigned char*)argv[2];
 
-  off_t *fileSize;
-  int *sizeControlPacket;
 
-  unsigned char *data = openFile(filename,fileSize);
+
+  off_t fileSize = 0;
+  int sizeControlPacket = 0;
+
+  unsigned char *data = openFile(filename,&fileSize);
+
+  puts("file opened");
 
   // Start Control packet
-  unsigned char *start = parseControlPacket(CT_START,*fileSize,filename,fileNameSize,sizeControlPacket);
-  if(llwrite(fd,start,*sizeControlPacket) != 0 ){
+  unsigned char *start = parseControlPacket(CT_START,fileSize,filename,fileNameSize,&sizeControlPacket);
+  puts("parsectpacket done");
+  if(llwrite(fd,start,sizeControlPacket) != 0 ){
     puts("error writing start control packet");
   }
   free(start);
@@ -54,12 +60,12 @@ int main(int argc, char** argv)
   int packetSize = PACKETSIZE;
   off_t index = 0;
 
-  while(index < *fileSize && packetSize != PACKETSIZE){
-    unsigned char* packet = splitPacket(data,&index,&packetSize,*fileSize);
+  while(index < fileSize && packetSize == PACKETSIZE){
+    unsigned char* packet = splitPacket(data,&index,&packetSize,fileSize);
 
     int length = packetSize;
     
-    unsigned char* message =  parseDataPacket(packet,*fileSize,&length);
+    unsigned char* message =  parseDataPacket(packet,fileSize,&length);
 
     if(llwrite(fd,message,length) != 0){
       puts("error sending data packet");
@@ -73,8 +79,9 @@ int main(int argc, char** argv)
 
 
   // End Control packet
-  unsigned char *end = parseControlPacket(CT_END,*fileSize,filename,fileNameSize,sizeControlPacket);
-  if(llwrite(fd,end,*sizeControlPacket) != 0 ){
+  printf("size control end = %d",sizeControlPacket);
+  unsigned char *end = parseControlPacket(CT_END,fileSize,filename,fileNameSize,&sizeControlPacket);
+  if(llwrite(fd,end,sizeControlPacket) != 0 ){
     puts("error writing end control packet");
   }
   free(end);
@@ -89,7 +96,6 @@ int main(int argc, char** argv)
 
   close(fd);
 
-  free(filename);
   free(data);
 
 

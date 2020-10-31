@@ -28,41 +28,54 @@ int main(int argc, char** argv)
     return -3;
   }
 
-  unsigned char* start;
+  puts("llopen done");
+
+  char* start = malloc(0);
   unsigned int size, sizeStart;
 
+  
   size = llread(fd,start);
+  puts("llread done");
   sizeStart = size;
 
-  unsigned int *fileSize = 0;
-  unsigned int *nameSize = 0;
+
+  unsigned int fileSize = 0;
+  unsigned int nameSize = 0;
   unsigned char *fileName  = (unsigned char *)malloc(0);
 
-  if(checkStart(start,fileSize,fileName,nameSize) == ERROR){
+  if(checkStart(start,&fileSize,fileName,&nameSize) == ERROR){
     puts("Error on checkStart");
     return -5;
   }
 
+
   // Loop for reading all llwrites from the emissor
 
-  unsigned char* message = malloc(0); // Creates null pointer to allow realloc
+   // Creates null pointer to allow realloc
   unsigned char* dataPacket;
   unsigned int packetsReaded = 0;
   unsigned int messageSize;
 
-  unsigned char* result = (unsigned char*)malloc(*fileSize);
+  unsigned char* final;
+
+  unsigned char* result = (unsigned char*)malloc(fileSize);
 
   while(TRUE){
-    unsigned int *packetSize;
+    unsigned int packetSize = 0;
+    unsigned char* message = malloc(0);
     messageSize = 0;
     
-    if(messageSize = llread(fd,message) == -1){
+    puts("entededloopasdassdasdasdasdadassdadasdasdasdas");
+    if((messageSize = llread(fd,message)) == ERROR){
       puts("Error on llread data packet ");
       exit(-1);
     }
+    printf("message size = %d\n",messageSize);
     
     if(message[0] == CT_END){
       puts("Reached Control End Packet");
+      final = (unsigned char*)malloc(messageSize);
+      memcpy(final,message,messageSize);
       break;
     }
     
@@ -70,31 +83,28 @@ int main(int argc, char** argv)
     
     printf("Received packet number: %d\n", packetsReaded);
 
-    dataPacket = assembleDataPacket(message,messageSize,packetSize);
+    dataPacket = assembleDataPacket(message,messageSize,&packetSize);
 
-    for(int i= 0; i < *packetSize; i++){
+    for(int i= 0; i < packetSize; i++){
       result[index + i] = dataPacket[i];
     }
 
-    index += *packetSize;
+    index += packetSize;
 
+    puts("before free");
     free(dataPacket);
+    puts("after free");
   }
-
-  if(checkEND(start, sizeStart, message, messageSize) == 1) {
+  
+  if(checkEND(start, sizeStart, final, messageSize) == 1) {
     puts("Start and End packets are different!");
     exit(-1);
   }
 
-  printf("Received a file of size: %u\n", *fileSize);
-
-  // Displaying all the message after the protocol is implemented
-  for(int i = 0; i < *fileSize; i++){
-    printf("%x",result[i]); // Não si se aqui é suposto meter em hexadecimal ou deixo estar como unsigned char :/ 
-  }
+  printf("Received a file of size: %u\n", fileSize);
 
   // Creating the file to be rewritten after protocol
-  createFile(result,*fileSize,fileName);
+  createFile(result,fileSize,fileName);
 
 
   if(llclose(fd, RECEIVER) == ERROR){
