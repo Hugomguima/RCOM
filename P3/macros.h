@@ -24,16 +24,6 @@
 #define TRANSMITTER 0 
 #define RECEIVER 1
 
-// Macros for Control Packet
-#define CT_START 0x02
-#define CT_END 0x03
-#define T1 0x00
-#define T2 0x01
-
-// Macros for Data Packet
-#define CONTROL 0x01
-#define PACKETSIZE 128
-
 #define ERROR -1
 #define MAXTRIES 3
-#define TIMEOUT 7 //Time to wait fora  repsonse from the receiver
+#define TIMEOUT 7 //Time to wait for a response from the receiver
