@@ -14,21 +14,24 @@ sudo socat -d  -d  PTY,link=/dev/ttyS0,mode=777   PTY,link=/dev/ttyS1,mode=777
 
 ````
 gcc read.c -o read
+gcc recetor.c llfunctions.s stateMachines.c -o recetor
 ````
 
 
 ````
 gcc write.c -o write
+gcc emissor.c llfunctions.s stateMachines.c -o emissor
 ````
 
 4. num terminal escrever:
 
 ````
 ./read /dev/ttyS0
+./recetor /dev/ttyS0
 ````
 
 e no outro:
 
 ````
-./write /dev/ttyS1
+./emissor /dev/ttyS1
 ````
