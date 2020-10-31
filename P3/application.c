@@ -1,6 +1,6 @@
 #include "application.h"
 
-int packetNumber = 0; //Global variable counting thenumber of packets being sent
+unsigned int packetNumber = 0; //Global variable counting thenumber of packets being sent
 
 
 
@@ -115,7 +115,7 @@ int checkStart(unsigned char* start, unsigned int *filesize,unsigned char *name,
 
     // Getting fileSize
     for(int i = 0; i < fileSizeBytes; i++){
-        *filesize |= start[3 + i] << (i*8);
+        *filesize |= (start[3 + i] << (i*8));
     }
 
     if(start[fileSizeBytes + 3] != T2){
@@ -136,11 +136,34 @@ int checkStart(unsigned char* start, unsigned int *filesize,unsigned char *name,
 
 }
 
+int checkEND(unsigned char *start, int startSize, unsigned char *end, int endSize) {
+    int j = 0;
+    
+    if(startSize != endSize) {
+        return 1;
+    }
+    else {
+        if(end[0] == CT_END) {
+            for(int i = 0; i < startSize; i++) {
+                if(start[i] != end[j]) {
+                    return 1;
+                }
+                else {
+                    j++;
+                }  
+            }
+            return 0;
+        }
+        else {
+            return 1;
+        }
+    }
+}
+
 unsigned char* assembleDataPacket(unsigned char* message, unsigned int messageSize, unsigned int *packetSize){
 
-    unsigned char* packet = malloc(0);
-
     *packetSize = messageSize - 4;
+    unsigned char* packet = (unsigned char *)malloc(*packetSize);
 
     for(int i = 0; i < *packetSize;i++){
         packet[i] = message[4 + i];

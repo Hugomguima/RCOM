@@ -1,9 +1,10 @@
 #include "recetor.h"
 
+extern unsigned int packetNumber;
+
 int main(int argc, char** argv)
 {
   int fd;
-  unsigned int size;
   off_t index = 0;
   //unsigned char message[4096], byte;
 
@@ -28,9 +29,10 @@ int main(int argc, char** argv)
   }
 
   unsigned char* start;
-  unsigned int size;
+  unsigned int size, sizeStart;
 
   size = llread(fd,start);
+  sizeStart = size;
 
   unsigned int *fileSize = 0;
   unsigned int *nameSize = 0;
@@ -45,20 +47,28 @@ int main(int argc, char** argv)
 
   unsigned char* message = malloc(0); // Creates null pointer to allow realloc
   unsigned char* dataPacket;
+  unsigned int packetsReaded = 0;
+  unsigned int messageSize;
 
-  unsigned char* result = (unsigned char*)malloc(fileSize);
+  unsigned char* result = (unsigned char*)malloc(*fileSize);
 
   while(TRUE){
-    unsigned int messageSize;
     unsigned int *packetSize;
+    messageSize = 0;
+    
     if(messageSize = llread(fd,message) == -1){
       puts("Error on llread data packet ");
-      exit -1;
+      exit(-1);
     }
+    
     if(message[0] == CT_END){
       puts("Reached Control End Packet");
       break;
     }
+    
+    packetsReaded++;
+    
+    printf("Received packet number: %d\n", packetsReaded);
 
     dataPacket = assembleDataPacket(message,messageSize,packetSize);
 
@@ -68,15 +78,23 @@ int main(int argc, char** argv)
 
     index += *packetSize;
 
+    free(dataPacket);
   }
 
+  if(checkEND(start, sizeStart, message, messageSize) == 1) {
+    puts("Start and End packets are different!");
+    exit(-1);
+  }
+
+  printf("Received a file of size: %u\n", *fileSize);
+
   // Displaying all the message after the protocol is implemented
-  for(int i = 0; i < fileSize; i++){
+  for(int i = 0; i < *fileSize; i++){
     printf("%x",result[i]); // Não si se aqui é suposto meter em hexadecimal ou deixo estar como unsigned char :/ 
   }
 
   // Creating the file to be rewritten after protocol
-  createFile(result,fileSize,fileName);
+  createFile(result,*fileSize,fileName);
 
 
   if(llclose(fd, RECEIVER) == ERROR){
@@ -85,6 +103,9 @@ int main(int argc, char** argv)
   }
 
   sleep(2);
+
+  free(fileName);
+  free(result);
 
   close(fd);
 

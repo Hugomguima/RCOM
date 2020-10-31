@@ -17,6 +17,8 @@ unsigned char* splitPacket(unsigned char *message,off_t *index, int *packetSize,
 
 int checkStart(unsigned char* start, unsigned int *filesize,unsigned char *name, unsigned int *nameSize);
 
+int checkEND(unsigned char *start, int startSize, unsigned char *end, int endSize);
+
 unsigned char* assembleDataPacket(unsigned char* message, unsigned int messageSize, unsigned int *packetSize);
 
 void createFile(unsigned char* data, unsigned int fileSize, unsigned char *filename);
