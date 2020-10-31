@@ -62,7 +62,7 @@ int llopen(int fd, int status) {
             alarm(5); // Call an alarm to wait for the message
 
             if(receiveUA(fd) == TRUE){
-                printf("Interaction received\n");
+                printf("UA received\n");
                 STP = TRUE;
                 counter = 0;
                 alarm(0);
@@ -79,7 +79,7 @@ int llopen(int fd, int status) {
                 return -1;
             }
             else {
-                printf("Send UA message\n");
+                printf("Sent UA message\n");
             }
         }
         else {
@@ -97,7 +97,6 @@ unsigned char getBCC2(unsigned char *mensagem, int size){
     for(int i = 1; i < size; i++){
         bcc2 ^= mensagem[i];
     }
-    printf("BCC2: 0x%.8X\n",bcc2);
     return bcc2;
 }
 
@@ -137,8 +136,6 @@ int llwrite(int fd, unsigned char *buffer, int length) {
 
     bcc2 = getBCC2(buffer,length);
     bcc2Stuffed = stuffBCC2(bcc2, &sizebcc2);
-
-    printf("0x%.8X 0x%.8X\n",(unsigned)buffer[0],buffer[1]);
 
     
     // Inicio do preenchimento da mensagem
@@ -188,8 +185,9 @@ int llwrite(int fd, unsigned char *buffer, int length) {
     //Mensagem preenchida Trama I feita
     // printMessage
 
+    puts("Assembling Set message");
     for(int j = 0; j < messageSize; j++){
-        printf("message: 0x%.8X\n",message[j]);
+        printf("message[%d] = 0x%X\n",j,message[j]);
     }
     
 
@@ -329,7 +327,6 @@ int llclose(int fd, int status) {
 
 void alarmHandler(int signo){
 
-  puts("Entered Alarm handler");
   counter++;
   if(counter >= MAXTRIES){
     printf("Exceeded maximum amount of tries: (%d)\n",MAXTRIES);
