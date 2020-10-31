@@ -11,4 +11,3 @@
 // Created files
 
 #include "llfunctions.h"
-#include "application.h"
