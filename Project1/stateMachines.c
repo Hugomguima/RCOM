@@ -1,6 +1,8 @@
 #include "stateMachines.h"
 
 unsigned char rcv;
+int expectedTrama = 0;
+
 
 int sendMessage(int fd, unsigned char c){
 
@@ -31,8 +33,7 @@ int readSetMessage(int fd) {
     while (finish == FALSE){
         read(fd, &r, 1);
 
-        switch (current)
-        {
+        switch (current){
         case START:
             if (r == FLAG){
                 //puts("Flag Received");
@@ -199,8 +200,9 @@ int receiveUA(int fd){
 
 
 int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) { 
-    unsigned char buf, check;
-    int res, trama = 0, expectedTrama = 0;
+    
+    unsigned char buf, check = 0;
+    int res, trama = 0;
     enum state current = START;
     int correctBCC2 = 0; // if no errors in BCC2, correctBCC2 = 1; else correctBCC2 = 0
     int errorOnDestuffing = 0; // if no errors occur on destuffing, the var stays equal to 0, else the value is 1
@@ -229,6 +231,7 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
             if(buf == A_EE) {
                 current = A_RCV;
                 check ^= buf;
+                printf("check =0x%X\n",check);
                 puts("Reading frames: A Received");
             }
 
@@ -362,6 +365,7 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
             }
             
             expectedTrama = (expectedTrama + 1) % 2;
+            printf("expected trama: %d\n",expectedTrama);
         }
 
         else { //ao fazermos isto ja garantimos que a trama recebida e repetida?

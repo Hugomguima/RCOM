@@ -6,6 +6,7 @@ struct termios oldtio,newtio;
 volatile int STP=FALSE;
 extern unsigned char rcv;
 int counter = 0;
+int trama = 0;
 
 
 int llopen(int fd, int status) {
@@ -132,7 +133,6 @@ int llwrite(int fd, unsigned char *buffer, int length) {
     unsigned int messageSize = length+6;
     unsigned char *bcc2Stuffed = (unsigned char *)malloc(sizeof(unsigned char));
     unsigned char *message = (unsigned char *)malloc(messageSize * sizeof(unsigned char));
-    int trama = 0;
 
     bcc2 = getBCC2(buffer,length);
     bcc2Stuffed = stuffBCC2(bcc2, &sizebcc2);
