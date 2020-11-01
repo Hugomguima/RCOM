@@ -48,7 +48,6 @@ int main(int argc, char** argv)
     return -5;
   }
 
-
   // Loop for reading all llwrites from the emissor
 
    // Creates null pointer to allow realloc

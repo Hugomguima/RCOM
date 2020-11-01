@@ -44,10 +44,11 @@ unsigned char* parseControlPacket(unsigned int state, off_t fileSize, unsigned c
     puts("here");
     
     printf("size file: %d\n",sizeFilename);
-    *sizeControlPacket = (9 + sizeFilename);
+    // *sizeControlPacket = (9 + sizeFilename);
+    *sizeControlPacket = 5 + sizeof(fileSize) + sizeFilename;
     printf("size control: %d\n",*sizeControlPacket);
 
-    unsigned char* packet = (unsigned char* )malloc(*sizeControlPacket);
+    unsigned char* packet = (unsigned char* )malloc(sizeof(unsigned char) * (*sizeControlPacket));
     puts("here2");
     
 
@@ -74,7 +75,6 @@ unsigned char* parseControlPacket(unsigned int state, off_t fileSize, unsigned c
     for (int i = 0; i < sizeFilename; i++ ){
         
         packet[5 + packet[2] + i] = filename[i];
-        printf("filename[%d] = %c\n",i,filename[i]);
     }
 
     return packet;
@@ -150,9 +150,8 @@ int checkStart(unsigned char* start, unsigned int *filesize,unsigned char *name,
     name = (unsigned char *)realloc(name, *nameSize);
     for(int i = 0; i < *nameSize; i++){
         name[i] = start[fileSizeBytes + 5 + i];
-        printf(" i = %d, c = %c\n",i,name[i]);
     }
-
+    
     return 0;
 
 }

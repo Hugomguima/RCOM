@@ -50,6 +50,7 @@ int main(int argc, char** argv)
 
   // Start Control packet
   unsigned char *start = parseControlPacket(CT_START,fileSize,filename,fileNameSize,&sizeControlPacket);
+
   puts("parsectpacket done");
   if(llwrite(fd,start,sizeControlPacket) != 0 ){
     puts("error writing start control packet");
