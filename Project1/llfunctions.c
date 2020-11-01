@@ -56,7 +56,7 @@ int llopen(int fd, int status) {
                 printf("C_SET message sent: %d \n", wr);
             }
             else{
-                printf("Error sending message");
+                printf("Error sending message\n");
             }
 
             alarm(5); // Call an alarm to wait for the message

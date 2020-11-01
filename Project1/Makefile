@@ -1,11 +1,12 @@
 CC = gcc
+FLAGS = -Wall
 
 all: recetor emissor
 	
 recetor: recetor.c
-	$(CC) recetor.c llfunctions.c stateMachines.c application.c -o recetor
+	$(CC) $(FLAGS) recetor.c llfunctions.c stateMachines.c application.c -o recetor
 emissor: emissor.c
-	$(CC) emissor.c llfunctions.c stateMachines.c application.c -o emissor
+	$(CC) $(FLAGS) emissor.c llfunctions.c stateMachines.c application.c -o emissor
 clean:
 	rm -rf recetor
 	rm -rf emissor

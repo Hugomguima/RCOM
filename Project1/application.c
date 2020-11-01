@@ -4,7 +4,7 @@ unsigned int packetNumber = 0; //Global variable counting thenumber of packets b
 
 
 
-unsigned char* openFile(unsigned char* filename, off_t *fileSize){
+unsigned char* openFile(char* filename, off_t *fileSize){
 
     FILE * file;
     struct stat st;
@@ -39,7 +39,7 @@ unsigned char* openFile(unsigned char* filename, off_t *fileSize){
 
 }
 
-unsigned char* parseControlPacket(unsigned int state, off_t fileSize, unsigned char* filename, int sizeFilename, int *sizeControlPacket){
+unsigned char* parseControlPacket(unsigned int state, off_t fileSize, char* filename, int sizeFilename, int *sizeControlPacket){
 
     puts("here");
     
@@ -119,9 +119,8 @@ unsigned char* splitPacket(unsigned char *packet,off_t *index, int *packetSize, 
 
 }
 
-int checkStart(unsigned char* start, unsigned int *filesize,unsigned char *name, unsigned int *nameSize){
+int checkStart(unsigned char* start, unsigned int *filesize,char *name, unsigned int *nameSize){
 
-    unsigned char* packet;
     int fileSizeBytes;
 
     // Checking control flag
@@ -147,7 +146,7 @@ int checkStart(unsigned char* start, unsigned int *filesize,unsigned char *name,
     printf("name size: %d\n",*nameSize);
 
     // Getting fileName
-    name = (unsigned char *)realloc(name, *nameSize);
+    name = (char *)realloc(name, *nameSize);
     for(int i = 0; i < *nameSize; i++){
         name[i] = start[fileSizeBytes + 5 + i];
     }
@@ -197,11 +196,11 @@ unsigned char* assembleDataPacket(unsigned char* message, unsigned int messageSi
     return packet;
 }
 
-void createFile(unsigned char* data, unsigned int fileSize, unsigned char *filename){
+void createFile(unsigned char* data, unsigned int fileSize,char *filename){
     FILE *file = fopen(filename,"wb");
     fwrite(data,1,fileSize,file);
     puts("New file created!!");
-    printf("FileSize written: %u\n ",fileSize);
+    printf("FileSize written: %u\n",fileSize);
     fclose(file);
 }
 

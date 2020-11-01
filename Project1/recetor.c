@@ -41,7 +41,7 @@ int main(int argc, char** argv)
 
   unsigned int fileSize = 0;
   unsigned int nameSize = 0;
-  unsigned char *fileName  = (unsigned char *)malloc(0);
+  char *fileName  = (char *)malloc(0);
 
   if(checkStart(start,&fileSize,fileName,&nameSize) == ERROR){
     puts("Error on checkStart");
@@ -111,7 +111,7 @@ int main(int argc, char** argv)
     return -3;
   }
 
-  sleep(2);
+  sleep(1);
 
   free(fileName);
   free(result);

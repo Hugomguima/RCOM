@@ -233,12 +233,11 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
             }
 
             else if(buf == FLAG) {
-                current == FLAG_RCV;
                 puts("Reading frames: Received FLAG on FLAG_RCV");
             }
 
             else {
-                current == START;
+                current = START;
                 puts("Reading frames: Return to START on FLAG_RCV");
             }
             break;
@@ -265,7 +264,7 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
             }
 
             else {
-                current == START;
+                current = START;
                 puts("Reading frames: Return to START on A_RCV");
             }
             break;

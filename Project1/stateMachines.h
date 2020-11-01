@@ -2,6 +2,8 @@
 #include <termios.h>
 #include <stdio.h>
 #include <errno.h>
+#include <unistd.h>
+
 
 #include "macros.h"
 

@@ -36,8 +36,8 @@ int main(int argc, char** argv)
 
   
   int fileNameSize = strlen(argv[2]);
-  unsigned char* filename = (unsigned char*)malloc(fileNameSize);
-  filename = (unsigned char*)argv[2];
+  char* filename = (char*)malloc(fileNameSize);
+  filename = (char*)argv[2];
 
 
 
@@ -93,7 +93,7 @@ int main(int argc, char** argv)
     return -3;
   }
 
-  sleep(2);
+  sleep(1);
 
   close(fd);
 
