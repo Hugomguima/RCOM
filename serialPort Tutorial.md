@@ -35,5 +35,5 @@ gcc emissor.c llfunctions.c stateMachines.c application.c -o emissor
 e no outro:
 
 ````
-./emissor /dev/ttyS1
+./emissor /dev/ttyS1 pinguim.png
 ````
