@@ -25,7 +25,7 @@ int llopen(int fd, int status) {
     /* set input mode (non-canonical, no echo,...) */
     newtio.c_lflag = 0;
 
-    newtio.c_cc[VTIME]    = 30;   /* inter-character timer unused */
+    newtio.c_cc[VTIME]    = 50;   /* inter-character timer unused */
     newtio.c_cc[VMIN]     = 0;   /* blocking read until 0 chars received */
 
     /* 
@@ -47,7 +47,7 @@ int llopen(int fd, int status) {
 
         // Installing Alarm Handler
         if(signal(SIGALRM, alarmHandler) || siginterrupt(SIGALRM, 1)){
-            printf("Signal instalation failed");
+            printf("Signal instalation failed\n");
         }
 
         counter = 0;
@@ -60,7 +60,7 @@ int llopen(int fd, int status) {
                 printf("Error sending message\n");
             }
 
-            alarm(5); // Call an alarm to wait for the message
+            alarm(TIMEOUT); // Call an alarm to wait for the message
 
             if(receiveUA(fd) == TRUE){
                 printf("UA received\n");
@@ -200,7 +200,7 @@ int llwrite(int fd, unsigned char *buffer, int length) {
         // Processo de escrita
         //tcflush(fd,TCIOFLUSH);
 
-        counter++;
+        //counter++;
 
         // Para já ainda não sei qual é o tamanho
         int wr = write(fd, message, messageSize);
@@ -282,20 +282,50 @@ unsigned int llread(int fd, unsigned char* buffer) {
 int llclose(int fd, int status) {
 //emissor:
 // envia DISC, espera por DISC e envia UA
-    unsigned char ret;
+    //unsigned char ret;
+
+    
 
     if(status == TRANSMITTER) {
-        if(sendMessage(fd, C_DISC)) {
+
+        counter = 0;
+        STP = FALSE;
+
+        
+        do {
+            int wr;
+            if((wr = sendMessage(fd, C_DISC)) != ERROR){
+                printf("TRANSMITTER: C_DISC message sent\n");
+            }
+            else{
+                printf("TRANSMITTER: Error sending C_DISC message\n");
+            }
+
+            alarm(TIMEOUT); // Call an alarm to wait for the message
+
+            if(receiveDISC(fd) == 0 && res != 0){
+                printf("TRANSMITTER: C_DISC received\n");
+                STP = TRUE;
+                counter = 0;
+                alarm(0);
+            }
+            else {
+                puts("ENTREIIIII");
+                printf("COUNTER: %i\n", counter);
+            }
+        } while(STP == FALSE && counter < MAXTRIES);
+        
+        /*if(sendMessage(fd, C_DISC)) {
             printf("TRANSMITTER: Send DISC\n");
         }
 
         ret = receiveDISC(fd);
 
-        while (ret != C_DISC) { //adaptar maquinas de estado 
+        while (ret != C_DISC) { 
             ret = receiveDISC(fd);
         } 
 
-        printf("TRANSMITTER: Read DISC\n");
+        printf("TRANSMITTER: Read DISC\n");*/
 
         if(sendMessage(fd, C_UA)) {
             printf("TRANSMITTER: Send UA\n");
@@ -306,7 +336,7 @@ int llclose(int fd, int status) {
 //recetor:
 // le a mensagem DISC enviada pelo emissor, envia DISC e recebe UA
     else if(status == RECEIVER) {
-        if (receiveDISC(fd) == C_DISC) {
+        if (receiveDISC(fd) == 0) {
             printf("RECEIVER: Read DISC\n");
             if(sendMessage(fd, C_DISC)) {
                 printf("RECEIVER: Send DISC\n");
@@ -340,6 +370,7 @@ int llclose(int fd, int status) {
 void alarmHandler(int signo){
 
   counter++;
+  printf("ALARM Counter = %d\n",counter);
   if(counter >= MAXTRIES){
     printf("Exceeded maximum amount of tries: (%d)\n",MAXTRIES);
     exit(0);

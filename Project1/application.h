@@ -8,8 +8,24 @@
 
 #include "macros.h"
 
+/**
+ * \brief opens the file sent and returns its data and size
+ * @param filename file to be read
+ * @param fileSize returns size of the file after being read
+ * @return returns the data of the read file
+ */
 unsigned char* openFile(char *filename, off_t *fileSize);
 
+
+/**
+ * \brief Generates the control packet for a given file
+ * @param state FLAG to distinguish END from START packet. START = 0x02, END = 0x03
+ * @param filesize size of the read file
+ * @param filename name of the read file
+ * @param sizeFileName size of the name of the read file
+ * @param sizeControlPacket returns the size of the generatedcontrol packet
+ * @return returns the generated control packet
+ */
 unsigned char* parseControlPacket(unsigned int state, off_t fileSize, char* filename, int sizeFileName, int *sizeControlPacket);
 
 unsigned char* parseDataPacket(unsigned char *message, off_t fileSize, int *packetSize);

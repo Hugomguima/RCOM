@@ -516,7 +516,11 @@ int receiveDISC(int fd) {
 
     while (finish == FALSE)
     {
-        read(fd, &r, 1);
+        res = read(fd, &r, 1);
+
+        if(res == 0) {
+            finish = TRUE;
+        }
 
         switch (current)
         {
@@ -574,7 +578,7 @@ int receiveDISC(int fd) {
             if (r == FLAG){
                 //puts("SET correct");
                 finish = TRUE;
-                return C_DISC;
+                //return C_DISC;
             }
             else{
                 current = START;
@@ -585,7 +589,7 @@ int receiveDISC(int fd) {
             break;
         }
     }
-    return C_DISC;
+    return 0;
 }
 
 int checkBCC2(unsigned char *packet, int size) {
