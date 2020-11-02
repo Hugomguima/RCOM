@@ -13,8 +13,8 @@ extern int res;
 int llopen(int fd, int status) {
     
     if (tcgetattr(fd, &oldtio) == -1) { /* save current port settings */
-        perror("tcgetattr");
-        exit(-1);
+        perror("llopen: tcgetattr");
+        return ERROR;
     }
 
     bzero(&newtio, sizeof(newtio));
@@ -37,55 +37,55 @@ int llopen(int fd, int status) {
 
     if (tcsetattr(fd,TCSANOW,&newtio) == -1) {
         perror("tcsetattr");
-        exit(-1);
+        return ERROR;
     }
 
-    printf("New termios structure set\n");
+    puts("New termios structure set");
 
 
     if(status == TRANSMITTER) {
 
         // Installing Alarm Handler
         if(signal(SIGALRM, alarmHandler) || siginterrupt(SIGALRM, 1)){
-            printf("Signal instalation failed\n");
+            puts("Signal instalation failed");
+            return ERROR;
         }
 
         counter = 0;
         do{
             int wr;
             if((wr = sendMessage(fd, C_SET)) != ERROR){
-                printf("C_SET message sent: %d \n", wr);
+                printf("llopen: C_SET message sent: %d \n", wr);
             }
             else{
-                printf("Error sending message\n");
+                puts("llopen: Error sending message");
             }
 
             alarm(TIMEOUT); // Call an alarm to wait for the message
 
             if(receiveUA(fd) == TRUE){
-                printf("UA received\n");
+                puts("TRANSMITTER: UA received\n");
                 STP = TRUE;
                 counter = 0;
                 alarm(0);
             }
-            //sleep(1);
 
         }while(STP == FALSE && counter < MAXTRIES);
     }
     else if(status == RECEIVER) {
         if(readSetMessage(fd) == TRUE) {
-            printf("Read SET message correctly\n");
+            puts("RECEIVER: Read SET message correctly");
             if(sendMessage(fd, C_UA) == -1) {
                 fprintf(stderr, "llopen - Error writing to serial port (Receiver)\n");
-                return -1;
+                return ERROR;
             }
             else {
-                printf("Sent UA message\n");
+                puts("RECEIVER: Sent UA message");
             }
         }
         else {
             fprintf(stderr, "llopen - Error reading from serial port (Receiver)\n");
-            return -1;
+            return ERROR;
         }
     }
     return 0;
@@ -122,8 +122,6 @@ unsigned char* stuffBCC2(unsigned char bcc2, unsigned int *size){
     }
     
     return stuffed;
-    
-    
 }
 
 int llwrite(int fd, unsigned char *buffer, int length) {
@@ -185,14 +183,12 @@ int llwrite(int fd, unsigned char *buffer, int length) {
     //Mensagem preenchida Trama I feita
     // printMessage
 
-    puts("Assembling Set message");
     for(int j = 0; j < messageSize; j++){
         printf("message[%d] = 0x%X\n", j, message[j]);
     }
     
 
     counter = 0;
-
     STP = FALSE;
 
     // Envio da trama
@@ -200,20 +196,16 @@ int llwrite(int fd, unsigned char *buffer, int length) {
         // Processo de escrita
         //tcflush(fd,TCIOFLUSH);
 
-        //counter++;
-
         // Para já ainda não sei qual é o tamanho
         int wr = write(fd, message, messageSize);
 
-        printf("SET message sent: %d \n", wr);
+        printf("TRANSMITTER: SET message sent: %d bytes sent\n", wr);
 
         alarm(TIMEOUT);
 
         // Mudar o processo de espera não é receiveUA
-        if(readReceiverMessage(fd) == 0){
-            printf("Interaction received\n");
-        }
-
+        readReceiverMessage(fd);
+    
         // Tratar do rcv
         if((rcv == RR0 && trama == 1) || (rcv == RR1 && trama == 0)) {
             counter = 0;
@@ -257,8 +249,6 @@ int llwrite(int fd, unsigned char *buffer, int length) {
     else {
         return TRUE;
     }
-
-    //return 0;
 }
 
 unsigned int llread(int fd, unsigned char* buffer) {
@@ -281,54 +271,33 @@ unsigned int llread(int fd, unsigned char* buffer) {
 
 int llclose(int fd, int status) {
 //emissor:
-// envia DISC, espera por DISC e envia UA
-    //unsigned char ret;
-
-    
-
+// envia DISC, espera porInteraction received\n
     if(status == TRANSMITTER) {
 
         counter = 0;
         STP = FALSE;
-
         
         do {
             int wr;
             if((wr = sendMessage(fd, C_DISC)) != ERROR){
-                printf("TRANSMITTER: C_DISC message sent\n");
+                puts("TRANSMITTER: C_DISC message sent");
             }
             else{
-                printf("TRANSMITTER: Error sending C_DISC message\n");
+                puts("TRANSMITTER: Error sending C_DISC message");
             }
 
             alarm(TIMEOUT); // Call an alarm to wait for the message
 
             if(receiveDISC(fd) == 0 && res != 0){
-                printf("TRANSMITTER: C_DISC received\n");
+                puts("TRANSMITTER: C_DISC received");
                 STP = TRUE;
                 counter = 0;
                 alarm(0);
             }
-            else {
-                puts("ENTREIIIII");
-                printf("COUNTER: %i\n", counter);
-            }
         } while(STP == FALSE && counter < MAXTRIES);
-        
-        /*if(sendMessage(fd, C_DISC)) {
-            printf("TRANSMITTER: Send DISC\n");
-        }
-
-        ret = receiveDISC(fd);
-
-        while (ret != C_DISC) { 
-            ret = receiveDISC(fd);
-        } 
-
-        printf("TRANSMITTER: Read DISC\n");*/
 
         if(sendMessage(fd, C_UA)) {
-            printf("TRANSMITTER: Send UA\n");
+            puts("TRANSMITTER: Send UA");
         }
         tcsetattr(fd, TCSANOW, &oldtio);
     }
@@ -337,28 +306,28 @@ int llclose(int fd, int status) {
 // le a mensagem DISC enviada pelo emissor, envia DISC e recebe UA
     else if(status == RECEIVER) {
         if (receiveDISC(fd) == 0) {
-            printf("RECEIVER: Read DISC\n");
+            puts("RECEIVER: Read DISC");
             if(sendMessage(fd, C_DISC)) {
-                printf("RECEIVER: Send DISC\n");
+                puts("RECEIVER: Send DISC");
                 if(receiveUA(fd) == TRUE) {
-                    printf("RECEIVER: Read UA\n");
+                    puts("RECEIVER: Read UA");
                 }
                 
                 else {
                     fprintf(stderr, "llclose- Error reading UA message (Receiver)\n");
-                    return -1;
+                    return ERROR;
                 }
             }
 
             else {
                 fprintf(stderr, "llclose- Error writing DISC message to serial port (Receiver)\n");
-                return -1;
+                return ERROR;
             }
         }
 
         else {
             fprintf(stderr, "llclose - Error reading DISC message (Receiver)\n");
-            return -1;
+            return ERROR;
         }
         tcsetattr(fd, TCSANOW, &oldtio);
     }
@@ -370,9 +339,8 @@ int llclose(int fd, int status) {
 void alarmHandler(int signo){
 
   counter++;
-  printf("ALARM Counter = %d\n",counter);
   if(counter >= MAXTRIES){
-    printf("Exceeded maximum amount of tries: (%d)\n",MAXTRIES);
+    printf("Exceeded maximum amount of tries: (%d)\n", MAXTRIES);
     exit(0);
   }
   return ;

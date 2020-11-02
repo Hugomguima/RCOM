@@ -17,40 +17,32 @@ unsigned char* openFile(char* filename, off_t *fileSize){
 
 
     stat(filename, &st);
-    puts("stat done");
+    
     *fileSize = st.st_size;
-    puts("Hello");
-    printf("FileSize read with %ld \n", *fileSize);
+
+    printf("Read a file with size %ld bytes\n", *fileSize);
 
     data = (unsigned char *)malloc(*fileSize);
 
-     puts("malloc worked");
-
     fread(data, sizeof(unsigned char), *fileSize, file);
 
-    puts("hey 1");
     if(ferror(file)){
-        perror("reading file error");
+        perror("Error reading file");
         exit(-2);
     }
 
-    puts("hey 2");
-    fclose(file);
+    if(fclose(file) == EOF){
+        perror("Cannot close file");
+        exit(-1);
+    }
     return data;
-
 }
 
 unsigned char* parseControlPacket(unsigned int state, off_t fileSize, char* filename, int sizeFilename, int *sizeControlPacket){
-
-    puts("here");
     
-    printf("size file: %d\n", sizeFilename);
     *sizeControlPacket = 5 + sizeof(fileSize) + sizeFilename;
-    printf("size control: %d\n", *sizeControlPacket);
 
     unsigned char* packet = (unsigned char* )malloc(sizeof(unsigned char) * (*sizeControlPacket));
-    puts("here2");
-    
 
     if(state == CT_START){
         packet[0] = CT_START;
@@ -60,13 +52,9 @@ unsigned char* parseControlPacket(unsigned int state, off_t fileSize, char* file
     }
     packet[1] = T1;
     packet[2] = sizeof(fileSize);
-
-    printf("packet2 %d\n", packet[2]);
-
     
     for(int i = 0; i < packet[2];i++){
         packet[3+i] = (fileSize >> (i*8)) & 0xFF;
-        printf("%d\n",i);
     }
 
     packet[3 + packet[2]] = T2;
@@ -125,7 +113,7 @@ int checkStart(unsigned char* start, unsigned int *filesize, char *name, unsigne
 
     // Checking control flag
     if(start[0] != CT_START || start[1] != T1){
-        puts("check start error");
+        puts("checkStart: Error checking CT_START or T1 flags");
         return -1;
     }
 
@@ -137,38 +125,35 @@ int checkStart(unsigned char* start, unsigned int *filesize, char *name, unsigne
     }
 
     if(start[fileSizeBytes + 3] != T2){
-        puts("check start T2 error");
+        puts("checkSart: Error checking T2");
         return -1;
     } 
     
     // Getting nameSize
     *nameSize = (unsigned int)start[fileSizeBytes + 4];
-    printf("name size: %d\n", *nameSize);
 
     // Getting fileName
     name = (char *)realloc(name, *nameSize);
+
     for(int i = 0; i < *nameSize; i++){
         name[i] = start[fileSizeBytes + 5 + i];
     }
     
     return 0;
-
 }
 
 int checkEND(unsigned char *start, int startSize, unsigned char *end, int endSize) {
     int j = 5;
-    printf("startSize: %d\n",startSize);
-    printf("endSize: %d\n",endSize);
     
     if(startSize != endSize) {
-       puts("Start and End have differente sizes");
+       puts("checkEND: Start and End packets have differente sizes");
         return 1;
     }
     else {
         if(end[0] == CT_END) {
             for(int i = 5; i < startSize; i++) {
                 if(start[i] != end[j]) {
-                    puts("Different value");
+                    puts("checkEND: Different value between START and END packets");
                     return 1;
                 }
                 else {
@@ -178,7 +163,7 @@ int checkEND(unsigned char *start, int startSize, unsigned char *end, int endSiz
             return 0;
         }
         else {
-            puts("Other reason");
+            puts("checkEND: First END packet byte is not CT_END flag");
             return 1;
         }
     }
@@ -199,10 +184,7 @@ unsigned char* assembleDataPacket(unsigned char* message, unsigned int messageSi
 void createFile(unsigned char* data, unsigned int fileSize, char *filename){
     FILE *file = fopen(filename,"wb");
     fwrite(data,1,fileSize,file);
-    puts("New file created!!");
+    puts("New file created!");
     printf("FileSize written: %u\n",fileSize);
     fclose(file);
 }
-
-
-

@@ -57,8 +57,30 @@ unsigned char* splitPacket(unsigned char *message,off_t *index, int *packetSize,
  */
 int checkStart(unsigned char* start, unsigned int *filesize, char *name, unsigned int *nameSize);
 
+
+/**
+ * \brief Checks if the control END packet is equal to the START control packet
+ * @param start start packet read (first packet)
+ * @param startSize size of the start packet
+ * @param end end packet read (last packet)
+ * @param endSize size of the end packet
+ * @return 0 if both packets are equal, 1 otherwise
+ */
 int checkEND(unsigned char *start, int startSize, unsigned char *end, int endSize);
 
+/**
+ * \brief Creates a the packet to be sent trough llwrite serial port
+ * @param message Received message to be sent
+ * @param messageSize size of the received message
+ * @param packetSize size of the created packet to be returned
+ * @return Assembled packet to be sent
+ */
 unsigned char* assembleDataPacket(unsigned char* message, unsigned int messageSize, unsigned int *packetSize);
 
+/**
+ * \brief Reads a file given a name and data
+ * @param data file data
+ * @param fileSize size of the file to be created
+ * @param filename name of the file to be created
+ */
 void createFile(unsigned char* data, unsigned int fileSize, char *filename);

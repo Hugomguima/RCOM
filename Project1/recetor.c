@@ -6,13 +6,12 @@ int main(int argc, char** argv)
 {
   int fd;
   off_t index = 0;
-  //unsigned char message[4096], byte;
 
   if ( (argc < 2) || 
         ((strcmp("/dev/ttyS0", argv[1])!=0) && 
         (strcmp("/dev/ttyS1", argv[1])!=0) )) {
     printf("Usage:\tnserial SerialPort\n\tex: nserial /dev/ttyS1\n");
-    exit(1);
+    return -1;
   }
 
 /*
@@ -23,22 +22,19 @@ int main(int argc, char** argv)
   fd = open(argv[1], O_RDWR | O_NOCTTY );
   if (fd <0) {
     perror(argv[1]); 
-    exit(-1); 
+    return -2;
   }
 
   if(llopen(fd, RECEIVER) == ERROR){
-    puts("Error on LLOPEN");
+    puts("Error on llopen");
     return -3;
   }
-
-  puts("llopen done");
 
   unsigned char* start = malloc(0);
   unsigned int size, sizeStart;
 
   
   size = llread(fd,start);
-  puts("llread done");
   sizeStart = size;
 
 
@@ -48,29 +44,26 @@ int main(int argc, char** argv)
 
   if(checkStart(start,&fileSize,fileName,&nameSize) == ERROR){
     puts("Error on checkStart");
-    return -5;
+    return -4;
   }
 
   // Loop for reading all llwrites from the emissor
-
-   // Creates null pointer to allow realloc
   unsigned char* dataPacket;
-  unsigned int packetsReaded = 0;
+  unsigned int packetsRead = 0;
   unsigned int messageSize;
 
   unsigned char* final;
 
-  unsigned char* result = (unsigned char*)malloc(fileSize);
+  unsigned char* result = (unsigned char*)malloc(fileSize); // Creates null pointer to allow realloc
 
   while(TRUE){
     unsigned int packetSize = 0;
     unsigned char* message = malloc(0);
     messageSize = 0;
     
-    puts("entededloopasdassdasdasdasdadassdadasdasdasdas");
     if((messageSize = llread(fd,message)) == ERROR){
       puts("Error on llread data packet ");
-      exit(-1);
+      return -5;
     }
     printf("message size = %d\n",messageSize);
     
@@ -81,9 +74,9 @@ int main(int argc, char** argv)
       break;
     }
     
-    packetsReaded++;
+    packetsRead++;
     
-    printf("Received packet number: %d\n", packetsReaded);
+    printf("Received packet number: %d\n", packetsRead);
 
     dataPacket = assembleDataPacket(message,messageSize,&packetSize);
 
@@ -93,14 +86,12 @@ int main(int argc, char** argv)
 
     index += packetSize;
 
-    puts("before free");
     free(dataPacket);
-    puts("after free");
   }
   
   if(checkEND(start, sizeStart, final, messageSize) == 1) {
     puts("Start and End packets are different!");
-    exit(-1);
+    return -6;
   }
 
   printf("Received a file of size: %u\n", fileSize);
@@ -110,8 +101,8 @@ int main(int argc, char** argv)
 
 
   if(llclose(fd, RECEIVER) == ERROR){
-    puts("Error on LLCLOSE");
-    return -3;
+    puts("Error on llclose");
+    return -7;
   }
 
   sleep(1);
