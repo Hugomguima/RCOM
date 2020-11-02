@@ -22,6 +22,8 @@ int sendMessage(int fd,unsigned char c);
 
 int readSetMessage(int fd);
 
+int readReceiverMessage(int fd);
+
 int receiveUA(int serialPort);
 
 int receiverRead_StateMachine(int fd, unsigned char* frame ,unsigned int *size);

@@ -7,53 +7,53 @@ volatile int STP=FALSE;
 extern unsigned char rcv;
 int counter = 0;
 int trama = 0;
+extern int res;
 
 
 int llopen(int fd, int status) {
     
-    if ( tcgetattr(fd,&oldtio) == -1) { /* save current port settings */
-            perror("tcgetattr");
-            exit(-1);
-        }
+    if (tcgetattr(fd, &oldtio) == -1) { /* save current port settings */
+        perror("tcgetattr");
+        exit(-1);
+    }
 
-        bzero(&newtio, sizeof(newtio));
-        newtio.c_cflag = BAUDRATE | CS8 | CLOCAL | CREAD;
-        newtio.c_iflag = IGNPAR;
-        newtio.c_oflag = 0;
+    bzero(&newtio, sizeof(newtio));
+    newtio.c_cflag = BAUDRATE | CS8 | CLOCAL | CREAD;
+    newtio.c_iflag = IGNPAR;
+    newtio.c_oflag = 0;
 
-        /* set input mode (non-canonical, no echo,...) */
-        newtio.c_lflag = 0;
+    /* set input mode (non-canonical, no echo,...) */
+    newtio.c_lflag = 0;
 
-        newtio.c_cc[VTIME]    = 0;   /* inter-character timer unused */
-        newtio.c_cc[VMIN]     = 5;   /* blocking read until 5 chars received */
+    newtio.c_cc[VTIME]    = 30;   /* inter-character timer unused */
+    newtio.c_cc[VMIN]     = 0;   /* blocking read until 0 chars received */
 
-        /* 
-        VTIME e VMIN devem ser alterados de forma a proteger com um temporizador a 
-        leitura do(s) pr�ximo(s) caracter(es)
-        */
+    /* 
+    VTIME e VMIN devem ser alterados de forma a proteger com um temporizador a 
+    leitura do(s) pr�ximo(s) caracter(es)
+    */
 
-        tcflush(fd, TCIOFLUSH);
+    tcflush(fd, TCIOFLUSH);
 
-        if ( tcsetattr(fd,TCSANOW,&newtio) == -1) {
-            perror("tcsetattr");
-            exit(-1);
-        }
+    if (tcsetattr(fd,TCSANOW,&newtio) == -1) {
+        perror("tcsetattr");
+        exit(-1);
+    }
 
-        printf("New termios structure set\n");
+    printf("New termios structure set\n");
 
-        
 
     if(status == TRANSMITTER) {
 
         // Installing Alarm Handler
-        if(signal(SIGALRM, alarmHandler) || siginterrupt(SIGALRM,1)){
+        if(signal(SIGALRM, alarmHandler) || siginterrupt(SIGALRM, 1)){
             printf("Signal instalation failed");
         }
 
         counter = 0;
         do{
             int wr;
-            if((wr = sendMessage(fd,C_SET)) != ERROR){
+            if((wr = sendMessage(fd, C_SET)) != ERROR){
                 printf("C_SET message sent: %d \n", wr);
             }
             else{
@@ -101,16 +101,16 @@ unsigned char getBCC2(unsigned char *mensagem, int size){
     return bcc2;
 }
 
-unsigned char* stuffBCC2(unsigned char bcc2,unsigned int *size){
+unsigned char* stuffBCC2(unsigned char bcc2, unsigned int *size){
     unsigned char* stuffed;
     if(bcc2 == FLAG){
-        stuffed = malloc(2*sizeof(unsigned char));
+        stuffed = malloc(2 * sizeof(unsigned char));
         stuffed[0] = ESCAPE_BYTE;
         stuffed[1] = ESCAPE_FLAG; 
         (*size) = 2;
     }
     else if(bcc2 == ESCAPE_BYTE){
-        stuffed = malloc(2*sizeof(unsigned char));
+        stuffed = malloc(2 * sizeof(unsigned char));
         stuffed[0] = ESCAPE_BYTE;
         stuffed[1] = ESCAPE_ESCAPE;
         (*size) = 2; 
@@ -134,7 +134,7 @@ int llwrite(int fd, unsigned char *buffer, int length) {
     unsigned char *bcc2Stuffed = (unsigned char *)malloc(sizeof(unsigned char));
     unsigned char *message = (unsigned char *)malloc(messageSize * sizeof(unsigned char));
 
-    bcc2 = getBCC2(buffer,length);
+    bcc2 = getBCC2(buffer, length);
     bcc2Stuffed = stuffBCC2(bcc2, &sizebcc2);
 
     
@@ -187,7 +187,7 @@ int llwrite(int fd, unsigned char *buffer, int length) {
 
     puts("Assembling Set message");
     for(int j = 0; j < messageSize; j++){
-        printf("message[%d] = 0x%X\n",j,message[j]);
+        printf("message[%d] = 0x%X\n", j, message[j]);
     }
     
 
@@ -203,14 +203,14 @@ int llwrite(int fd, unsigned char *buffer, int length) {
         counter++;
 
         // Para já ainda não sei qual é o tamanho
-        int wr = write(fd,message,messageSize);
+        int wr = write(fd, message, messageSize);
 
-        printf("SET message sent: %d \n",wr);
+        printf("SET message sent: %d \n", wr);
 
         alarm(TIMEOUT);
 
         // Mudar o processo de espera não é receiveUA
-        if(readSetMessage(fd) == 0){
+        if(readReceiverMessage(fd) == 0){
             printf("Interaction received\n");
         }
 
@@ -221,34 +221,44 @@ int llwrite(int fd, unsigned char *buffer, int length) {
             STP = FALSE;
             alarm(0);
             if(rcv == RR0) {
-                printf("TRANSMITTER: Received RR0\n");
+                puts("TRANSMITTER: Received RR0");
             }
             else {
-                printf("TRANSMITTER: Received RR1\n");
+                puts("TRANSMITTER: Received RR1");
             }
             break;
         }
 
         else if(rcv == REJ0 || rcv == REJ1) {
             STP = TRUE;
-            alarm(0);
+            //alarm(0);
             if(rcv == REJ0) {
-                printf("TRANSMITTER: Received REJ0");
+                puts("TRANSMITTER: Received REJ0");
             }
             else {
-                printf("TRANSMITTER: Received REJ1");
+                puts("TRANSMITTER: Received REJ1");
             }
+        }
+
+        else if(res == 0) {
+            puts("TRANSMITTER: Don't read any message from Receiver");
+            STP = TRUE;
         }
 
         else {
-            printf("TRANSMITTER: Received an invalid message");
+            puts("TRANSMITTER: Received an invalid message");
         }
 
-    } while(STP || counter < MAXTRIES); //verificar esta condicao
+    } while(STP && counter < MAXTRIES); 
 
-    
+    if(counter >= MAXTRIES) {
+        return FALSE;
+    }
+    else {
+        return TRUE;
+    }
 
-    return 0;
+    //return 0;
 }
 
 unsigned int llread(int fd, unsigned char* buffer) {

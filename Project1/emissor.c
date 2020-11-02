@@ -8,7 +8,7 @@ int main(int argc, char** argv)
   int fd;
 
   if ( (argc < 3) || ((strcmp("/dev/ttyS0", argv[1])!=0) && (strcmp("/dev/ttyS1", argv[1])!=0))) {
-    printf("Usage:\tnserial SerialPort\n\tex: nserial /dev/ttyS1 \t filename.jpg \n");
+    printf("Usage:\tnserial SerialPort File path\n\tex: nserial /dev/ttyS1 \t filename.jpg \n");
     exit(1);
   }
 
@@ -20,7 +20,7 @@ int main(int argc, char** argv)
   */
 
   fd = open(argv[1], O_RDWR | O_NOCTTY );
-  if (fd <0) {
+  if (fd < 0) {
     perror(argv[1]);
     exit(-1);
   }
@@ -31,10 +31,9 @@ int main(int argc, char** argv)
   // Dealing with the SET and UA
   if(llopen(fd, TRANSMITTER) == ERROR){
     puts("Error on LLOPEN");
-    return -3;
+    return -1;
   }
 
-  
   int fileNameSize = strlen(argv[2]);
   char* filename = (char*)malloc(fileNameSize);
   filename = (char*)argv[2];
@@ -44,16 +43,17 @@ int main(int argc, char** argv)
   off_t fileSize = 0;
   int sizeControlPacket = 0;
 
-  unsigned char *data = openFile(filename,&fileSize);
+  unsigned char *data = openFile(filename, &fileSize);
 
-  puts("file opened");
+  puts("File opened");
 
   // Start Control packet
-  unsigned char *start = parseControlPacket(CT_START,fileSize,filename,fileNameSize,&sizeControlPacket);
+  unsigned char *start = parseControlPacket(CT_START, fileSize, filename, fileNameSize, &sizeControlPacket);
 
   puts("parsectpacket done");
-  if(llwrite(fd,start,sizeControlPacket) != 0 ){
-    puts("error writing start control packet");
+  if(llwrite(fd, start, sizeControlPacket) != TRUE ){
+    puts("Error writing start control packet");
+    return -2;
   }
   free(start);
 
@@ -62,15 +62,15 @@ int main(int argc, char** argv)
   off_t index = 0;
 
   while(index < fileSize && packetSize == PACKETSIZE){
-    unsigned char* packet = splitPacket(data,&index,&packetSize,fileSize);
+    unsigned char* packet = splitPacket(data, &index, &packetSize, fileSize);
 
     int length = packetSize;
     
-    unsigned char* message =  parseDataPacket(packet,fileSize,&length);
+    unsigned char* message =  parseDataPacket(packet, fileSize, &length);
 
-    if(llwrite(fd,message,length) != 0){
-      puts("error sending data packet");
-      return -5;
+    if(llwrite(fd, message, length) != TRUE){
+      puts("Error sending data packet");
+      return -3;
     }
 
     printf("Sent packet number: %d\n", packetNumber);
@@ -80,17 +80,18 @@ int main(int argc, char** argv)
 
 
   // End Control packet
-  printf("size control end = %d",sizeControlPacket);
-  unsigned char *end = parseControlPacket(CT_END,fileSize,filename,fileNameSize,&sizeControlPacket);
-  if(llwrite(fd,end,sizeControlPacket) != 0 ){
-    puts("error writing end control packet");
+  printf("size control end = %d", sizeControlPacket);
+  unsigned char *end = parseControlPacket(CT_END, fileSize, filename, fileNameSize, &sizeControlPacket);
+  if(llwrite(fd, end, sizeControlPacket) != TRUE ){
+    puts("Error writing end control packet");
+    return -4;
   }
   free(end);
 
 
   if(llclose(fd, TRANSMITTER) == ERROR){
     puts("Error on LLCLOSE");
-    return -3;
+    return -5;
   }
 
   sleep(1);
@@ -98,7 +99,6 @@ int main(int argc, char** argv)
   close(fd);
 
   free(data);
-
 
   return 0;
 }

@@ -2,6 +2,7 @@
 
 unsigned char rcv;
 int expectedTrama = 0;
+int res;
 
 
 int sendMessage(int fd, unsigned char c){
@@ -31,7 +32,7 @@ int readSetMessage(int fd) {
     unsigned char r, check;
 
     while (finish == FALSE){
-        read(fd, &r, 1);
+        res = read(fd, &r, 1);
 
         switch (current){
         case START:
@@ -56,7 +57,92 @@ int readSetMessage(int fd) {
             }
             break;
         case A_RCV:
-            if (r == C_SET || r == REJ0 || r == REJ1 || r == RR0 || r == RR1 ){
+            if (r == C_SET){
+                current = C_RCV;
+                check ^= r;
+                //puts("C Received");
+                rcv = r;
+            }
+            else if (r == FLAG){
+                current = FLAG_RCV;
+                //puts("Received a FLAG on A_RCV");
+            }
+            else{
+                current = START;
+                //puts("Return to START on A_RCV");
+            }
+            break;
+        case C_RCV:
+            if (r == check){
+                //puts("BCC OK");
+                current = BCC_OK;
+            }
+            else if (r == FLAG){
+                current = FLAG_RCV;
+                //puts("Received a FLAG on C_RCV");
+            }
+            else{
+                current = START;
+                //puts("Return to START on C_RCV");
+            }
+            break;
+        case BCC_OK:
+            if (r == FLAG){
+                //puts("SET correct");
+                finish = TRUE;
+            }
+            else{
+                current = START;
+                //puts("Return to START on BCC_OK");
+            }
+            break;
+        default:
+            break;
+        }
+    }
+    return finish;
+}
+
+int readReceiverMessage(int fd) {
+    //tcflush(fd, TCIOFLUSH); //limpa informacao recebida mas nao lida e informacao escrita mas nao transmitida
+
+    
+    enum state current = START;
+
+    int finish = FALSE;
+    unsigned char r, check;
+
+    while (finish == FALSE){
+        res = read(fd, &r, 1);
+
+        if(res == 0) {
+            finish = TRUE;
+        }
+
+        switch (current){
+        case START:
+            if (r == FLAG){
+                //puts("Flag Received");
+                current = FLAG_RCV;
+            }
+            break;
+        case FLAG_RCV:
+            if (r == A_EE){
+                //puts("A Received");
+                current = A_RCV;
+                check ^= r;
+            }
+            else if (r == FLAG){
+                //puts("Received a FLAG on FLAG_RCV");
+                current = FLAG_RCV;
+            }
+            else{
+                current = START;
+                //puts("Return to START on FLAG_RCV");
+            }
+            break;
+        case A_RCV:
+            if (r == REJ0 || r == REJ1 || r == RR0 || r == RR1 ){
                 current = C_RCV;
                 check ^= r;
                 //puts("C Received");
@@ -202,7 +288,7 @@ int receiveUA(int fd){
 int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) { 
     
     unsigned char buf, check = 0;
-    int res, trama = 0;
+    int trama = 0;
     enum state current = START;
     int correctBCC2 = 0; // if no errors in BCC2, correctBCC2 = 1; else correctBCC2 = 0
     int errorOnDestuffing = 0; // if no errors occur on destuffing, the var stays equal to 0, else the value is 1

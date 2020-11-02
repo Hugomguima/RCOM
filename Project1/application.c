@@ -10,13 +10,13 @@ unsigned char* openFile(char* filename, off_t *fileSize){
     struct stat st;
     unsigned char *data;
     
-    if((file = fopen(filename,"r")) == NULL ){
+    if((file = fopen(filename, "r")) == NULL ){
         perror("Cannot open file");
         exit(-1);
     }
 
 
-    stat(filename,&st);
+    stat(filename, &st);
     puts("stat done");
     *fileSize = st.st_size;
     puts("Hello");
@@ -26,7 +26,7 @@ unsigned char* openFile(char* filename, off_t *fileSize){
 
      puts("malloc worked");
 
-    fread(data,sizeof(unsigned char),*fileSize,file);
+    fread(data, sizeof(unsigned char), *fileSize, file);
 
     puts("hey 1");
     if(ferror(file)){
@@ -43,10 +43,9 @@ unsigned char* parseControlPacket(unsigned int state, off_t fileSize, char* file
 
     puts("here");
     
-    printf("size file: %d\n",sizeFilename);
-    // *sizeControlPacket = (9 + sizeFilename);
+    printf("size file: %d\n", sizeFilename);
     *sizeControlPacket = 5 + sizeof(fileSize) + sizeFilename;
-    printf("size control: %d\n",*sizeControlPacket);
+    printf("size control: %d\n", *sizeControlPacket);
 
     unsigned char* packet = (unsigned char* )malloc(sizeof(unsigned char) * (*sizeControlPacket));
     puts("here2");
@@ -61,7 +60,7 @@ unsigned char* parseControlPacket(unsigned int state, off_t fileSize, char* file
     packet[1] = T1;
     packet[2] = sizeof(fileSize);
 
-    printf("packet2 %d\n",packet[2]);
+    printf("packet2 %d\n", packet[2]);
 
     
     for(int i = 0; i < packet[2];i++){
@@ -90,7 +89,7 @@ unsigned char* parseDataPacket(unsigned char *message, off_t fileSize, int *leng
     packet[3] = fileSize % 256;
 
     // Preencher o packet através da mensagem
-    for(int i = 0; i < *length;i++){
+    for(int i = 0; i < *length; i++){
         packet[4 + i] = message[i];
     }
 
@@ -100,7 +99,7 @@ unsigned char* parseDataPacket(unsigned char *message, off_t fileSize, int *leng
     return packet;
 }
 
-unsigned char* splitPacket(unsigned char *packet,off_t *index, int *packetSize, off_t fileSize){
+unsigned char* splitPacket(unsigned char *packet, off_t *index, int *packetSize, off_t fileSize){
 
     unsigned char *splitPacket;
 
@@ -119,7 +118,7 @@ unsigned char* splitPacket(unsigned char *packet,off_t *index, int *packetSize, 
 
 }
 
-int checkStart(unsigned char* start, unsigned int *filesize,char *name, unsigned int *nameSize){
+int checkStart(unsigned char* start, unsigned int *filesize, char *name, unsigned int *nameSize){
 
     int fileSizeBytes;
 
@@ -143,7 +142,7 @@ int checkStart(unsigned char* start, unsigned int *filesize,char *name, unsigned
     
     // Getting nameSize
     *nameSize = (unsigned int)start[fileSizeBytes + 4];
-    printf("name size: %d\n",*nameSize);
+    printf("name size: %d\n", *nameSize);
 
     // Getting fileName
     name = (char *)realloc(name, *nameSize);
@@ -196,7 +195,7 @@ unsigned char* assembleDataPacket(unsigned char* message, unsigned int messageSi
     return packet;
 }
 
-void createFile(unsigned char* data, unsigned int fileSize,char *filename){
+void createFile(unsigned char* data, unsigned int fileSize, char *filename){
     FILE *file = fopen(filename,"wb");
     fwrite(data,1,fileSize,file);
     puts("New file created!!");
