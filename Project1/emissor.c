@@ -28,12 +28,6 @@ int main(int argc, char** argv)
   
   // Criar método  openFile para abrir o ficheiro que será recebido como argunmento da função main
 
-  // Dealing with the SET and UA
-  if(llopen(fd, TRANSMITTER) == ERROR){
-    puts("Error on LLOPEN");
-    return -1;
-  }
-
   int fileNameSize = strlen(argv[2]);
   char* filename = (char*)malloc(fileNameSize);
   filename = (char*)argv[2];
@@ -44,6 +38,14 @@ int main(int argc, char** argv)
   int sizeControlPacket = 0;
 
   unsigned char *data = openFile(filename, &fileSize);
+
+  // Dealing with the SET and UA
+  if(llopen(fd, TRANSMITTER) == ERROR){
+    puts("Error on LLOPEN");
+    return -1;
+  }
+
+
 
   puts("File opened");
 

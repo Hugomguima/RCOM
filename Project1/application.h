@@ -28,10 +28,33 @@ unsigned char* openFile(char *filename, off_t *fileSize);
  */
 unsigned char* parseControlPacket(unsigned int state, off_t fileSize, char* filename, int sizeFileName, int *sizeControlPacket);
 
-unsigned char* parseDataPacket(unsigned char *message, off_t fileSize, int *packetSize);
+/**
+ * \brief codifies the Given message into a packet according to the protocol
+ * @param message message to be sent
+ * @param fileSize total size of the file to be written
+ * @param length total size of the packet to be sent through llwrite serial port
+ */
+unsigned char* parseDataPacket(unsigned char *message, off_t fileSize, int *length);
 
+
+/**
+ * \brief Splits the data into packets that fit into a message (currently set to 128 bytes)
+ * @param message message containing the whole data
+ * @param index index to start/continue to write the data from
+ * @param packetSize returns the ammount of bytes that can be written in a single llwrite (128 or less if end of file reached)
+ * @param filesize file total size to check how many bytes should be written
+ * @return returns the packet data that will be sent
+ */
 unsigned char* splitPacket(unsigned char *message,off_t *index, int *packetSize, off_t fileSize);
 
+
+/**
+ * \brief Checks if the first packet read from the sender is indeed the control start packet
+ * @param start packet read (first packet)
+ * @param filesize gets the total size of the file through the control packet
+ * @param name gets the filename through the control packet
+ * @param nameSize gets the filename size through the control packet
+ */
 int checkStart(unsigned char* start, unsigned int *filesize, char *name, unsigned int *nameSize);
 
 int checkEND(unsigned char *start, int startSize, unsigned char *end, int endSize);

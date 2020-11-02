@@ -35,6 +35,7 @@ unsigned char* openFile(char* filename, off_t *fileSize){
     }
 
     puts("hey 2");
+    fclose(file);
     return data;
 
 }
