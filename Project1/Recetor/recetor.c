@@ -67,7 +67,10 @@ int main(int argc, char** argv)
     }
     printf("message size = %d\n",messageSize);
     
-    if(message[0] == CT_END){
+    if(messageSize == 0){
+      continue;
+    } 
+    else if (message[0] == CT_END){
       puts("Reached Control End Packet");
       final = (unsigned char*)malloc(messageSize);
       memcpy(final,message,messageSize);
