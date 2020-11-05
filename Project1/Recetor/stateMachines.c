@@ -24,7 +24,7 @@ int readSetMessage(int fd) {
     enum state current = START;
 
     int finish = FALSE;
-    unsigned char r, check;
+    unsigned char r;
 
     while (finish == FALSE){
         res = read(fd, &r, 1);
@@ -38,7 +38,6 @@ int readSetMessage(int fd) {
         case FLAG_RCV:
             if (r == A_EE){
                 current = A_RCV;
-                check ^= r;
             }
             else if (r == FLAG){
                 current = FLAG_RCV;
@@ -50,8 +49,6 @@ int readSetMessage(int fd) {
         case A_RCV:
             if (r == C_SET){
                 current = C_RCV;
-                check ^= r;
-                rcv = r;
             }
             else if (r == FLAG){
                 current = FLAG_RCV;
@@ -61,7 +58,7 @@ int readSetMessage(int fd) {
             }
             break;
         case C_RCV:
-            if (r == check){
+            if (r == (C_SET ^ A_EE)){
                 current = BCC_OK;
             }
             else if (r == FLAG){
@@ -108,7 +105,6 @@ int readReceiverMessage(int fd) {
         case FLAG_RCV:
             if (r == A_EE){
                 current = A_RCV;
-                check ^= r;
             }
             else if (r == FLAG){
                 current = FLAG_RCV;
@@ -120,7 +116,7 @@ int readReceiverMessage(int fd) {
         case A_RCV:
             if (r == REJ0 || r == REJ1 || r == RR0 || r == RR1 ){
                 current = C_RCV;
-                check ^= r;
+                check = r;
                 rcv = r;
             }
             else if (r == FLAG){
@@ -131,7 +127,7 @@ int readReceiverMessage(int fd) {
             }
             break;
         case C_RCV:
-            if (r == check){
+            if (r == (check ^ A_EE)){
                 current = BCC_OK;
             }
             else if (r == FLAG){
@@ -158,7 +154,6 @@ int readReceiverMessage(int fd) {
 
 int receiveUA(int fd){
     unsigned char c; // char read. Changes the state
-    unsigned char check = 0;
     int nr;
     enum state current = START;
 
@@ -184,7 +179,6 @@ int receiveUA(int fd){
         case FLAG_RCV:
             if(c == A_EE){
                 current = A_RCV;
-                check ^= c;
             }
             else if(c == FLAG) {
                 current = FLAG_RCV;
@@ -205,7 +199,7 @@ int receiveUA(int fd){
             } 
             break;
         case C_RCV:
-            if(c == BCC_OK){
+            if(c == (C_UA ^ A_EE)){
                 current = BCC_OK;
             }
             else if( c == FLAG){
@@ -267,7 +261,6 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
         case FLAG_RCV: 
             if(buf == A_EE) {
                 current = A_RCV;
-                check ^= buf;
             }
             else if(buf != FLAG) {
                 current = START;
@@ -277,13 +270,13 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
         case A_RCV: 
             if(buf == NS0) {
                 current = C_RCV;
-                check ^= buf;
+                check = buf;
                 trama = 0;
             }
 
             else if(buf == NS1) {
                 current = C_RCV;
-                check ^= buf;
+                check = buf;
                 trama = 1;
             }
 
@@ -297,7 +290,7 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
             break;
 
         case C_RCV:
-            if(buf == check) {
+            if(buf == (A_EE ^ check)) {
                 current = BCC_OK;
             }
 
@@ -439,7 +432,7 @@ int receiveDISC(int fd) {
     enum state current = START;
 
     int finish = FALSE;
-    unsigned char r, check;
+    unsigned char r;
 
     while (finish == FALSE)
     {
@@ -460,7 +453,6 @@ int receiveDISC(int fd) {
         case FLAG_RCV:
             if (r == A_EE){
                 current = A_RCV;
-                check ^= r;
             }
             else if (r == FLAG){
                 current = FLAG_RCV;
@@ -472,7 +464,6 @@ int receiveDISC(int fd) {
         case A_RCV:
             if (r == C_DISC){
                 current = C_RCV;
-                check ^= r;
             }
             else if (r == FLAG){
                 current = FLAG_RCV;
@@ -482,7 +473,7 @@ int receiveDISC(int fd) {
             }
             break;
         case C_RCV:
-            if (r == check){
+            if (r == (C_DISC ^ A_EE)){
                 current = BCC_OK;
             }
             else if (r == FLAG){
