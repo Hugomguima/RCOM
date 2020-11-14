@@ -196,7 +196,8 @@ int llwrite(int fd, unsigned char *buffer, int length) {
         // Processo de escrita
         //tcflush(fd,TCIOFLUSH);
 
-        unsigned char* copyBcc, copyBcc2;
+        unsigned char* copyBcc = (unsigned char *)malloc(messageSize);
+        unsigned char* copyBcc2 = (unsigned char *)malloc(messageSize);
 
         copyBcc = generateRandomBCC(message,messageSize);
         copyBcc2 = generateRandomBCC2(copyBcc,messageSize);
