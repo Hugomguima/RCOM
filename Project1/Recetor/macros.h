@@ -1,5 +1,5 @@
 
-#define BAUDRATE B38400
+#define BAUDRATE B16000
 #define MODEMDEVICE "/dev/ttyS1"
 #define _POSIX_SOURCE 1 /* POSIX compliant source */
 #define FALSE 0
@@ -32,7 +32,7 @@
 
 // Macros for Data Packet
 #define CONTROL 0x01
-#define PACKETSIZE 128
+#define PACKETSIZE 32
 
 #define ERROR -1
 #define MAXTRIES 3
