@@ -32,7 +32,7 @@
 
 // Macros for Data Packet
 #define CONTROL 0x01
-#define PACKETSIZE 64
+#define PACKETSIZE 96
 
 #define ERROR -1
 #define MAXTRIES 3
