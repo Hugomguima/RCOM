@@ -1,6 +1,6 @@
 #include "application.h"
 
-unsigned int packetNumber = 0; //Global variable counting thenumber of packets being sent
+unsigned int packetNumber = 0; //Global variable counting the number of packets being sent
 
 
 

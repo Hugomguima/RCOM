@@ -16,8 +16,10 @@ int main(int argc, char** argv)
   Open serial port device for reading and writing and not as controlling tty
   because we don't want to get killed if linenoise sends CTRL-C.
   */
-
   
+  struct timespec initialTime, finalTime;
+  clock_gettime(CLOCK_REALTIME, &initialTime);
+
   if ((fd = open(argv[1], O_RDWR | O_NOCTTY )) < 0) {
     perror(argv[1]);
     return -2;
@@ -84,6 +86,12 @@ int main(int argc, char** argv)
     puts("TRANSMITTER: Error on llclose");
     return -7;
   }
+
+  clock_gettime(CLOCK_REALTIME, &finalTime);
+
+  double accum = (finalTime.tv_sec - initialTime.tv_sec) + (finalTime.tv_nsec - initialTime.tv_nsec) / 1E9;
+
+  printf("Seconds passed: %f\n", accum);
 
   sleep(1);
   close(fd);

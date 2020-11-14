@@ -3,6 +3,7 @@
 unsigned char rcv;
 int expectedTrama = 0;
 int res;
+int counter_errors = 0;
 
 
 int sendMessage(int fd, unsigned char c){
@@ -238,6 +239,7 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
     enum state current = START;
     int correctBCC2 = FALSE; // if no errors in BCC2, correctBCC2 = 1; else correctBCC2 = 0
     int errorOnDestuffing = FALSE; // if no errors occur on destuffing, the var stays equal to 0, else the value is 1
+    counter_errors++;
 
     puts("Receiver reading frames");
     while(current != STOP) {
@@ -313,6 +315,7 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
                     correctBCC2 = FALSE;
                     current = STOP;
                 }
+                
             }
             else if(buf == ESCAPE_BYTE) {
                 current = BYTE_DESTUFFING;
