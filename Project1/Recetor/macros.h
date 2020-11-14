@@ -1,5 +1,5 @@
 
-#define BAUDRATE B9600
+#define BAUDRATE B4800
 #define MODEMDEVICE "/dev/ttyS1"
 #define _POSIX_SOURCE 1 /* POSIX compliant source */
 #define FALSE 0
