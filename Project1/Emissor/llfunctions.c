@@ -196,8 +196,13 @@ int llwrite(int fd, unsigned char *buffer, int length) {
         // Processo de escrita
         //tcflush(fd,TCIOFLUSH);
 
+        unsigned char* copyBcc, copyBcc2;
+
+        copyBcc = generateRandomBCC(message,messageSize);
+        copyBcc2 = generateRandomBCC2(copyBcc,messageSize);
+
         // Para já ainda não sei qual é o tamanho
-        int wr = write(fd, message, messageSize);
+        int wr = write(fd, copyBcc2, messageSize);
 
         printf("TRANSMITTER: SET message sent: %d bytes sent\n", wr);
 
@@ -344,4 +349,33 @@ void alarmHandler(int signo){
     exit(0);
   }
   return ;
+}
+
+
+
+unsigned char* generateRandomBCC(unsigned char* packet, int packetSize){
+    unsigned char* copy = (unsigned char *)malloc(packetSize);
+    memcpy(copy,packet,packetSize);
+
+    if(((rand() % 100) + 1 ) <= BCC1ERRORRATE){
+        unsigned char hex[16] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+
+        copy[(rand() % 3) + 1] = hex[rand() % 16];
+        puts("BCC Value sucessfully changed");
+    }
+    return copy;
+}
+
+
+unsigned char* generateRandomBCC2(unsigned char* packet, int packetSize){
+    unsigned char* copy = (unsigned char *)malloc(packetSize);
+    memcpy(copy,packet,packetSize);
+
+    if(((rand() % 100) + 1 ) <= BCC2ERRORRATE){
+        unsigned char hex[16] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+        
+        copy[(rand() % (packetSize - 5)) + 4] = hex[rand() % 16];
+        puts("BCC2 Value sucessfully changed");
+    }
+    return copy;
 }

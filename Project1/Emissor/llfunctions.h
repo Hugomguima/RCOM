@@ -67,3 +67,8 @@ int llclose(int fd, int status);
  * @param signo signal number to be handled
  */
 void alarmHandler(int signo);
+
+
+unsigned char* generateRandomBCC(unsigned char* packet, int packetSize);
+
+unsigned char* generateRandomBCC2(unsigned char* packet, int packetSize);

@@ -32,8 +32,11 @@
 
 // Macros for Data Packet
 #define CONTROL 0x01
-#define PACKETSIZE 224
+#define PACKETSIZE 32
 
 #define ERROR -1
 #define MAXTRIES 3
 #define TIMEOUT 3 //Time to wait fora  repsonse from the receiver
+
+#define BCC1ERRORRATE 20
+#define BCC2ERRORRATE 20
