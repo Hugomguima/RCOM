@@ -114,6 +114,7 @@ int main(int argc, char** argv)
 
   clock_gettime(CLOCK_REALTIME, &finalTime);
   double accum = (finalTime.tv_sec - initialTime.tv_sec) + (finalTime.tv_nsec - initialTime.tv_nsec) / 1E9;
+  printf("Seconds passed: %f\n", accum);
   sleep(1);
 
   free(fileName);
