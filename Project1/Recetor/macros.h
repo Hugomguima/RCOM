@@ -36,4 +36,4 @@
 
 #define ERROR -1
 #define MAXTRIES 3
-#define TIMEOUT 3 //Time to wait fora  repsonse from the receiver
+#define TIMEOUT 1 //Time to wait fora  repsonse from the receiver   

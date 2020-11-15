@@ -25,7 +25,7 @@ int llopen(int fd, int status) {
     /* set input mode (non-canonical, no echo,...) */
     newtio.c_lflag = 0;
 
-    newtio.c_cc[VTIME]    = 50;   /* inter-character timer unused */
+    newtio.c_cc[VTIME]    = 20;   /* inter-character timer unused */
     newtio.c_cc[VMIN]     = 0;   /* blocking read until 0 chars received */
 
     /* 
