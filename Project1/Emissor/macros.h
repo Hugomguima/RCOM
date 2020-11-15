@@ -38,5 +38,5 @@
 #define MAXTRIES 3
 #define TIMEOUT 1 //Time to wait fora  repsonse from the receiver
 
-#define BCC1ERRORRATE 5
-#define BCC2ERRORRATE 5
+#define BCC1ERRORRATE 0
+#define BCC2ERRORRATE 0
