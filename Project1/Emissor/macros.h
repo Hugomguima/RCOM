@@ -35,7 +35,7 @@
 #define PACKETSIZE 32
 
 #define ERROR -1
-#define MAXTRIES 3
+#define MAXTRIES 10
 #define TIMEOUT 1 //Time to wait fora  repsonse from the receiver
 
 #define BCC1ERRORRATE 0
