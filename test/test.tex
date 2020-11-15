@@ -1,0 +1,282 @@
+\documentclass{article}
+
+\usepackage[english]{babel}
+\usepackage{indentfirst}
+
+
+\author{Hugo Guimarães, Pedro Ponte}
+\title{Primeiro Trabalho Labortorial}
+
+\begin{document}
+
+
+\maketitle 
+
+\pagebreak
+\section{Sumário}
+
+Este trabalho foi realizado no contexto da cadeira Redes de Computadores, com o objetivo de implementar um protocolo de  ligação de Dados através de uma porta série, permitindo a transmissão de um ficheiro entre 2 computadores.
+ 
+Deste modo, o trabalho foi concluído com sucesso, dado que foi possível implementar uma aplicação que cumprisse os objetivos estabelecidos.
+
+
+\section{Introdução}
+
+Este trabalho pretende implementar um protocolo de ligação de dados baseado no guião fornecido, de modo a ser possível transferir ficheiros através de uma porta série.
+
+O relatório pretende descrever detalhadamente a aplicação implementada, estando dividida nas seguintes secções:
+
+\subsection{Arquitetura}
+Descrição dos blocos funcionais e interfaces implementados.
+
+
+\subsection{Estrutura do Código}
+Descrição das APIs, principais estruturas de dados, principais funções e a sua relação com a arquitetura
+
+\subsection{Casos De Uuso Principais}
+Identificação dos principais casos de uso e da sequência de chamada de funções
+
+\subsection{Protocolo De Ligação Lógica}
+Descrição dos principais aspetos funcionais do protocolo de ligação lógica e da sua estratégia de implementação com apresentação de extratos de código.
+
+\subsection{Protocolo De Aplicação}
+Descrição dos principais aspetos funcionais do protocolo de aplicação e da sua estratégia de implementação com apresentação de extratos de código.
+
+\subsection{Validação}
+Descrição dos testes efetuados com apresentação quantificada dos resultados
+
+\subsection{Eficiência Do Protocolo De Ligação De Dados}
+Caracterização estatística da eficiência do protocolo de Stop\&Wait implementado.
+
+\subsection{Conclusões}
+Síntese da informação apresentada nas secções anteriores e reflexão sobre os objetivos de aprendizagem alcançados.
+
+
+\section{Arquitetura}
+O trabalho está divido em 2 secções fundamentais, o emissor e recetor. Ambos incorporam a sua própria camada de ligação de dados e aplicação.
+
+\section{Estrutura do Código}
+O código está dividido em vários ficheiros.
+
+Os ficheiros llfunctions.c e stateMachines.c são responsáveis pelo tratamento do protocolo da ligação de dados, sendo stateMachines.c unicamente responsável pela implementação das máquinas de estado de aceitação de mensagens.
+
+O ficheiro application.c é responsável pelo tratamento do protocolo de aplicação
+
+Os ficheiros emissor.c e recetor.c são responsáveis pelo fluxo de execução do programa, dos lados do emissor e recetor, respetivamente. Ambos contêm apenas a função main e todas as funções chamadas estão implementadas nos restantes ficheiros.
+
+\bigskip
+
+\textbf{emissor.c}
+\begin{itemize}
+	\item \textbf{main} - Controla os processos ao nível da camada da aplicação da parte do emissor e faz as chamadas às funções da camada de ligação.
+\end{itemize}
+
+
+\bigskip
+
+\textbf{recetor.c}
+\begin{itemize}
+	\item \textbf{main} - Controla os processos ao nível da camada da aplicação da parte do recetor e faz as chamadas às funções da camada de ligação.
+\end{itemize}
+
+\bigskip
+
+\textbf{llfunctions.c}
+\begin{itemize}
+	\item \textbf{llopen} - Do lado do emissor, envia uma trama de supervisão SET e recebe uma trama UA, enquanto no lado do recetor este espera pela trama de controlo SET enviada pelo emissor e responde com uma trama UA.
+	\item \textbf{llclose} -  Do lado do emissor, envia uma trama de supervisão DISC, espera que o emissor responda com uma trama DISC e envia uma trama UA. No lado do recetor, este aguarda pela trama DISC enviada pelo emissor, responde com uma trama DISC e depois recebe uma trama UA.
+	\item \textbf{llwrite} - Faz o stuffing das tramas I e envia-as, recebendo REJ ou RR como resposta.
+	\item \textbf{llread} - Lê as tramas I enviadas pelo llwrite e envia uma resposta do tipo RR, no caso das tramas I recebidas sem erros detetados no cabeçalho e no campo de dados, ou do tipo REJ, no caso das tramas I sem erro detetado no cabeçalho, mas com erros no campo de dados.
+	\item \textbf{alarmHandler} - Substituição do handler do alarme para permitir que as tramas sejam enviadas MAXTRIES vezes em situação de erro.
+	\item \textbf{getBcc2} - Gera o BCC2 no lado do emissor.
+	\item \textbf{stuffBCC2} - Realiza o stuff do BCC2 no lado do emissor, após a geração do BCC.
+	
+	\textbf{Variaveis globais}
+	\begin{itemize}
+		\item \textbf{STP}
+		\item \textbf{counter} - Contador de chamadas ao alarmHandler, inicializada a 0.
+		\item \textbf{trama} - Representa o número sequencial da trama enviada pelo emissor (Ns), inicializada a 0.
+	\end{itemize}
+\end{itemize}
+
+\bigskip
+
+\textbf{stateMachines.c}
+\begin{itemize}
+	\item \textbf{sendMessage } - Faz o parse da trama e envia-a pela porta de série.
+	\item \textbf{readSetMessage } -  Máquina de estados que recebe a trama SET e verifica a sua correção.
+	\item \textbf{readReceiverMessage } - Recebe as tramas REJ e RR enviadas pelo recetor e verifica a sua correção.
+	\item \textbf{receiveUA} - Recebe as tramas UA e verifica a sua correção.
+	
+	\item \textbf{receiverRead\_StateMachine} - Recebe as tramas I enviadas pelo emissor, verifica a sua correção, efetua o destuffing necessário, guarda os dados contidos nas tramas I num novo array e envia uma trama REJ ou RR como resposta, dependendo da ocorrência de erros nas tramas recebidas ou no respetivo destuffing.
+	\item \textbf{receiveDISC } - Recebe as tramas DISC e verifica a sua correção.
+	\item \textbf{checkBCC2 } - Verifica a correção do BCC2 no lado do recetor.
+	
+	\textbf{Variaveis globais}
+	\begin{itemize}
+		\item \textbf{STP}
+		\item \textbf{counter} - Contador de chamadas ao alarmHandler, inicializada a 0.
+		\item \textbf{trama} - Representa o número sequencial da trama enviada pelo emissor (Ns), inicializada a 0.
+	\end{itemize}
+\end{itemize}
+
+\bigskip
+
+\textbf{applications.c}
+\begin{itemize}
+	\item \textbf{openFile} - Abre o ficheiro enviado como argumento e obtém o seu conteúdo e tamanho.
+	\item \textbf{parseControlPacket} -  Gera o pacote de controlo de um ficheiro para depois ser enviado.
+	\item \textbf{parseDataPacket} - Codifica a mensagem num pacote de acordo com o protocolo estabelecido.
+	\item \textbf{splitPacket} - Obtém uma porção da mensagem, de modo a enviar os dados sob a forma de uma trama I.
+	\item \textbf{checkStart \_StateMachine} - Verifica se o primeiro pacote recebido pelo recetor é de facto o pacote de controlo de início.
+	\item \textbf{checkEND} - Verifica se o pacote de controlo inicial é igual ao final.
+	\item \textbf{assembleDataPacket} - Obtém os dados enviados pelo emissor através do pacote recebido pela porta série.
+	\item \textbf{createFile} - Cria o ficheiro final após ter lido toda a informação através da porta série.
+	\textbf{Variaveis globais}
+	\begin{itemize}
+		\item \textbf{packetNumber} - Contagem do número de pacotes enviados.
+	\end{itemize}
+\end{itemize}
+
+
+\section{Casos De Uso Principais}
+
+Este trabalho laboratorial tem 2 casos de uso distintos: a interface e a transmissão do ficheiro.
+A interface permite ao utilizador iniciar a aplicação. No lado do emissor, seleciona a porta de série que pretende utilizar (ex: /dev/ttyS0) e o ficheiro que pretende enviar. Do lado do recetor, basta apenas selecionar a porta de série a ser utilizada.
+
+A transmissão do ficheiro, através da porta de série, entre os 2 dispositivos ocorre da seguinte forma:
+
+\begin{itemize}
+	\item Configuração da ligação e escolha do ficheiro a ser enviado pelo emissor;
+	\item Estabelecimento da ligação entre o emissor e o recetor;
+	\item Envio, trama a trama, dos dados por parte do emissor;
+	Receção dos dados enviados pelo recetor, que os guarda num ficheiro com o mesmo nome do original à medida que os vai recebendo;
+	\item Terminação da ligação.
+
+\end{itemize}
+
+\section{Protocolo De Ligação Lógica}
+
+O objetivo do protocolo de ligação lógica é estabelecer a ligação estável e fiável entre os 2 computadores, utilizando a porta de série. Para isso, implementamos, tal como é referido no enunciado, as funções llopen, llread, llwrite e llclose.
+
+\bigskip
+
+\subsection{LLOPEN}
+
+Esta função é responsável por estabelecer a ligação entre o emissor e o recetor através da porta de série.
+
+Do lado do transmissor, esta função instala o alarme que vai ser utilizado ao longo da ligação, envia uma trama SET ao recetor, ficando depois à espera que este envie na resposta uma trama do tipo UA. Caso o recetor não responda passados 3 segundos, o emissor volta a reenviar a trama SET, aguardando depois uma resposta do outro lado. Caso volte a ficar sem resposta ao fim dos 3 segundos, repete o envio mais uma vez e no caso de mais um insucesso o programa termina. Caso o recetor responda com a trama UA, então a ligação é estabelecida.
+
+Do lado do recetor, este aguarda o envio da trama SET por parte do emissor e responde com o envio de uma trama do tipo UA.
+
+\subsection{LLWRITE}
+A função llwrite é responsável pelo stuffing e envio das tramas do tipo I.
+
+Inicialmente, é acrescentado um cabeçalho à mensagem, de acordo com o protocolo descrito no guião. De seguida, é feito o stuffing do BCC2 e da mensagem, pelo que a trama está pronta para ser enviada.
+
+O processo de envio das tramas do tipo I está protegido por um alarme com 3 segundos de espera e 3 tentativas.
+
+Após o envio, é esperada uma resposta pela parte do recetor, através do comando RR, que simboliza que a trama foi transmitida corretamente, ou do comando REJ, que indica problemas no envio da trama, originando um reenvio da trama original.
+
+\subsection{LLREAD}
+
+A função llread recebe as tramas do tipo I enviadas pelo emissor.
+
+A trama recebida é lida e analisada através de uma máquina de estados, sendo feitas as verificações do cabeçalho e do campo de dados e realizado o respetivo destuffing caso seja necessário.
+
+Caso a trama recebida não tenha erros no cabeçalho e caso seja uma nova trama, mas possua erros no campo de dados, é enviada uma resposta do tipo REJ para o emissor, pedindo uma retransmissão dessa trama. Caso contrário, é enviada uma resposta do tipo RR.
+
+Se a trama recebida não possuir erros no cabeçalho e no campo de dados, ou caso a trama seja um duplicado, é confirmada ao emissor através de uma trama RR.
+
+Tramas com o cabeçalho errado são ignoradas, sem qualquer ação.
+
+\subsection{LLCLOSE}
+A função llclose tem como objetivo concluir a ligação entre o emissor e o recetor.
+
+O emissor envia uma trama DISC, esperando por uma resposta do emissor da mesma trama DISC. Caso a receba, envia uma trama UA para finalizar a ligação.
+
+O emissor está protegido por um alarme de 3 tentativas de 3 segundos de espera, tal como as funções mencionadas anteriormente.
+
+O recetor espera por uma trama DISC e, caso a receba, envia de volta uma trama DISC, esperando por uma trama UA para finalizar a ligação.
+
+
+\section{Protocolo De Aplicação}
+O protocolo de aplicação contém as seguintes funcionalidades:
+
+\begin{itemize}
+	\item Leitura da informação sobre o ficheiro a enviar;
+	Geração e leitura de pacotes de controlo do tipo START e END, contendo o tamanho e o nome do ficheiro;
+	\item Divisão do ficheiro em fragmentos mais pequenos;
+	\item Preenchimento de um fragmento do ficheiro com um cabeçalho de controlo;
+	\item Leitura do ficheiro a criar, do lado do recetor, e criação do mesmo sem alterações;
+
+\end{itemize}
+
+\subsection{OpenFile}
+Abre o ficheiro recebido e retorna os dados do ficheiro, assim como o seu tamanho.
+
+\subsection{ParseControlPacket}
+Gera um pacote de controlo do tipo START ou END, contendo o tamanho e o nome do ficheiro.
+
+\subsection{ParseDataPacket}
+Gera um pacote de dados, preenchendo-o com um cabeçalho contendo uma FLAG de controlo, o número de pacotes, o tamanho do ficheiro e o respetivo fragmento do ficheiro a ser enviado.
+
+\subsection{SplitPacket}
+Divide o ficheiro em fragmentos mais pequenos.
+
+\subsection{CheckStart}
+Verifica se o pacote de controlo foi recebido corretamente e obtém de lá o tamanho e o nome do ficheiro.
+
+\subsection{CheckEND}
+Compara o pacote de controlo do tipo START enviado antes da transmissão dos dados com o do tipo END recebido no final da transmissão, verificando se os campos com o tamanho e nome do ficheiro são iguais.
+
+\subsection{AssembleDataPacket}
+Retorna o campo de dados de um pacote.
+
+\subsection{CreateFile}
+Gera um ficheiro de acordo com os dados recebidos.
+
+
+\section{Validação}
+Foi testado o envio de vários ficheiros, incluindo ficheiros com uma elevada quantidade de dados, os quais foram enviados do emissor para o recetor corretamente, sem perda de informação.
+
+Relativamente aos testes relativos à interrupção da ligação do cabo de série e geração de ruído, não fomos capazes de apresentar imagens relativas ao seu procedimento, porém, o seu sucesso foi comprovado na presença do docente no decurso da apresentação do projeto.
+
+
+\section{Eficiência Do Protocolo De Ligação De Dados}
+
+\subsection{Variação da capacidade de Baudrate}
+
+Foi utilizada a imagem do pinguim, com um tamanho de 35.4KB, sobre a qual se fez variar os valores de Baudrate.
+
+Foi possível concluir que o aumento do Baudrate provoca uma diminuição da eficiência, embora o tempo de execução seja menor.
+
+\subsection{Variação do tamanho das tramas}
+
+Utilizando uma imagem de tamanho 35.4KB, e um Baudrate de 38400, fez-se variar o tamanho de envio das tramas em cada llwrite.
+
+Foi possível concluir que o aumento do tamanho da trama de envio provocou o aumento da eficiência, sendo o tempo de execução menor.
+
+\subsection{Atraso no envio das tramas}
+
+Utilizando uma imagem de tamanho 35.4KB, e um Baudrate de 38400, e o envio de 128 bytes em cada trama, introduziu-se um atraso no envio de cada trama no llwrite, através da função usleep().
+
+Tal como esperado, foi possível concluir que a introdução de um atraso no envio de tramas causa uma diminuição da eficiência do código, sendo o tempo de execução cada vez menor quanto maior o atraso introduzido.
+
+\subsection{Geração de erros no cabeçalho e no campo de dados}
+
+Foram criadas duas funções, generateRandomBCC e generateRandomBCC2, de modo a gerar erros no cabeçalho e campo de dados, respetivamente, a uma percentagem definida no ficheiro macros.h, através das macros BCC1ERRORRATE e BCC2ERRORRATE.
+
+Utilizando uma imagem de tamanho 35.4KB, e um Baudrate de 38400, e o envio de 128 bytes em cada trama, fez-se variar os valores de BCC1ERRORRATE e BCC2ERRORRATE.
+
+Tal como esperado, foi possível concluir que o aumento da taxa de erros gerados no cabeçalho e campo de dados provocou uma diminuição da eficiência, também como um aumento do tempo de execução.
+
+\section{Conclusões}
+Foi possível alcançar o objetivo proposto do trabalho, a implementação de um protocolo de  ligação de Dados através de uma porta série, sendo possível enviar com sucesso ficheiros de diferentes tamanhos e extensões.
+
+Foi possível compreender não só o processo de implementação de uma protocolo de ligação de dados, mas também as condições que afetam a eficiência do protocolo, através da alteração do tamanho da trama de envio, Baudrate, quantidade de erros e atraso no envio das tramas.
+
+
+
+
+\end{document}
