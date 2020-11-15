@@ -207,7 +207,6 @@ int llwrite(int fd, unsigned char *buffer, int length) {
 
         printf("TRANSMITTER: SET message sent: %d bytes sent\n", wr);
 
-        usleep(10000);
         alarm(TIMEOUT);
 
         // Mudar o processo de espera não é receiveUA
