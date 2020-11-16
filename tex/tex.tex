@@ -2,11 +2,8 @@
 
 \usepackage[english]{babel}
 \usepackage{indentfirst}
-
 \usepackage{graphicx}
 \usepackage{subfig}
-
-
 \usepackage{xcolor}
 \usepackage{listings}
 
@@ -39,13 +36,16 @@
 \author{Hugo Guimarães, Pedro Ponte}
 \title{Primeiro Trabalho Laboratorial}
 
+
 \begin{document}
 
+\tableofcontents
 
 \maketitle 
 
 \pagebreak
-\section{Sumário}
+
+\section*{Sumário}
 
 Este trabalho foi realizado no contexto da cadeira Redes de Computadores, com o objetivo de implementar um protocolo de  ligação de dados através de uma porta série, permitindo a transmissão de um ficheiro entre 2 computadores.
  
@@ -53,7 +53,6 @@ Deste modo, o trabalho foi concluído com sucesso, dado que foi possível implem
 
 
 \section{Introdução}
-
 Este trabalho pretende implementar um protocolo de ligação de dados baseado no guião fornecido, de modo a ser possível transferir ficheiros através de uma porta série.
 
 O relatório pretende descrever detalhadamente a aplicação implementada, estando dividida nas seguintes secções:
@@ -65,7 +64,7 @@ Descrição dos blocos funcionais e interfaces implementados.
 \subsection{Estrutura do Código}
 Descrição das APIs, principais estruturas de dados, principais funções e a sua relação com a arquitetura.
 
-\subsection{Casos De Uso Principais}
+\subsection{Casos De Uso Principais} 
 Identificação dos principais casos de uso e da sequência de chamada de funções.
 
 \subsection{Protocolo De Ligação Lógica}
@@ -320,7 +319,7 @@ Através deste trabalho, foi possível compreender não só o processo de implem
 
 \section{Anexos}
 
-\subsection{Codigo}
+\subsection{Código}
 
 \subsection{emissor.h}
 \begin{lstlisting}[style=CStyle]
@@ -1969,7 +1968,7 @@ void createFile(unsigned char* data, unsigned int fileSize, char *filename){
 	\caption{Caption}
 \end{figure}
 
-\subsection{Introdução de atraso de propragação}
+\subsection{Introdução de atraso de propagação}
 
 \begin{figure}[h]
 	\includegraphics[width=\textwidth]{tabelaAtraso.png}
