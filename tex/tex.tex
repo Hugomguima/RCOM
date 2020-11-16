@@ -1,14 +1,16 @@
-\documentclass{article}
+\documentclass[11pt]{article}
 
 \usepackage[english]{babel}
 \usepackage{indentfirst}
 
 \usepackage{graphicx}
 \usepackage{subfig}
-
+\usepackage[section]{placeins}
 
 \usepackage{xcolor}
 \usepackage{listings}
+\usepackage{float}
+\usepackage{capt-of}
 
 \definecolor{mGreen}{rgb}{0,0.6,0}
 \definecolor{mGray}{rgb}{0.5,0.5,0.5}
@@ -45,7 +47,7 @@
 \maketitle 
 
 \pagebreak
-\section{Sumário}
+\section*{Sumário}
 
 Este trabalho foi realizado no contexto da cadeira Redes de Computadores, com o objetivo de implementar um protocolo de  ligação de dados através de uma porta série, permitindo a transmissão de um ficheiro entre 2 computadores.
  
@@ -57,32 +59,16 @@ Deste modo, o trabalho foi concluído com sucesso, dado que foi possível implem
 Este trabalho pretende implementar um protocolo de ligação de dados baseado no guião fornecido, de modo a ser possível transferir ficheiros através de uma porta série.
 
 O relatório pretende descrever detalhadamente a aplicação implementada, estando dividida nas seguintes secções:
-
-\subsection{Arquitetura}
-Descrição dos blocos funcionais e interfaces implementados.
-
-
-\subsection{Estrutura do Código}
-Descrição das APIs, principais estruturas de dados, principais funções e a sua relação com a arquitetura.
-
-\subsection{Casos De Uso Principais}
-Identificação dos principais casos de uso e da sequência de chamada de funções.
-
-\subsection{Protocolo De Ligação Lógica}
-Descrição dos principais aspetos funcionais do protocolo de ligação lógica e da sua estratégia de implementação com apresentação de extratos de código.
-
-\subsection{Protocolo De Aplicação}
-Descrição dos principais aspetos funcionais do protocolo de aplicação e da sua estratégia de implementação com apresentação de extratos de código.
-
-\subsection{Validação}
-Descrição dos testes efetuados com apresentação quantificada dos resultados.
-
-\subsection{Eficiência Do Protocolo De Ligação De Dados}
-Caracterização estatística da eficiência do protocolo de Stop\&Wait implementado.
-
-\subsection{Conclusões}
-Síntese da informação apresentada nas secções anteriores e reflexão sobre os objetivos de aprendizagem alcançados.
-
+\begin{description}
+	\item[Arquitetura] Descrição dos blocos funcionais e interfaces implementados.
+	\item[Estrutura do Código] Descrição das APIs, principais estruturas de dados, principais funções e a sua relação com a arquitetura.
+	\item[Casos De Uso Principais] Identificação dos principais casos de uso e da sequência de chamada de funções.
+	\item[Protocolo De Ligação Lógica] Descrição dos principais aspetos funcionais do protocolo de ligação lógica e da sua estratégia de implementação com apresentação de extratos de código.
+	\item[Protocolo De Aplicação] Descrição dos principais aspetos funcionais do protocolo de aplicação e da sua estratégia de implementação com apresentação de extratos de código.
+	\item[Validação] Descrição dos testes efetuados com apresentação quantificada dos resultados.
+	\item[Eficiência Do Protocolo De Ligação De Dados] Caracterização estatística da eficiência do protocolo de Stop\&Wait implementado.
+	\item[Conclusões] Síntese da informação apresentada nas secções anteriores e reflexão sobre os objetivos de aprendizagem alcançados.
+\end{description}
 
 \section{Arquitetura}
 O trabalho está divido em 2 secções fundamentais, o emissor e o recetor. Ambos incorporam a sua própria camada de ligação de dados e aplicação.
@@ -96,7 +82,6 @@ O ficheiro \textit{application.c} é responsável pelo tratamento do protocolo d
 
 Os ficheiros \textit{emissor.c} e \textit{recetor.c} são responsáveis pelo fluxo de execução do programa, dos lados do emissor e recetor, respetivamente. Ambos contêm apenas a função main e todas as funções chamadas estão implementadas nos restantes ficheiros.
 
-\bigskip
 
 \textbf{emissor.c}
 \begin{itemize}
@@ -104,14 +89,11 @@ Os ficheiros \textit{emissor.c} e \textit{recetor.c} são responsáveis pelo flu
 \end{itemize}
 
 
-\bigskip
-
 \textbf{recetor.c}
 \begin{itemize}
 	\item \textbf{main} - Controla os processos ao nível da camada da aplicação da parte do recetor e faz as chamadas às funções da camada de ligação.
 \end{itemize}
 
-\bigskip
 
 \textbf{llfunctions.c}
 \begin{itemize}
@@ -123,15 +105,8 @@ Os ficheiros \textit{emissor.c} e \textit{recetor.c} são responsáveis pelo flu
 	\item \textbf{getBcc2} - Gera o \textit{BCC2} no lado do emissor.
 	\item \textbf{stuffBCC2} - Realiza o stuff do \textit{BCC2} no lado do emissor, após a geração do \textit{BCC}.
 	
-	\textbf{Variaveis globais}
-	\begin{itemize}
-		\item \textbf{STP}
-		\item \textbf{counter} - Contador de chamadas ao alarmHandler, inicializada a 0.
-		\item \textbf{trama} - Representa o número sequencial da trama enviada pelo emissor (\textit{Ns}), inicializada a 0.
-	\end{itemize}
 \end{itemize}
 
-\bigskip
 
 \textbf{stateMachines.c}
 \begin{itemize}
@@ -143,16 +118,7 @@ Os ficheiros \textit{emissor.c} e \textit{recetor.c} são responsáveis pelo flu
 	\item \textbf{receiverRead\_StateMachine} - Recebe as tramas I enviadas pelo emissor, verifica a sua correção, efetua o destuffing necessário, guarda os dados contidos nas tramas I num novo array e envia uma trama \textit{REJ} ou \textit{RR} como resposta, dependendo da ocorrência de erros nas tramas recebidas ou no respetivo destuffing.
 	\item \textbf{receiveDISC } - Recebe as tramas \textit{DISC} e verifica a sua correção.
 	\item \textbf{checkBCC2 } - Verifica a correção do \textit{BCC2} no lado do recetor.
-	
-	\textbf{Variaveis globais}
-	\begin{itemize}
-		\item \textbf{STP}
-		\item \textbf{counter} - Contador de chamadas ao alarmHandler, inicializada a 0.
-		\item \textbf{trama} - Representa o número sequencial da trama enviada pelo emissor (\textit{Ns}), inicializada a 0.
-	\end{itemize}
 \end{itemize}
-
-\bigskip
 
 \textbf{application.c}
 \begin{itemize}
@@ -164,10 +130,7 @@ Os ficheiros \textit{emissor.c} e \textit{recetor.c} são responsáveis pelo flu
 	\item \textbf{checkEND} - Verifica se o pacote de controlo inicial é igual ao final.
 	\item \textbf{assembleDataPacket} - Obtém os dados enviados pelo emissor através do pacote recebido pela porta série.
 	\item \textbf{createFile} - Cria o ficheiro final após ter lido toda a informação através da porta série.
-	\textbf{Variaveis globais}
-	\begin{itemize}
-		\item \textbf{packetNumber} - Contagem do número de pacotes enviados.
-	\end{itemize}
+
 \end{itemize}
 
 
@@ -176,7 +139,7 @@ Os ficheiros \textit{emissor.c} e \textit{recetor.c} são responsáveis pelo flu
 Este trabalho laboratorial tem 2 casos de uso distintos: a interface e a transmissão do ficheiro.
 A interface permite ao utilizador iniciar a aplicação. No lado do emissor, seleciona a porta de série que pretende utilizar (ex: \textbf{/dev/ttyS0}) e o ficheiro que pretende enviar (ex: \textbf{pinguim.png}). Do lado do recetor, basta apenas selecionar a porta de série a ser utilizada.
 
-A transmissão do ficheiro, através da porta de série, entre os 2 dispositivos ocorre da seguinte forma:
+A transmissão do ficheiro, através da porta de série, entre os dois dispositivos, permite o estabelecimento da ligação entre os dispositivos, sendo o emissor responsável pela escolha do ficheiro a enviar. o emissor envia, trama a trama, os dados, sendo recebidos de igual forma pelo recetor que, antes de terminar a ligação, origina um ficheiro igual ao recebido originalmente.
 
 \begin{itemize}
 	\item Configuração da ligação e escolha do ficheiro a ser enviado pelo emissor;
@@ -191,7 +154,7 @@ A transmissão do ficheiro, através da porta de série, entre os 2 dispositivos
 
 O objetivo do protocolo de ligação lógica é estabelecer a ligação estável e fiável entre os 2 computadores, utilizando a porta de série. Para isso, implementamos, tal como é referido no enunciado, as funções llopen, llread, llwrite e llclose.
 
-\bigskip
+\textit{Consultar os anexos  e  para mais informação sobre o código utilizado }
 
 \subsection{LLOPEN}
 
@@ -236,42 +199,22 @@ O recetor espera por uma trama \textit{DISC} e, caso a receba, envia de volta um
 
 \section{Protocolo De Aplicação}
 
-O protocolo de aplicação contém as seguintes funcionalidades:
+O protocolo de aplicação permite a leitura de informação do ficheiro a enviar, fragmentando o ficheiro em tramas e preenchendo-o com um cabeçalho de controlo, sendo também capaz de descodificar a própria trama enviada.
 
-\begin{itemize}
-	\item Leitura da informação sobre o ficheiro a enviar;
-	\item Geração e leitura de pacotes de controlo do tipo \textit{START} e \textit{END}, contendo o tamanho e o nome do ficheiro;
-	\item Divisão do ficheiro em fragmentos mais pequenos;
-	\item Preenchimento de um fragmento do ficheiro com um cabeçalho de controlo;
-	\item Leitura do ficheiro a criar, do lado do recetor, e criação do mesmo sem alterações, por parte do recetor;
+\textbf{Consultar os anexos  e  para mais informação sobre o código utilizado }
 
-\end{itemize}
+Para que tal fosse implementado, recorremos às seguintes funções:
 
-Para que tal fosse implementado, recorremos às funções descritas a seguir.
-
-\subsection{OpenFile}
-Abre o ficheiro recebido e retorna os dados do ficheiro, assim como o seu tamanho.
-
-\subsection{ParseControlPacket}
-Gera um pacote de controlo do tipo \textit{START} ou \textit{END}, contendo o tamanho e o nome do ficheiro.
-
-\subsection{ParseDataPacket}
-Gera um pacote de dados, preenchendo-o com um cabeçalho contendo uma \textit{FLAG} de controlo, o número de pacotes, o tamanho do ficheiro e o respetivo fragmento do ficheiro a ser enviado.
-
-\subsection{SplitPacket}
-Divide o ficheiro em fragmentos mais pequenos.
-
-\subsection{CheckStart}
-Verifica se o pacote de controlo foi recebido corretamente e obtém deste o tamanho e o nome do ficheiro.
-
-\subsection{CheckEND}
-Compara o pacote de controlo do tipo \textit{START} enviado antes da transmissão dos dados com o do tipo \textit{END} recebido no final da transmissão, verificando se os campos com o tamanho e nome do ficheiro são iguais.
-
-\subsection{AssembleDataPacket}
-Retorna o campo de dados de um pacote.
-
-\subsection{CreateFile}
-Gera um ficheiro de acordo com os dados recebidos.
+\begin{description}
+	\item[OpenFile] Abre o ficheiro recebido e retorna os dados do ficheiro, assim como o seu tamanho.
+	\item[ParseControlPacket] Gera um pacote de controlo do tipo \textit{START} ou \textit{END}, contendo o tamanho e o nome do ficheiro.
+	\item[ParseDataPacket] Gera um pacote de dados, preenchendo-o com um cabeçalho contendo uma \textit{FLAG} de controlo, o número de pacotes, o tamanho do ficheiro e o respetivo fragmento do ficheiro a ser enviado.
+	\item[SplitPacket] Divide o ficheiro em fragmentos mais pequenos.
+	\item[CheckStart] Verifica se o pacote de controlo foi recebido corretamente e obtém deste o tamanho e o nome do ficheiro.
+	\item[CheckEND] Compara o pacote de controlo do tipo \textit{START} enviado antes da transmissão dos dados com o do tipo \textit{END} recebido no final da transmissão, verificando se os campos com o tamanho e nome do ficheiro são iguais.
+	\item[AssembleDataPacket] Retorna o campo de dados de um pacote.
+	\item[CreateFile] Gera um ficheiro de acordo com os dados recebidos.
+\end{description}
 
 
 \section{Validação}
@@ -349,6 +292,8 @@ Através deste trabalho, foi possível compreender não só o processo de implem
 int main(int argc, char** argv);
 
 \end{lstlisting}
+
+\pagebreak
 
 \subsection{emissor.c}
 
@@ -455,6 +400,7 @@ int main(int argc, char** argv)
 }
 \end{lstlisting}
 
+\pagebreak
 
 \subsection{recetor.h}
 
@@ -476,6 +422,8 @@ int main(int argc, char** argv)
 #include "llfunctions.h"
 #include "application.h"
 \end{lstlisting}
+
+\pagebreak
 
 \subsection{recetor.c}
 
@@ -608,6 +556,8 @@ int main(int argc, char** argv)
 }
 \end{lstlisting}
 
+\pagebreak
+
 \subsection{llfunctions.h}
 
 \begin{lstlisting}[style=CStyle]
@@ -689,6 +639,7 @@ unsigned char* generateRandomBCC2(unsigned char* packet, int packetSize);
 
 \end{lstlisting}
 
+\pagebreak
 
 \subsection{llfunctions.c}
 
@@ -1068,6 +1019,8 @@ unsigned char* generateRandomBCC2(unsigned char* packet, int packetSize){
 }
 \end{lstlisting}
 
+\pagebreak
+
 \subsection{stateMachines.h}
 
 \begin{lstlisting}[style=CStyle]
@@ -1105,6 +1058,8 @@ int receiveDISC(int fd);
 
 int checkBCC2(unsigned char *packet, int size);
 \end{lstlisting}
+
+\pagebreak
 
 \subsection{stateMachines.c}
 
@@ -1630,6 +1585,8 @@ int checkBCC2(unsigned char *packet, int size){
 }
 \end{lstlisting}
 
+\pagebreak
+
 \subsection{application.h}
 
 \begin{lstlisting}[style=CStyle]
@@ -1720,6 +1677,8 @@ unsigned char* assembleDataPacket(unsigned char* message, unsigned int messageSi
  */
 void createFile(unsigned char* data, unsigned int fileSize, char *filename);
 \end{lstlisting}
+
+\pagebreak
 
 \subsection{application.c}
 
@@ -1917,87 +1876,142 @@ void createFile(unsigned char* data, unsigned int fileSize, char *filename){
 
 \end{lstlisting}
 
-
-\subsection{recetor.c}
-
-\begin{lstlisting}[style=CStyle]
-
-\end{lstlisting}
+\pagebreak
 
 
-\subsection{recetor.c}
+
+
+\subsection{macros.h}
 
 \begin{lstlisting}[style=CStyle]
 
+#define BAUDRATE B38400
+#define MODEMDEVICE "/dev/ttyS1"
+#define _POSIX_SOURCE 1 /* POSIX compliant source */
+#define FALSE 0
+#define TRUE 1
+
+#define FLAG 0x7e
+#define A_EE 0x03 //campo de endereco em comandos enviados pelo emissor e respostas enviadas pelo recetor
+#define A_ER 0x01 //campo de endereco em comandos enviados pelo recetor e repostas enviadas pelo emissor
+#define C_SET 0x03
+#define C_UA 0x07
+#define C_DISC 0x0B
+#define NS0 0x00 //valor de ns na primeira trama do write
+#define NS1 0x40 //valor de ns segunda trama do write
+#define ESCAPE_BYTE 0x7d 
+#define ESCAPE_FLAG 0x5e
+#define ESCAPE_ESCAPE 0x5d
+#define RR0 0x05
+#define RR1 0x85
+#define REJ0 0x01
+#define REJ1 0x81
+
+#define TRANSMITTER 0 
+#define RECEIVER 1
+
+// Macros for Control Packet
+#define CT_START 0x02
+#define CT_END 0x03
+#define T1 0x00
+#define T2 0x01
+
+// Macros for Data Packet
+#define CONTROL 0x01
+#define PACKETSIZE 128
+
+#define ERROR -1
+#define MAXTRIES 10
+#define TIMEOUT 1 //Time to wait fora  repsonse from the receiver
+
+#define BCC1ERRORRATE 0
+#define BCC2ERRORRATE 0
 \end{lstlisting}
 
+\subsection{Anexo I - Principais funções utilizadas no Protocolo de ligação Lógica(documentação encontra-se em llfunctions.h)}
+
+\begin{lstlisting}[style=CStyle]
+int llopen(int fd, int status);
+
+int llwrite(int fd, unsigned char *buffer, int length);
+
+unsigned int llread(int fd, unsigned char *buffer);
+
+int llclose(int fd, int status);
+\end{lstlisting}
+
+\pagebreak
+
+\subsection{Anexo I - Principais funções utilizadas na camada de Aplicação(documentação encontra-se em applications.h)}
+
+\begin{lstlisting}[style=CStyle]
+unsigned char* openFile(char *filename, off_t *fileSize);
+
+unsigned char* parseControlPacket(unsigned int state, off_t fileSize, char* filename, int sizeFileName, int *sizeControlPacket);
+
+unsigned char* parseDataPacket(unsigned char *message, off_t fileSize, int *length);
+
+unsigned char* splitPacket(unsigned char *message,off_t *index, int *packetSize, off_t fileSize);
+
+int checkStart(unsigned char* start, unsigned int *filesize, char *name, unsigned int *nameSize);
+
+unsigned char* assembleDataPacket(unsigned char* message, unsigned int messageSize, unsigned int *packetSize);
+
+\end{lstlisting}
+
+\pagebreak
  
 \subsection{Variação do Baudrate}
 
-\begin{figure}%[h]
-	\centering
-	\subfloat[\centering label 1]{{\includegraphics[width=5cm]{baudrate.png} }}%
-	\qquad
-    \subfloat[\centering label 2]{{\includegraphics[width=5cm]{tabelaBaudrate.png} }}%
-    \caption{2 Figures side by side}%
-    \label{fig:example}%
-\end{figure}
+\includegraphics[width=\textwidth]{tabelaBaudrate.png}
+\captionof{figure}{Tabela com diferentes valores de Baudrate}
 
-\begin{figure}[h]
-	\includegraphics[width=\textwidth]{tabelaBaudrate.png}
-	\caption{Caption}
-\end{figure}
+\bigskip
+\bigskip
 
-\begin{figure}[h]
-	\includegraphics[width=\textwidth]{baudrate.png}
-	\caption{Caption}
-\end{figure}
+\includegraphics[width=\textwidth]{baudrate.png}
+\captionof{figure}{Eficiência em função do Baudrate}
 
-
-
-
+\pagebreak
 
 \subsection{Variação do tamanho das tramas}
 
-\begin{figure}[h]
-	\includegraphics[width=\textwidth]{tabelaTamanho.png}
-	\caption{Caption}
-\end{figure}
+\includegraphics[width=\textwidth]{tabelaTamanho.png}
+\captionof{figure}{Tabela com diferentes tamanhos da trama de envio}
 
-\begin{figure}[h]
-	\includegraphics[width=\textwidth]{tamanho.png}
-	\caption{Caption}
-\end{figure}
+\bigskip
+\bigskip
+
+\includegraphics[width=\textwidth]{tamanho.png}
+\captionof{figure}{Eficiência em função do tamanho da trama de envio}
+
+\pagebreak
 
 \subsection{Introdução de atraso de propragação}
 
-\begin{figure}[h]
-	\includegraphics[width=\textwidth]{tabelaAtraso.png}
-	\caption{Caption}
-\end{figure}
+\includegraphics[width=\textwidth]{tabelaAtraso.png}
+\captionof{figure}{Tabela com diferentes valores de atraso no envio de tramas}
 
-\begin{figure}[h]
-	\includegraphics[width=\textwidth]{atraso.png}
-	\caption{Caption}
-\end{figure}
+\bigskip
+\bigskip
+
+\includegraphics[width=\textwidth]{atraso.png}
+\captionof{figure}{Eficiência em função do atraso introduzido}
+
+\pagebreak
 
 \subsection{Introdução de erros nas tramas}
 
-\begin{figure}[h]
-	\includegraphics[width=\textwidth]{tabelaErro.png}
-	\caption{Caption}
-\end{figure}
+\includegraphics[width=\textwidth]{tabelaErro.png}
+\captionof{figure}{Tabela com diferentes valores percentuais de erro introduzido}
 
-\begin{figure}[h]
-	\includegraphics[width=\textwidth]{erro.png}
-	\caption{Caption}
-\end{figure}
+\bigskip
+\bigskip
 
+\includegraphics[width=\textwidth]{erro.png}
+\captionof{figure}{Eficiência em função da percentagem de erros introduzidos no BCC e BCC2}
 
 
-
-
-	
 	
 
 \end{document}
