@@ -1,0 +1,371 @@
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (MiKTeX 20.11) (preloaded format=pdflatex 2020.11.16)  16 NOV 2020 15:24
+entering extended mode
+**./test.tex
+(test.tex
+LaTeX2e <2020-10-01> patch level 2
+L3 programming layer <2020-10-27> xparse <2020-03-03>
+(C:\Users\utilizador\Desktop\miktex\tex/latex/base\article.cls
+Document Class: article 2020/04/10 v1.4m Standard LaTeX document class
+(C:\Users\utilizador\Desktop\miktex\tex/latex/base\size10.clo
+File: size10.clo 2020/04/10 v1.4m Standard LaTeX file (size option)
+)
+\c@part=\count175
+\c@section=\count176
+\c@subsection=\count177
+\c@subsubsection=\count178
+\c@paragraph=\count179
+\c@subparagraph=\count180
+\c@figure=\count181
+\c@table=\count182
+\abovecaptionskip=\skip47
+\belowcaptionskip=\skip48
+\bibindent=\dimen138
+)
+(C:\Users\utilizador\Desktop\miktex\tex/generic/babel\babel.sty
+Package: babel 2020/10/27 3.51 The Babel package
+
+(C:\Users\utilizador\Desktop\miktex\tex/generic/babel\babel.def
+File: babel.def 2020/10/27 3.51 Babel common definitions
+\babel@savecnt=\count183
+\U@D=\dimen139
+\l@babelnohyphens=\language79
+
+(C:\Users\utilizador\Desktop\miktex\tex/generic/babel\txtbabel.def)
+\bbl@readstream=\read2
+)
+\bbl@dirlevel=\count184
+
+*************************************
+* Local config file bblopts.cfg used
+*
+(C:\Users\utilizador\Desktop\miktex\tex/latex/arabi\bblopts.cfg
+File: bblopts.cfg 2005/09/08 v0.1 add Arabic and Farsi to "declared" options of
+ babel
+)
+(C:\Users\utilizador\Desktop\miktex\tex/latex/babel-english\english.ldf
+Language: english 2017/06/06 v3.3r English support from the babel system
+Package babel Info: \l@canadian = using hyphenrules for english
+(babel)             (\language0) on input line 102.
+Package babel Info: \l@australian = using hyphenrules for ukenglish
+(babel)             (\language73) on input line 105.
+Package babel Info: \l@newzealand = using hyphenrules for ukenglish
+(babel)             (\language73) on input line 108.
+))
+(C:\Users\utilizador\Desktop\miktex\tex/latex/tools\indentfirst.sty
+Package: indentfirst 1995/11/23 v1.03 Indent first paragraph (DPC)
+)
+(C:\Users\utilizador\Desktop\miktex\tex/latex/graphics\graphicx.sty
+Package: graphicx 2020/09/09 v1.2b Enhanced LaTeX Graphics (DPC,SPQR)
+
+(C:\Users\utilizador\Desktop\miktex\tex/latex/graphics\keyval.sty
+Package: keyval 2014/10/28 v1.15 key=value parser (DPC)
+\KV@toks@=\toks15
+)
+(C:\Users\utilizador\Desktop\miktex\tex/latex/graphics\graphics.sty
+Package: graphics 2020/08/30 v1.4c Standard LaTeX Graphics (DPC,SPQR)
+
+(C:\Users\utilizador\Desktop\miktex\tex/latex/graphics\trig.sty
+Package: trig 2016/01/03 v1.10 sin cos tan (DPC)
+)
+(C:\Users\utilizador\Desktop\miktex\tex/latex/graphics-cfg\graphics.cfg
+File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
+)
+Package graphics Info: Driver file: pdftex.def on input line 105.
+
+(C:\Users\utilizador\Desktop\miktex\tex/latex/graphics-def\pdftex.def
+File: pdftex.def 2020/10/05 v1.2a Graphics/color driver for pdftex
+))
+\Gin@req@height=\dimen140
+\Gin@req@width=\dimen141
+)
+(C:\Users\utilizador\Desktop\miktex\tex/latex/subfig\subfig.sty
+Package: subfig 2005/06/28 ver: 1.3 subfig package
+
+(C:\Users\utilizador\Desktop\miktex\tex/latex/caption\caption.sty
+Package: caption 2020/10/26 v3.5g Customizing captions (AR)
+
+(C:\Users\utilizador\Desktop\miktex\tex/latex/caption\caption3.sty
+Package: caption3 2020/10/21 v2.2e caption3 kernel (AR)
+\captionmargin=\dimen142
+\captionmargin@=\dimen143
+\captionwidth=\dimen144
+\caption@tempdima=\dimen145
+\caption@indent=\dimen146
+\caption@parindent=\dimen147
+\caption@hangindent=\dimen148
+Package caption Info: Standard document class detected.
+)
+\c@caption@flags=\count185
+\c@continuedfloat=\count186
+)
+\c@KVtest=\count187
+\sf@farskip=\skip49
+\sf@captopadj=\dimen149
+\sf@capskip=\skip50
+\sf@nearskip=\skip51
+\c@subfigure=\count188
+\c@subfigure@save=\count189
+\c@lofdepth=\count190
+\c@subtable=\count191
+\c@subtable@save=\count192
+\c@lotdepth=\count193
+\sf@top=\skip52
+\sf@bottom=\skip53
+)
+(C:\Users\utilizador\Desktop\miktex\tex/latex/xcolor\xcolor.sty
+Package: xcolor 2016/05/11 v2.12 LaTeX color extensions (UK)
+
+(C:\Users\utilizador\Desktop\miktex\tex/latex/graphics-cfg\color.cfg
+File: color.cfg 2016/01/02 v1.6 sample color configuration
+)
+Package xcolor Info: Driver file: pdftex.def on input line 225.
+Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1348.
+Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1352.
+Package xcolor Info: Model `RGB' extended on input line 1364.
+Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1366.
+Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1367.
+Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1368.
+Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1369.
+Package xcolor Info: Model `Gray' substituted by `gray' on input line 1370.
+Package xcolor Info: Model `wave' substituted by `hsb' on input line 1371.
+)
+(C:\Users\utilizador\Desktop\miktex\tex/latex/listings\listings.sty
+\lst@mode=\count194
+\lst@gtempboxa=\box47
+\lst@token=\toks16
+\lst@length=\count195
+\lst@currlwidth=\dimen150
+\lst@column=\count196
+\lst@pos=\count197
+\lst@lostspace=\dimen151
+\lst@width=\dimen152
+\lst@newlines=\count198
+\lst@lineno=\count199
+\lst@maxwidth=\dimen153
+
+(C:\Users\utilizador\Desktop\miktex\tex/latex/listings\lstmisc.sty
+File: lstmisc.sty 2020/03/24 1.8d (Carsten Heinz)
+\c@lstnumber=\count266
+\lst@skipnumbers=\count267
+\lst@framebox=\box48
+)
+(C:\Users\utilizador\Desktop\miktex\tex/latex/listings\listings.cfg
+File: listings.cfg 2020/03/24 1.8d listings configuration
+))
+Package: listings 2020/03/24 1.8d (Carsten Heinz)
+
+(C:\Users\utilizador\Desktop\miktex\tex/latex/l3backend\l3backend-pdftex.def
+File: l3backend-pdftex.def 2020-09-24 L3 backend support: PDF output (pdfTeX)
+\l__kernel_color_stack_int=\count268
+\l__pdf_internal_box=\box49
+)
+(test.aux)
+\openout1 = `test.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 41.
+LaTeX Font Info:    ... okay on input line 41.
+
+(C:\Users\utilizador\Desktop\miktex\tex/context/base/mkii\supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count269
+\scratchdimen=\dimen154
+\scratchbox=\box50
+\nofMPsegments=\count270
+\nofMParguments=\count271
+\everyMPshowfont=\toks17
+\MPscratchCnt=\count272
+\MPscratchDim=\dimen155
+\MPnumerator=\count273
+\makeMPintoPDFobject=\count274
+\everyMPtoPDFconversion=\toks18
+) (C:\Users\utilizador\Desktop\miktex\tex/latex/epstopdf-pkg\epstopdf-base.sty
+Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
+85.
+)
+Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: subfig package v1.3 is loaded.
+Package caption Info: listings package is loaded.
+Package caption Info: End \AtBeginDocument code.
+\c@lstlisting=\count275
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <12> on input line 44.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 44.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 44.
+[1
+
+{C:/Users/utilizador/AppData/Local/MiKTeX/pdftex/config/pdftex.map}]
+Overfull \hbox (4.86174pt too wide) in paragraph at lines 56--57
+[]\OT1/cmr/m/n/10 Este tra-balho pre-tende im-ple-men-tar um pro-to-colo de lig
+ac~ao de da-dos baseado
+ []
+
+[2]
+Overfull \hbox (9.38843pt too wide) in paragraph at lines 94--95
+[]\OT1/cmr/m/n/10 O ficheiro ap-pli-ca-tion.c e re-sponsavel pelo trata-mento
+ do pro-to-colo de aplicac~ao 
+ []
+
+[3]
+Overfull \hbox (3.15302pt too wide) in paragraph at lines 158--159
+[]\OT1/cmr/bx/n/10 openFile \OT1/cmr/m/n/10 - Abre o ficheiro en-vi-ado como ar
+-gu-mento e obtem o seu conteudo
+ []
+
+[4] [5] [6] [7] [8]
+Overfull \hbox (13.50058pt too wide) in paragraph at lines 299--300
+\OT1/cmr/m/n/10 per-cent-agem definida no ficheiro macros.h, atraves das macro
+s BCC1ERRORRATE
+ []
+
+
+Overfull \hbox (2.91718pt too wide) in paragraph at lines 301--302
+\OT1/cmr/m/n/10 en-vio de 128 bytes em cada trama, fez-se variar os val-ores de
+ BCC1ERRORRATE
+ []
+
+(C:\Users\utilizador\Desktop\miktex\tex/latex/listings\lstlang1.sty
+File: lstlang1.sty 2020/03/24 1.8d listings language file
+)
+(C:\Users\utilizador\Desktop\miktex\tex/latex/listings\lstmisc.sty
+File: lstmisc.sty 2020/03/24 1.8d (Carsten Heinz)
+)
+LaTeX Font Info:    Trying to load font information for OML+cmr on input line 3
+20.
+
+(C:\Users\utilizador\Desktop\miktex\tex/latex/base\omlcmr.fd
+File: omlcmr.fd 2019/12/16 v2.5j Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OML/cmr/m/n' in size <8> not available
+(Font)              Font shape `OML/cmm/m/it' tried instead on input line 320.
+ [9]
+LaTeX Font Info:    Trying to load font information for OMS+cmr on input line 3
+38.
+
+(C:\Users\utilizador\Desktop\miktex\tex/latex/base\omscmr.fd
+File: omscmr.fd 2019/12/16 v2.5j Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <8> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 338.
+ [10] [11]
+[12] [13] [14] [15]
+<baudrate.png, id=60, 365.11406pt x 225.84375pt>
+File: baudrate.png Graphic file (type png)
+<use baudrate.png>
+Package pdftex.def Info: baudrate.png  used on input line 709.
+(pdftex.def)             Requested size: 142.26378pt x 87.99599pt.
+<tabelaBaudrate.png, id=61, 251.43938pt x 91.09032pt>
+File: tabelaBaudrate.png Graphic file (type png)
+<use tabelaBaudrate.png>
+Package pdftex.def Info: tabelaBaudrate.png  used on input line 711.
+(pdftex.def)             Requested size: 142.26378pt x 51.53838pt.
+File: tabelaBaudrate.png Graphic file (type png)
+<use tabelaBaudrate.png>
+Package pdftex.def Info: tabelaBaudrate.png  used on input line 717.
+(pdftex.def)             Requested size: 345.0pt x 124.98476pt.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+File: baudrate.png Graphic file (type png)
+<use baudrate.png>
+Package pdftex.def Info: baudrate.png  used on input line 722.
+(pdftex.def)             Requested size: 345.0pt x 213.41312pt.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+<tabelaTamanho.png, id=62, 251.43938pt x 121.20282pt>
+File: tabelaTamanho.png Graphic file (type png)
+<use tabelaTamanho.png>
+Package pdftex.def Info: tabelaTamanho.png  used on input line 733.
+(pdftex.def)             Requested size: 345.0pt x 166.30206pt.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+<tamanho.png, id=63, 382.42876pt x 203.25937pt>
+File: tamanho.png Graphic file (type png)
+<use tamanho.png>
+Package pdftex.def Info: tamanho.png  used on input line 738.
+(pdftex.def)             Requested size: 345.0pt x 183.37524pt.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+<tabelaAtraso.png, id=64, 251.43938pt x 76.03406pt>
+File: tabelaAtraso.png Graphic file (type png)
+<use tabelaAtraso.png>
+Package pdftex.def Info: tabelaAtraso.png  used on input line 745.
+(pdftex.def)             Requested size: 345.0pt x 104.32611pt.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+<atraso.png, id=65, 381.67593pt x 217.5628pt>
+File: atraso.png Graphic file (type png)
+<use atraso.png>
+Package pdftex.def Info: atraso.png  used on input line 750.
+(pdftex.def)             Requested size: 345.0pt x 196.66452pt.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+<tabelaErro.png, id=66, 251.43938pt x 91.09032pt>
+File: tabelaErro.png Graphic file (type png)
+<use tabelaErro.png>
+Package pdftex.def Info: tabelaErro.png  used on input line 757.
+(pdftex.def)             Requested size: 345.0pt x 124.98476pt.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+<erro.png, id=67, 365.86688pt x 217.5628pt>
+File: erro.png Graphic file (type png)
+<use erro.png>
+Package pdftex.def Info: erro.png  used on input line 762.
+(pdftex.def)             Requested size: 345.0pt x 205.16637pt.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[16] [17 <./baudrate.png> <./tabelaBaudrate.png>] [18 <./tabelaTamanho.png> <./
+tamanho.png> <./tabelaAtraso.png>] [19 <./atraso.png> <./tabelaErro.png>]
+[20 <./erro.png>] (test.aux)
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+ ) 
+Here is how much of TeX's memory you used:
+ 5801 strings out of 479832
+ 87259 string characters out of 2875732
+ 830152 words of memory out of 3000000
+ 22730 multiletter control sequences out of 15000+200000
+ 540015 words of font info for 45 fonts, out of 3000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 66i,10n,76p,573b,1725s stack positions out of 5000i,500n,10000p,200000b,50000s
+ <C:\Users\utilizador\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600
+\tcrm0800.pk> <C:\Users\utilizador\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappe
+n/ec/dpi600\tcrm1000.pk><C:/Users/utilizador/Desktop/miktex/fonts/type1/public/
+amsfonts/cm/cmbx10.pfb><C:/Users/utilizador/Desktop/miktex/fonts/type1/public/a
+msfonts/cm/cmbx12.pfb><C:/Users/utilizador/Desktop/miktex/fonts/type1/public/am
+sfonts/cm/cmmi8.pfb><C:/Users/utilizador/Desktop/miktex/fonts/type1/public/amsf
+onts/cm/cmr10.pfb><C:/Users/utilizador/Desktop/miktex/fonts/type1/public/amsfon
+ts/cm/cmr12.pfb><C:/Users/utilizador/Desktop/miktex/fonts/type1/public/amsfonts
+/cm/cmr17.pfb><C:/Users/utilizador/Desktop/miktex/fonts/type1/public/amsfonts/c
+m/cmr5.pfb><C:/Users/utilizador/Desktop/miktex/fonts/type1/public/amsfonts/cm/c
+mr8.pfb><C:/Users/utilizador/Desktop/miktex/fonts/type1/public/amsfonts/cm/cmsy
+8.pfb>
+Output written on test.pdf (20 pages, 223186 bytes).
+PDF statistics:
+ 122 PDF objects out of 1000 (max. 8388607)
+ 0 named destinations out of 1000 (max. 500000)
+ 41 words of extra memory for PDF output out of 10000 (max. 10000000)
+
