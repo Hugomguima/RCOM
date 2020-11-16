@@ -1068,11 +1068,862 @@ unsigned char* generateRandomBCC2(unsigned char* packet, int packetSize){
 }
 \end{lstlisting}
 
+\subsection{stateMachines.h}
+
+\begin{lstlisting}[style=CStyle]
+#include <stdlib.h>
+#include <termios.h>
+#include <stdio.h>
+#include <errno.h>
+#include <unistd.h>
+
+
+#include "macros.h"
+
+
+enum state {
+        START,
+        FLAG_RCV,
+        A_RCV,
+        C_RCV,
+        BCC_OK,
+        BYTE_DESTUFFING,
+        STOP
+    };
+
+int sendMessage(int fd,unsigned char c);
+
+int readSetMessage(int fd);
+
+int readReceiverMessage(int fd);
+
+int receiveUA(int serialPort);
+
+int receiverRead_StateMachine(int fd, unsigned char* frame ,unsigned int *size);
+
+int receiveDISC(int fd);
+
+int checkBCC2(unsigned char *packet, int size);
+\end{lstlisting}
+
+\subsection{stateMachines.c}
+
+\begin{lstlisting}[style=CStyle]
+#include "stateMachines.h"
+
+unsigned char rcv;
+int expectedTrama = 0;
+int res;
+int counter_errors = 0;
+
+
+int sendMessage(int fd, unsigned char c){
+
+  unsigned char message[5];
+
+  message[0] = FLAG;
+  message[1] = A_EE;
+  message[2] = c;
+  message[3] = A_EE ^ c;
+  message[4] = FLAG;
+
+  return write(fd, message, 5);
+
+}
+
+
+int readSetMessage(int fd) {
+    enum state current = START;
+
+    int finish = FALSE;
+    unsigned char r;
+
+    while (finish == FALSE){
+        res = read(fd, &r, 1);
+
+        switch (current){
+        case START:
+            if (r == FLAG){
+                current = FLAG_RCV;
+            }
+            break;
+        case FLAG_RCV:
+            if (r == A_EE){
+                current = A_RCV;
+            }
+            else if (r == FLAG){
+                current = FLAG_RCV;
+            }
+            else{
+                current = START;
+            }
+            break;
+        case A_RCV:
+            if (r == C_SET){
+                current = C_RCV;
+            }
+            else if (r == FLAG){
+                current = FLAG_RCV;
+            }
+            else{
+                current = START;
+            }
+            break;
+        case C_RCV:
+            if (r == (C_SET ^ A_EE)){
+                current = BCC_OK;
+            }
+            else if (r == FLAG){
+                current = FLAG_RCV;
+            }
+            else{
+                current = START;
+            }
+            break;
+        case BCC_OK:
+            if (r == FLAG){
+                finish = TRUE;
+            }
+            else{
+                current = START;
+            }
+            break;
+        default:
+            break;
+        }
+    }
+    return finish;
+}
+
+int readReceiverMessage(int fd) {
+    enum state current = START;
+
+    int finish = FALSE;
+    unsigned char r, check;
+
+    while (finish == FALSE){
+        res = read(fd, &r, 1);
+
+        if(res == 0) {
+            finish = TRUE;
+        }
+
+        switch (current){
+        case START:
+            if (r == FLAG){
+                current = FLAG_RCV;
+            }
+            break;
+        case FLAG_RCV:
+            if (r == A_EE){
+                current = A_RCV;
+            }
+            else if (r == FLAG){
+                current = FLAG_RCV;
+            }
+            else{
+                current = START;
+            }
+            break;
+        case A_RCV:
+            if (r == REJ0 || r == REJ1 || r == RR0 || r == RR1 ){
+                current = C_RCV;
+                check = r;
+                rcv = r;
+            }
+            else if (r == FLAG){
+                current = FLAG_RCV;
+            }
+            else{
+                current = START;
+            }
+            break;
+        case C_RCV:
+            if (r == (check ^ A_EE)){
+                current = BCC_OK;
+            }
+            else if (r == FLAG){
+                current = FLAG_RCV;
+            }
+            else{
+                current = START;
+            }
+            break;
+        case BCC_OK:
+            if (r == FLAG){
+                finish = TRUE;
+            }
+            else{
+                current = START;
+            }
+            break;
+        default:
+            break;
+        }
+    }
+    return finish;
+}
+
+int receiveUA(int fd){
+    unsigned char c; // char read. Changes the state
+    int nr;
+    enum state current = START;
+
+    int STP = FALSE;
+    while(STP == FALSE){
+      nr = read(fd,&c,1);
+
+      if (nr < 0) {
+        if (errno == EINTR) {
+            puts("Timed out. Sending again.");
+            return ERROR;
+        }
+      continue;
+    }
+
+    //State Machine
+    switch(current){
+        case START:
+            if(c == FLAG){
+                current = FLAG_RCV;
+            }
+            break;
+        case FLAG_RCV:
+            if(c == A_EE){
+                current = A_RCV;
+            }
+            else if(c == FLAG) {
+                current = FLAG_RCV;
+            }
+            else{
+                current = START;
+            }
+            break;
+        case A_RCV:
+            if(c == C_UA){
+                current = C_RCV;
+            }
+            else if (c == FLAG){
+                current = FLAG_RCV;
+            }
+            else {
+                current = START;
+            } 
+            break;
+        case C_RCV:
+            if(c == (C_UA ^ A_EE)){
+                current = BCC_OK;
+            }
+            else if( c == FLAG){
+              current = FLAG_RCV;
+            }
+            else{
+              current = START;
+            }
+            break;
+        case BCC_OK:
+          if(c == FLAG){
+            current = STOP;
+            STP = TRUE;
+          }
+          else{
+            current = START;
+          }
+          break;
+        case STOP:
+          break;
+        default:
+          break;
+      }
+    }
+
+  //puts("exiting state machine");
+  return TRUE;
+
+}
+
+
+int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) { 
+    
+    unsigned char buf, check = 0;
+    int trama = 0;
+    enum state current = START;
+    int correctBCC2 = FALSE; // if no errors in BCC2, correctBCC2 = 1; else correctBCC2 = 0
+    int errorOnDestuffing = FALSE; // if no errors occur on destuffing, the var stays equal to 0, else the value is 1
+    counter_errors++;
+
+    puts("Receiver reading frames");
+    while(current != STOP) {
+        
+        res = read(fd, &buf, 1);
+        printf("read : 0x%X\n", buf);
+
+        if(res == ERROR) {
+            fprintf(stderr, "llread() - Error reading from buffer");
+            return -1;
+        }
+
+        switch (current)
+        {
+        case START:
+            if(buf == FLAG) {
+                current = FLAG_RCV;
+            }
+            break;
+
+        case FLAG_RCV: 
+            if(buf == A_EE) {
+                current = A_RCV;
+            }
+            else if(buf != FLAG) {
+                current = START;
+            }
+            break;
+        
+        case A_RCV: 
+            if(buf == NS0) {
+                current = C_RCV;
+                check = buf;
+                trama = 0;
+            }
+
+            else if(buf == NS1) {
+                current = C_RCV;
+                check = buf;
+                trama = 1;
+            }
+
+            else if(buf == FLAG) {
+                current = FLAG_RCV;
+            }
+
+            else {
+                current = START;
+            }
+            break;
+
+        case C_RCV:
+            if(buf == (A_EE ^ check)) {
+                current = BCC_OK;
+            }
+
+            else if(buf == FLAG) {
+                current = FLAG_RCV;
+            }
+
+            else {
+                current = START;
+            }
+            break;
+
+        case BCC_OK:
+            if(buf == FLAG) {
+                if(checkBCC2(frame, *size) != ERROR) {
+                    correctBCC2 = TRUE;
+                    current = STOP;
+                }
+                else {
+                    correctBCC2 = FALSE;
+                    current = STOP;
+                }
+                
+            }
+            else if(buf == ESCAPE_BYTE) {
+                current = BYTE_DESTUFFING;
+            }
+            else {
+                (*size)++;
+                frame = (unsigned char *)realloc(frame, *size);
+                frame[*size - 1] = buf; // still receiving data
+                
+			}
+
+            break;
+            
+        case BYTE_DESTUFFING:
+            if(buf == ESCAPE_FLAG) {
+                frame = (unsigned char *)realloc(frame, ++(*size));
+				frame[*size - 1] = FLAG;
+            }
+
+            else if(buf == ESCAPE_ESCAPE) {
+                frame = (unsigned char *)realloc(frame, ++(*size));
+                frame[*size - 1] = ESCAPE_BYTE;
+            }
+
+            else {
+               puts("Character after escape character not recognized"); //can occur if there is an interference
+                errorOnDestuffing = TRUE;
+            }
+
+            current = BCC_OK;
+            break;
+        
+        default:
+            break;
+        }
+    }
+
+    printf("total size: %d\n",*size);
+    frame = (unsigned char *)realloc(frame, *size-1);
+	*size = *size - 1;
+
+    printf("Expected trama: %i\n", expectedTrama);
+    printf("Received trama: %i\n", trama);
+    
+    if(correctBCC2 && !errorOnDestuffing) {
+        if(trama == expectedTrama) {
+            if(trama == 0) {
+                //send RR(Nr = 1)
+                sendMessage(fd, RR1);
+                puts("Receiver send RR1");
+            }
+            
+            else {
+                //send RR(Nr = 0)
+                sendMessage(fd, RR0);
+                puts("Receiver send RR0");
+            }
+            
+            expectedTrama = (expectedTrama + 1) % 2;
+        }
+
+        else { //ao fazermos isto garantimos que a trama recebida e repetida
+            *size = 0;
+
+            if(expectedTrama == 0) { 
+                //send RR(Nr = 0)
+                sendMessage(fd, RR0);
+                puts("Receiver send RR0 after repeated information");
+            }
+            else {
+                //send RR(Nr = 1)
+                sendMessage(fd, RR1);
+                puts("Receiver send RR1 after repeated information");
+            }
+        }
+    }
+    else { //caso BCC2 tenha erros ou tenha havido interferencias
+        if(trama != expectedTrama) {
+            if(trama == 0) {
+                //send RR(Nr = 1)
+                sendMessage(fd, RR1);
+                expectedTrama = 1;
+                puts("Receiver send RR1 after errors in BCC2");
+            }
+            else {
+                //send RR(Nr=0)
+                sendMessage(fd, RR0);
+                expectedTrama = 0;
+                puts("Receiver send RR0 after errors in BCC2");
+            }
+        }
+
+        else { //trama correta, mas com erro em BCC2
+            *size = 0;
+
+            if(trama == 0) {
+                //send REJ 0
+                sendMessage(fd, REJ0);
+                expectedTrama = 0;
+                puts("Receiver send REJ0");
+            }
+
+            else {
+                //send REJ1
+                sendMessage(fd, REJ1);
+                expectedTrama = 1;
+                puts("Receiver send REJ1");
+            }
+        }
+    }
+    return 0;
+}
+
+int receiveDISC(int fd) {
+    //tcflush(fd, TCIOFLUSH); //limpa informacao recebida mas nao lida e informacao escrita mas nao transmitida
+
+    enum state current = START;
+
+    int finish = FALSE;
+    unsigned char r;
+
+    while (finish == FALSE)
+    {
+        res = read(fd, &r, 1);
+
+        if(res == 0) {
+            finish = TRUE;
+        }
+
+        switch (current)
+        {
+        case START:
+            if (r == FLAG){
+
+                current = FLAG_RCV;
+            }
+            break;
+        case FLAG_RCV:
+            if (r == A_EE){
+                current = A_RCV;
+            }
+            else if (r == FLAG){
+                current = FLAG_RCV;
+            }
+            else{
+                current = START;
+            }
+            break;
+        case A_RCV:
+            if (r == C_DISC){
+                current = C_RCV;
+            }
+            else if (r == FLAG){
+                current = FLAG_RCV;
+            }
+            else{
+                current = START;
+            }
+            break;
+        case C_RCV:
+            if (r == (C_DISC ^ A_EE)){
+                current = BCC_OK;
+            }
+            else if (r == FLAG){
+                current = FLAG_RCV;
+            }
+            else{
+                current = START;
+            }
+            break;
+        case BCC_OK:
+            if (r == FLAG){
+                finish = TRUE;
+            }
+            else{
+                current = START;
+            }
+            break;
+        default:
+            break;
+        }
+    }
+    return 0;
+}
+
+int checkBCC2(unsigned char *packet, int size){
+    int i;
+    unsigned char byte = packet[0];
+
+    for(i = 1; i < size - 1; i++) {
+        byte ^= packet[i];
+    }
+
+    if(byte == packet[size - 1]) {
+        return TRUE;
+    }
+    else{
+        return ERROR;
+    }
+        
+}
+\end{lstlisting}
+
+\subsection{application.h}
+
+\begin{lstlisting}[style=CStyle]
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "macros.h"
+
+/**
+ * \brief opens the file sent and returns its data and size
+ * @param filename file to be read
+ * @param fileSize returns size of the file after being read
+ * @return returns the data of the read file
+ */
+unsigned char* openFile(char *filename, off_t *fileSize);
+
+
+/**
+ * \brief Generates the control packet for a given file
+ * @param state FLAG to distinguish END from START packet. START = 0x02, END = 0x03
+ * @param filesize size of the read file
+ * @param filename name of the read file
+ * @param sizeFileName size of the name of the read file
+ * @param sizeControlPacket returns the size of the generatedcontrol packet
+ * @return returns the generated control packet
+ */
+unsigned char* parseControlPacket(unsigned int state, off_t fileSize, char* filename, int sizeFileName, int *sizeControlPacket);
+
+/**
+ * \brief codifies the Given message into a packet according to the protocol
+ * @param message message to be sent
+ * @param fileSize total size of the file to be written
+ * @param length total size of the packet to be sent through llwrite serial port
+ */
+unsigned char* parseDataPacket(unsigned char *message, off_t fileSize, int *length);
+
+
+/**
+ * \brief Splits the data into packets that fit into a message (currently set to 128 bytes)
+ * @param message message containing the whole data
+ * @param index index to start/continue to write the data from
+ * @param packetSize returns the ammount of bytes that can be written in a single llwrite (128 or less if end of file reached)
+ * @param filesize file total size to check how many bytes should be written
+ * @return returns the packet data that will be sent
+ */
+unsigned char* splitPacket(unsigned char *message,off_t *index, int *packetSize, off_t fileSize);
+
+
+/**
+ * \brief Checks if the first packet read from the sender is indeed the control start packet
+ * @param start packet read (first packet)
+ * @param filesize gets the total size of the file through the control packet
+ * @param name gets the filename through the control packet
+ * @param nameSize gets the filename size through the control packet
+ */
+int checkStart(unsigned char* start, unsigned int *filesize, char *name, unsigned int *nameSize);
+
+
+/**
+ * \brief Checks if the control END packet is equal to the START control packet
+ * @param start start packet read (first packet)
+ * @param startSize size of the start packet
+ * @param end end packet read (last packet)
+ * @param endSize size of the end packet
+ * @return 0 if both packets are equal, 1 otherwise
+ */
+int checkEND(unsigned char *start, int startSize, unsigned char *end, int endSize);
+
+/**
+ * \brief Creates a the packet to be sent trough llwrite serial port
+ * @param message Received message to be sent
+ * @param messageSize size of the received message
+ * @param packetSize size of the created packet to be returned
+ * @return Assembled packet to be sent
+ */
+unsigned char* assembleDataPacket(unsigned char* message, unsigned int messageSize, unsigned int *packetSize);
+
+/**
+ * \brief Reads a file given a name and data
+ * @param data file data
+ * @param fileSize size of the file to be created
+ * @param filename name of the file to be created
+ */
+void createFile(unsigned char* data, unsigned int fileSize, char *filename);
+\end{lstlisting}
+
+\subsection{application.c}
+
+\begin{lstlisting}[style=CStyle]
+#include "application.h"
+
+unsigned int packetNumber = 0; //Global variable counting the number of packets being sent
+
+
+
+unsigned char* openFile(char* filename, off_t *fileSize){
+
+    FILE * file;
+    struct stat st;
+    unsigned char *data;
+    
+    if((file = fopen(filename, "r")) == NULL ){
+        perror("Cannot open file");
+        exit(-1);
+    }
+
+
+    stat(filename, &st);
+    
+    *fileSize = st.st_size;
+
+    printf("Read a file with size %ld bytes\n", *fileSize);
+
+    data = (unsigned char *)malloc(*fileSize);
+
+    fread(data, sizeof(unsigned char), *fileSize, file);
+
+    if(ferror(file)){
+        perror("Error reading file");
+        exit(-2);
+    }
+
+    if(fclose(file) == EOF){
+        perror("Cannot close file");
+        exit(-1);
+    }
+    return data;
+}
+
+unsigned char* parseControlPacket(unsigned int state, off_t fileSize, char* filename, int sizeFilename, int *sizeControlPacket){
+    
+    *sizeControlPacket = 5 + sizeof(fileSize) + sizeFilename;
+
+    unsigned char* packet = (unsigned char* )malloc(sizeof(unsigned char) * (*sizeControlPacket));
+
+    if(state == CT_START){
+        packet[0] = CT_START;
+    }
+    else{
+        packet[0] = CT_END;
+    }
+    packet[1] = T1;
+    packet[2] = sizeof(fileSize);
+    
+    for(int i = 0; i < packet[2];i++){
+        packet[3+i] = (fileSize >> (i*8)) & 0xFF;
+    }
+
+    packet[3 + packet[2]] = T2;
+    packet[4 + packet[2]] = sizeFilename;
+
+    for (int i = 0; i < sizeFilename; i++ ){
+        
+        packet[5 + packet[2] + i] = filename[i];
+    }
+
+    return packet;
+}
+
+unsigned char* parseDataPacket(unsigned char *message, off_t fileSize, int *length){
+    
+    unsigned char *packet = (unsigned char*)malloc(fileSize + 4); 
+
+    packet[0] = CONTROL;
+    packet[1] = packetNumber % 255;
+    packet[2] = fileSize / 256;
+    packet[3] = fileSize % 256;
+
+    // Preencher o packet atraves da mensagem
+    for(int i = 0; i < *length; i++){
+        packet[4 + i] = message[i];
+    }
+
+    *length += 4;
+    packetNumber++;
+
+    return packet;
+}
+
+unsigned char* splitPacket(unsigned char *packet, off_t *index, int *packetSize, off_t fileSize){
+
+    unsigned char *splitPacket;
+
+    if(*index + *packetSize > fileSize){
+        *packetSize = fileSize - *index;
+    }
+
+    splitPacket = (unsigned char*)malloc(*packetSize);
+
+    for(int i = 0; i < *packetSize; i++){
+        splitPacket[i] = packet[*index];
+        (*index)++;
+    }
+
+    return splitPacket;
+
+}
+
+int checkStart(unsigned char* start, unsigned int *filesize, char *name, unsigned int *nameSize){
+
+    int fileSizeBytes;
+
+    // Checking control flag
+    if(start[0] != CT_START || start[1] != T1){
+        puts("checkStart: Error checking CT_START or T1 flags");
+        return -1;
+    }
+
+    fileSizeBytes = (int)start[2];
+
+    // Getting fileSize
+    for(int i = 0; i < fileSizeBytes; i++){
+        *filesize |= (start[3 + i] << (i*8));
+    }
+
+    if(start[fileSizeBytes + 3] != T2){
+        puts("checkSart: Error checking T2");
+        return -1;
+    } 
+    
+    // Getting nameSize
+    *nameSize = (unsigned int)start[fileSizeBytes + 4];
+
+    // Getting fileName
+    name = (char *)realloc(name, *nameSize);
+
+    for(int i = 0; i < *nameSize; i++){
+        name[i] = start[fileSizeBytes + 5 + i];
+    }
+    
+    return 0;
+}
+
+int checkEND(unsigned char *start, int startSize, unsigned char *end, int endSize) {
+    int j = 5;
+    
+    if(startSize != endSize) {
+       puts("checkEND: Start and End packets have differente sizes");
+        return 1;
+    }
+    else {
+        if(end[0] == CT_END) {
+            for(int i = 5; i < startSize; i++) {
+                if(start[i] != end[j]) {
+                    puts("checkEND: Different value between START and END packets");
+                    return 1;
+                }
+                else {
+                    j++;
+                }  
+            }
+            return 0;
+        }
+        else {
+            puts("checkEND: First END packet byte is not CT_END flag");
+            return 1;
+        }
+    }
+}
+
+unsigned char* assembleDataPacket(unsigned char* message, unsigned int messageSize, unsigned int *packetSize){
+
+    *packetSize = messageSize - 4;
+    unsigned char* packet = (unsigned char *)malloc(*packetSize);
+
+    for(int i = 0; i < *packetSize;i++){
+        packet[i] = message[4 + i];
+    }
+
+    return packet;
+}
+
+void createFile(unsigned char* data, unsigned int fileSize, char *filename){
+    FILE *file = fopen(filename,"wb");
+    fwrite(data,1,fileSize,file);
+    puts("New file created!");
+    printf("FileSize written: %u\n",fileSize);
+    fclose(file);
+}
+
+\end{lstlisting}
+
+
 \subsection{recetor.c}
 
 \begin{lstlisting}[style=CStyle]
 
 \end{lstlisting}
+
 
 \subsection{recetor.c}
 
