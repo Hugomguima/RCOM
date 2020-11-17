@@ -3,22 +3,18 @@ P2/emissor
 
 P2/recetor
 
-P3/emissor
+*.aux
 
-P3/recetor
+*.idx
 
-tex/tex.toc
+*.ilg
 
-tex/tex.synctex.gz
+*.log
 
-tex/tex.aux
+Project1/docs/tex.ind
 
-tex/tex.idx
+Project1/docs/tex.pdf
 
-tex/tex.ilg
+Project1/docs/tex.toc
 
-tex/tex.ind
-
-tex/tex.log
-
-tex/tex.pdf
+Project1/docs/tex.synctex.gz
