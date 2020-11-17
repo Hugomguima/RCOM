@@ -374,10 +374,10 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
             expectedTrama = (expectedTrama + 1) % 2;
         }
 
-        else { //ao fazermos isto ja garantimos que a trama recebida e repetida?
+        else { 
             *size = 0;
 
-            if(expectedTrama == 0) {  //acho que é isto ou faz-se com trama?
+            if(expectedTrama == 0) {  
                 //send RR(Nr = 0)
                 sendMessage(fd, RR0);
                 puts("Receiver send RR0 after repeated information");
@@ -390,7 +390,7 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
         }
     }
     else { //caso BCC2 tenha erros ou tenha havido interferencias
-        if(trama != expectedTrama) { //sera isto suficiente para verificar informaçao repetida?
+        if(trama != expectedTrama) { //verificar informaçao repetida
             if(trama == 0) {
                 //send RR(Nr = 1)
                 sendMessage(fd, RR1);
