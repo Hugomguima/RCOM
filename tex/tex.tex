@@ -56,9 +56,10 @@
 		
 		\vspace{1.5cm}
 		
-		\textbf{Hugo Guimarães, Pedro Ponte}
+		\textbf{Hugo Miguel Monteiro Guimarães}\\
+		\textbf{Pedro Varandas da Costa Azevedo da Ponte}
 		
-		\vspace{7cm}
+		\vspace{5cm}
 		
 		Trabalho realizado no âmbito da\\
 		Unidade Curricular de Redes de Computadores
@@ -135,39 +136,35 @@ Os ficheiros \textit{emissor.c} e \textit{recetor.c} são responsáveis pelo flu
 \begin{itemize}
 	\item \textbf{llopen} - Do lado do emissor, envia uma trama de supervisão SET e recebe uma trama \textit{UA}, enquanto no lado do recetor este espera pela trama de controlo \textit{SET} enviada pelo emissor e responde com uma trama \textit{UA}.
 	\item \textbf{llclose} -  Do lado do emissor, envia uma trama de supervisão \textit{DISC}, espera que o emissor responda com uma trama \textit{DISC} e envia uma trama \textit{UA}. No lado do recetor, este aguarda pela trama \textit{DISC} enviada pelo emissor, responde com uma trama \textit{DISC} e depois recebe uma trama \textit{UA}.
-	\item \textbf{llwrite} - Faz o stuffing das tramas I e envia-as, recebendo \textit{REJ} ou \textit{RR} como resposta.
+	\item \textbf{llwrite} - Faz o \textit{stuffing} das tramas I e envia-as, recebendo \textit{REJ} ou \textit{RR} como resposta.
 	\item \textbf{llread} - Lê as tramas I enviadas pelo llwrite e envia uma resposta do tipo \textit{RR}, no caso das tramas I recebidas sem erros detetados no cabeçalho e no campo de dados, ou do tipo \textit{REJ}, no caso das tramas I sem erro detetado no cabeçalho, mas com erros no campo de dados.
-	\item \textbf{alarmHandler} - Substituição do handler do alarme para permitir que as tramas sejam enviadas \textit{MAXTRIES} vezes em situação de erro.
-	\item \textbf{getBcc2} - Gera o \textit{BCC2} no lado do emissor.
-	\item \textbf{stuffBCC2} - Realiza o stuff do \textit{BCC2} no lado do emissor, após a geração do \textit{BCC}.
 	
 \end{itemize}
 
 
 \textbf{stateMachines.c}
 \begin{itemize}
-	\item \textbf{sendMessage } - Faz o parse da trama e envia-a pela porta de série.
 	\item \textbf{readSetMessage } -  Máquina de estados que recebe a trama \textit{SET} e verifica a sua correção.
 	\item \textbf{readReceiverMessage } - Recebe as tramas \textit{REJ} e \textit{RR} enviadas pelo recetor e verifica a sua correção.
 	\item \textbf{receiveUA} - Recebe as tramas \textit{UA} e verifica a sua correção.
 	
-	\item \textbf{receiverRead\_StateMachine} - Recebe as tramas I enviadas pelo emissor, verifica a sua correção, efetua o destuffing necessário, guarda os dados contidos nas tramas I num novo array e envia uma trama \textit{REJ} ou \textit{RR} como resposta, dependendo da ocorrência de erros nas tramas recebidas ou no respetivo destuffing.
+	\item \textbf{receiverRead\_StateMachine} - Recebe as tramas I enviadas pelo emissor, verifica a sua correção, efetua o \textit{destuffing} necessário, guarda os dados contidos nas tramas I num novo array e envia uma trama \textit{REJ} ou \textit{RR} como resposta, dependendo da ocorrência de erros nas tramas recebidas ou no respetivo \textit{destuffing}.
 	\item \textbf{receiveDISC } - Recebe as tramas \textit{DISC} e verifica a sua correção.
-	\item \textbf{checkBCC2 } - Verifica a correção do \textit{BCC2} no lado do recetor.
+	
 \end{itemize}
 
 \textbf{application.c}
 \begin{itemize}
-	\item \textbf{openFile} - Abre o ficheiro enviado como argumento e obtém o seu conteúdo e tamanho.
 	\item \textbf{parseControlPacket} -  Gera o pacote de controlo de um ficheiro para depois ser enviado.
 	\item \textbf{parseDataPacket} - Codifica a mensagem num pacote de acordo com o protocolo estabelecido.
 	\item \textbf{splitPacket} - Obtém uma porção da mensagem, de modo a enviar os dados sob a forma de uma trama I.
 	\item \textbf{checkStart\_StateMachine} - Verifica se o primeiro pacote recebido pelo recetor é de facto o pacote de controlo de início.
 	\item \textbf{checkEND} - Verifica se o pacote de controlo inicial é igual ao final.
 	\item \textbf{assembleDataPacket} - Obtém os dados enviados pelo emissor através do pacote recebido pela porta série.
-	\item \textbf{createFile} - Cria o ficheiro final após ter lido toda a informação através da porta série.
 
 \end{itemize}
+
+\textit{Para mais informações, consultar os anexos no final do relatório (Anexos I a XI).}
 
 
 \section{Casos De Uso Principais}
@@ -186,11 +183,12 @@ A transmissão do ficheiro, através da porta de série, entre os dois dispositi
 
 \end{itemize}
 
+
 \section{Protocolo De Ligação Lógica}
 
 O objetivo do protocolo de ligação lógica é estabelecer a ligação estável e fiável entre os 2 computadores, utilizando a porta de série. Para isso, implementamos, tal como é referido no enunciado, as funções llopen, llread, llwrite e llclose.
 
-\textit{Consultar os anexos  e  para mais informação sobre o código utilizado }
+\textit{Consultar o anexo XII para mais informações sobre as principais funções utilizadas para implementação do Protocolo de Ligação Lógica.}
 
 \subsection{LLOPEN}
 
@@ -200,27 +198,35 @@ Do lado do transmissor, esta função instala o alarme que vai ser utilizado ao 
 
 Do lado do recetor, este aguarda o envio da trama \textit{SET} por parte do emissor e responde com o envio de uma trama do tipo \textit{UA}.
 
+\textit{Consultar anexo V para mais informações sobre a implementação desta função.}
+
 \subsection{LLWRITE}
 
-A função llwrite é responsável pelo stuffing e envio das tramas do tipo I.
+A função llwrite é responsável pelo \textit{stuffing} e envio das tramas do tipo I.
 
-Inicialmente, é acrescentado um cabeçalho à mensagem, de acordo com o protocolo descrito no guião. De seguida, é feito o stuffing do \textit{BCC2} e da mensagem, pelo que a trama está pronta para ser enviada.
+Inicialmente, é acrescentado um cabeçalho à mensagem, de acordo com o protocolo descrito no guião. De seguida, é feito o \textit{stuffing} do \textit{BCC2} e da mensagem, pelo que a trama está pronta para ser enviada.
 
 O processo de envio das tramas do tipo I está protegido por um alarme com 3 segundos de espera e 3 tentativas.
 
 Após o envio, é esperada uma resposta pela parte do recetor, através do comando \textit{RR}, que simboliza que a trama foi transmitida corretamente, ou do comando \textit{REJ}, que indica problemas no envio da trama, originando um reenvio da trama original.
 
+\textit{Consultar anexo V para mais informações sobre a implementação desta função.}
+
 \subsection{LLREAD}
 
 A função llread recebe as tramas do tipo I enviadas pelo emissor.
 
-A trama recebida é lida e analisada através de uma máquina de estados, sendo feitas as verificações do cabeçalho e do campo de dados e realizado o respetivo destuffing caso seja necessário.
+A trama recebida é lida e analisada através de uma máquina de estados, sendo feitas as verificações do cabeçalho e do campo de dados e realizado o respetivo \textit{destuffing} caso seja necessário.
 
 Caso a trama recebida se trate de uma nova trama e não tenha erros no cabeçalho, mas possua erros no campo de dados, é enviada uma resposta do tipo \textit{REJ} para o emissor, pedindo uma retransmissão dessa trama. Caso contrário, é enviada uma resposta do tipo \textit{RR}.
 
 Se a trama recebida não possuir erros no cabeçalho e no campo de dados, ou caso seja um duplicado, é confirmada ao emissor através de uma trama \textit{RR}.
 
 Tramas com o cabeçalho errado são ignoradas, sem qualquer ação.
+
+\textit{Consultar anexo V para mais informações sobre a implementação desta função.}
+
+
 
 \subsection{LLCLOSE}
 
@@ -232,12 +238,14 @@ O emissor está protegido por um alarme de 3 tentativas de 3 segundos de espera,
 
 O recetor espera por uma trama \textit{DISC} e, caso a receba, envia de volta uma trama \textit{DISC}, esperando por uma trama \textit{UA} para finalizar a ligação.
 
+\textit{Consultar anexo V para mais informações sobre a implementação desta função.}
+
 
 \section{Protocolo De Aplicação}
 
 O protocolo de aplicação permite a leitura de informação do ficheiro a enviar, fragmentando o ficheiro em tramas e preenchendo-o com um cabeçalho de controlo, sendo também capaz de descodificar a própria trama enviada.
 
-\textbf{Consultar os anexos  e  para mais informação sobre o código utilizado }
+\textit{Consultar o anexo XIII para mais informações sobre as principais funções utilizadas para implementação do Protocolo de Aplicação.}
 
 Para que tal fosse implementado, recorremos às seguintes funções:
 
@@ -257,7 +265,7 @@ Para que tal fosse implementado, recorremos às seguintes funções:
 
 Foi testado o envio de vários ficheiros, incluindo ficheiros com uma elevada quantidade de dados, os quais foram enviados do emissor para o recetor corretamente, sem perda de informação.
 
-Relativamente aos testes relativos à interrupção da ligação do cabo de série e geração de ruído, não fomos capazes de apresentar imagens relativas ao seu procedimento, porém, o seu sucesso foi comprovado na presença do docente no decurso da apresentação do projeto.
+Relativamente aos testes relacionados com a interrupção da ligação do cabo de série e geração de ruído, não fomos capazes de apresentar imagens relativas ao seu procedimento, porém, o seu sucesso foi comprovado na presença do docente no decurso da apresentação do projeto.
 
 Para fortalecer ainda mais esta validação, recorremos ao envio de ficheiros simulando a ocorrência de erros no \textit{BCC} e no \textit{BCC2} com variação na percentagem de erros, à variação do tamanho dos pacotes , à variação das capacidades de ligação (\textit{baudrate}) e à geração de atraso de propagação simulado. Os resultados obtidos são a seguir apresentados.  
 
@@ -270,17 +278,23 @@ Foi utilizada a imagem do pinguim (pinguim.png), com um tamanho de 35.4KB, sobre
 
 Foi possível concluir que o aumento do \textit{baudrate} provoca uma diminuição da eficiência, embora o tempo de execução seja menor.
 
+\textit{No anexo XIV encontram-se os dados por nós recolhidos e o respetivo gráfico que nos permitiram chegar a estas conclusões.}
+
 \subsection{Variação do tamanho das tramas}
 
 Utilizando uma imagem de tamanho 35.4KB e um \textit{baudrate} de 38400, fez-se variar o tamanho de envio das tramas em cada llwrite.
 
 Foi possível concluir que o aumento do tamanho das tramas de envio provocou o aumento da eficiência, sendo o tempo de execução menor.
 
+\textit{No anexo XV encontram-se os dados por nós recolhidos e o respetivo gráfico que nos permitiram chegar a estas conclusões.}
+
 \subsection{Atraso no envio das tramas}
 
 Utilizando uma imagem de tamanho 35.4KB, um \textit{baudrate} de 38400 e o envio de 128 bytes em cada trama, introduziu-se um atraso no envio de cada trama no llwrite, através da função \textit{usleep()}.
 
 Tal como esperado, foi possível concluir que a introdução de um atraso no envio de tramas causa uma diminuição da eficiência do código, sendo o tempo de execução cada vez menor à medida que o atraso introduzido aumenta.
+
+\textit{No anexo XVI encontram-se os dados por nós recolhidos e o respetivo gráfico que nos permitiram chegar a estas conclusões.}
 
 \subsection{Geração de erros no cabeçalho e no campo de dados}
 
@@ -290,12 +304,15 @@ Utilizando uma imagem de tamanho 35.4KB, um \textit{baudrate} de 38400 e o envio
 
 Tal como esperado, foi possível concluir que o aumento da taxa de erros gerados no cabeçalho e campo de dados provocou uma diminuição da eficiência, também como um aumento do tempo de execução.
 
+\textit{No anexo XVII encontram-se os dados por nós recolhidos e o respetivo gráfico que nos permitiram chegar a estas conclusões.}
+
 \section{Conclusões}
 
 Em suma, foi possível alcançar o objetivo proposto do trabalho, a implementação de um protocolo de ligação de dados fiável através de uma porta série, sendo possível enviar com sucesso ficheiros de diferentes tamanhos e extensões. O projeto encontra-se dividido em duas camadas distintas: camada de ligação e camada de aplicação, tal como fomos explicando ao longo deste relatório.
 
 Através deste trabalho, foi possível compreender não só o processo de implementação de um protocolo de ligação de dados, mas também as condições que afetam a eficiência do protocolo, através da alteração do tamanho da trama de envio, do \textit{baudrate}, da quantidade de erros e do atraso no envio das tramas.
 
+\newpage
 
 \section{Anexos}
 
@@ -383,7 +400,7 @@ int main(int argc, char** argv)
   }
   free(start);
 
-  // Ciclo de envio dos packets
+  // Cicle to send packets
   int packetSize = PACKETSIZE;
   off_t index = 0;
 
@@ -805,7 +822,6 @@ unsigned char* stuffBCC2(unsigned char bcc2, unsigned int *size){
 }
 
 int llwrite(int fd, unsigned char *buffer, int length) {
-// escreve a trama e fica a espera de receber uma mensagem RR ou REJ para saber o que enviar a seguir
     unsigned char bcc2;
     unsigned int sizebcc2 = 1;
     unsigned int messageSize = length+6;
@@ -816,7 +832,7 @@ int llwrite(int fd, unsigned char *buffer, int length) {
     bcc2Stuffed = stuffBCC2(bcc2, &sizebcc2);
 
     
-    // Inicio do preenchimento da mensagem
+    // Start to fill the message
     message[0] = FLAG;
     message[1] = A_EE;
     if(trama == 0){
@@ -827,7 +843,7 @@ int llwrite(int fd, unsigned char *buffer, int length) {
     }
     message[3] = message[1] ^ message[2];
 
-    // Comeca a ler do 4 e o tamanho depende da mensagem a ser enviada
+    // Start to read from 4 and size depends on the message to send
     int i = 4;
     for(int j = 0; j < length; j++){
         if(buffer[j] == FLAG){
@@ -860,9 +876,8 @@ int llwrite(int fd, unsigned char *buffer, int length) {
     }
     message[i] = FLAG;
 
-    //Mensagem preenchida Trama I feita
+    // Packet I filled
     // printMessage
-
     for(int j = 0; j < messageSize; j++){
         printf("message[%d] = 0x%X\n", j, message[j]);
     }
@@ -871,10 +886,8 @@ int llwrite(int fd, unsigned char *buffer, int length) {
     counter = 0;
     STP = FALSE;
 
-    // Envio da trama
+    // Send packet
     do {
-        // Processo de escrita
-        //tcflush(fd,TCIOFLUSH);
 
         unsigned char* copyBcc = (unsigned char *)malloc(messageSize);
         unsigned char* copyBcc2 = (unsigned char *)malloc(messageSize);
@@ -891,7 +904,7 @@ int llwrite(int fd, unsigned char *buffer, int length) {
 
         readReceiverMessage(fd);
     
-        // Tratar do rcv
+        // Handle rcv
         if((rcv == RR0 && trama == 1) || (rcv == RR1 && trama == 0)) {
             counter = 0;
             trama = (trama + 1) % 2;
@@ -908,7 +921,6 @@ int llwrite(int fd, unsigned char *buffer, int length) {
 
         else if(rcv == REJ0 || rcv == REJ1) {
             STP = TRUE;
-            //alarm(0);
             if(rcv == REJ0) {
                 puts("TRANSMITTER: Received REJ0");
             }
@@ -947,8 +959,6 @@ unsigned int llread(int fd, unsigned char* buffer) {
 }
 
 int llclose(int fd, int status) {
-//emissor:
-// envia DISC, espera porInteraction received\n
     if(status == TRANSMITTER) {
 
         counter = 0;
@@ -979,8 +989,6 @@ int llclose(int fd, int status) {
         tcsetattr(fd, TCSANOW, &oldtio);
     }
 
-//recetor:
-// le a mensagem DISC enviada pelo emissor, envia DISC e recebe UA
     else if(status == RECEIVER) {
         if (receiveDISC(fd) == 0) {
             puts("RECEIVER: Read DISC");
@@ -1326,7 +1334,6 @@ int receiveUA(int fd){
       }
     }
 
-  //puts("exiting state machine");
   return TRUE;
 
 }
@@ -1477,7 +1484,7 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
             expectedTrama = (expectedTrama + 1) % 2;
         }
 
-        else { //ao fazermos isto garantimos que a trama recebida e repetida
+        else { //repeated trama
             *size = 0;
 
             if(expectedTrama == 0) { 
@@ -1492,7 +1499,7 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
             }
         }
     }
-    else { //caso BCC2 tenha erros ou tenha havido interferencias
+    else { //error in BCC2 or interferences
         if(trama != expectedTrama) {
             if(trama == 0) {
                 //send RR(Nr = 1)
@@ -1508,7 +1515,7 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
             }
         }
 
-        else { //trama correta, mas com erro em BCC2
+        else { //correct trama, but with error in BCC2
             *size = 0;
 
             if(trama == 0) {
@@ -1530,7 +1537,6 @@ int receiverRead_StateMachine(int fd, unsigned char* frame, unsigned int *size) 
 }
 
 int receiveDISC(int fd) {
-    //tcflush(fd, TCIOFLUSH); //limpa informacao recebida mas nao lida e informacao escrita mas nao transmitida
 
     enum state current = START;
 
@@ -1796,7 +1802,7 @@ unsigned char* parseDataPacket(unsigned char *message, off_t fileSize, int *leng
     packet[2] = fileSize / 256;
     packet[3] = fileSize % 256;
 
-    // Preencher o packet atraves da mensagem
+    // Fill packet using message
     for(int i = 0; i < *length; i++){
         packet[4 + i] = message[i];
     }
@@ -1926,13 +1932,13 @@ void createFile(unsigned char* data, unsigned int fileSize, char *filename){
 #define TRUE 1
 
 #define FLAG 0x7e
-#define A_EE 0x03 //campo de endereco em comandos enviados pelo emissor e respostas enviadas pelo recetor
-#define A_ER 0x01 //campo de endereco em comandos enviados pelo recetor e repostas enviadas pelo emissor
+#define A_EE 0x03 //commands sent by emissor and answers sent by recetor
+#define A_ER 0x01 //commands sent by recetor and answers sent by emissor
 #define C_SET 0x03
 #define C_UA 0x07
 #define C_DISC 0x0B
-#define NS0 0x00 //valor de ns na primeira trama do write
-#define NS1 0x40 //valor de ns segunda trama do write
+#define NS0 0x00
+#define NS1 0x40
 #define ESCAPE_BYTE 0x7d 
 #define ESCAPE_FLAG 0x5e
 #define ESCAPE_ESCAPE 0x5d
@@ -1956,13 +1962,13 @@ void createFile(unsigned char* data, unsigned int fileSize, char *filename){
 
 #define ERROR -1
 #define MAXTRIES 10
-#define TIMEOUT 1 //Time to wait fora  repsonse from the receiver
+#define TIMEOUT 1 //Time to wait for repsonse from the receiver
 
 #define BCC1ERRORRATE 0
 #define BCC2ERRORRATE 0
 \end{lstlisting}
 
-\subsection{ Anexo XII - Principais funções utilizadas no Protocolo de ligação Lógica (documentação encontra-se em llfunctions.h)}
+\subsection{ Anexo XII - Principais funções utilizadas no Protocolo de ligação Lógica}
 
 \begin{lstlisting}[style=CStyle]
 int llopen(int fd, int status);
@@ -1976,7 +1982,7 @@ int llclose(int fd, int status);
 
 \pagebreak
 
-\subsection{ Anexo XIII - Principais funções utilizadas na camada de Aplicação (documentação encontra-se em applications.h)}
+\subsection{ Anexo XIII - Principais funções utilizadas na camada de Aplicação}
 
 \begin{lstlisting}[style=CStyle]
 unsigned char* openFile(char *filename, off_t *fileSize);
