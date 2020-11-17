@@ -37,18 +37,52 @@
 }
 
 
-\author{Hugo Guimarães, Pedro Ponte}
-\title{Primeiro Trabalho Laboratorial}
+
+
 
 
 \begin{document}
 
-\maketitle 
+\begin{titlepage}
+	\begin{center}
+		\vspace*{1cm}
+		
+		\Large
+		\textbf{Protocolo de Ligação de Dados}
+		
+		\vspace{0.5cm}
+		\large
+		Primeiro Trabalho Laboratorial
+		
+		\vspace{1.5cm}
+		
+		\textbf{Hugo Guimarães, Pedro Ponte}
+		
+		\vspace{7cm}
+		
+		Trabalho realizado no âmbito da\\
+		Unidade Curricular de Redes de Computadores
+		
+		\vspace{0.8cm}
+		
+		\includegraphics[width=0.4 \textwidth]{feup_logo.png}
+		
+		\vspace{1.5cm}		
+		
+		\large
+		Mestrado Integrado em Engenharia Informática e Computação\\
+		Faculdade de Engenharia da Universidade do Porto\\
+		Porto\\
+		17 de novembro de 2020
+	
+	\end{center}
+\end{titlepage}
+
+
 \pagebreak
 \tableofcontents
 
 \pagebreak
-\section*{Sumário}
 
 \section*{Sumário}
 
@@ -62,14 +96,14 @@ Este trabalho pretende implementar um protocolo de ligação de dados baseado no
 
 O relatório pretende descrever detalhadamente a aplicação implementada, estando dividida nas seguintes secções:
 \begin{description}
-	\item[Arquitetura] Descrição dos blocos funcionais e interfaces implementados.
-	\item[Estrutura do Código] Descrição das APIs, principais estruturas de dados, principais funções e a sua relação com a arquitetura.
-	\item[Casos De Uso Principais] Identificação dos principais casos de uso e da sequência de chamada de funções.
-	\item[Protocolo De Ligação Lógica] Descrição dos principais aspetos funcionais do protocolo de ligação lógica e da sua estratégia de implementação com apresentação de extratos de código.
-	\item[Protocolo De Aplicação] Descrição dos principais aspetos funcionais do protocolo de aplicação e da sua estratégia de implementação com apresentação de extratos de código.
-	\item[Validação] Descrição dos testes efetuados com apresentação quantificada dos resultados.
-	\item[Eficiência Do Protocolo De Ligação De Dados] Caracterização estatística da eficiência do protocolo de Stop\&Wait implementado.
-	\item[Conclusões] Síntese da informação apresentada nas secções anteriores e reflexão sobre os objetivos de aprendizagem alcançados.
+	\item[Arquitetura -] Descrição dos blocos funcionais e interfaces implementados.
+	\item[Estrutura do Código -] Descrição das APIs, principais estruturas de dados, principais funções e a sua relação com a arquitetura.
+	\item[Casos De Uso Principais -] Identificação dos principais casos de uso e da sequência de chamada de funções.
+	\item[Protocolo De Ligação Lógica - ] Descrição dos principais aspetos funcionais do protocolo de ligação lógica e da sua estratégia de implementação com apresentação de extratos de código.
+	\item[Protocolo De Aplicação - ] Descrição dos principais aspetos funcionais do protocolo de aplicação e da sua estratégia de implementação com apresentação de extratos de código.
+	\item[Validação - ] Descrição dos testes efetuados com apresentação quantificada dos resultados.
+	\item[Eficiência Do Protocolo De Ligação De Dados - ] Caracterização estatística da eficiência do protocolo de Stop\&Wait implementado.
+	\item[Conclusões - ] Síntese da informação apresentada nas secções anteriores e reflexão sobre os objetivos de aprendizagem alcançados.
 \end{description}
 
 \section{Arquitetura}
@@ -265,9 +299,7 @@ Através deste trabalho, foi possível compreender não só o processo de implem
 
 \section{Anexos}
 
-\subsection{Código}
-
-\subsection{emissor.h}
+\subsection{Anexo I - emissor.h}
 \begin{lstlisting}[style=CStyle]
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -297,7 +329,7 @@ int main(int argc, char** argv);
 
 \pagebreak
 
-\subsection{emissor.c}
+\subsection{Anexo II - emissor.c}
 
 \begin{lstlisting}[style=CStyle]
 /*Non-Canonical Input Processing*/
@@ -404,7 +436,7 @@ int main(int argc, char** argv)
 
 \pagebreak
 
-\subsection{recetor.h}
+\subsection{Anexo III - recetor.h}
 
 \begin{lstlisting}[style=CStyle]
 /*Non-Canonical Input Processing*/
@@ -427,7 +459,7 @@ int main(int argc, char** argv)
 
 \pagebreak
 
-\subsection{recetor.c}
+\subsection{Anexo IV - recetor.c}
 
 \begin{lstlisting}[style=CStyle]
 #include "recetor.h"
@@ -560,7 +592,7 @@ int main(int argc, char** argv)
 
 \pagebreak
 
-\subsection{llfunctions.h}
+\subsection{Anexo V - llfunctions.h}
 
 \begin{lstlisting}[style=CStyle]
 
@@ -643,7 +675,7 @@ unsigned char* generateRandomBCC2(unsigned char* packet, int packetSize);
 
 \pagebreak
 
-\subsection{llfunctions.c}
+\subsection{Anexo VI - llfunctions.c}
 
 \begin{lstlisting}[style=CStyle]
 #include "llfunctions.h"
@@ -1023,7 +1055,7 @@ unsigned char* generateRandomBCC2(unsigned char* packet, int packetSize){
 
 \pagebreak
 
-\subsection{stateMachines.h}
+\subsection{Anexo VII - stateMachines.h}
 
 \begin{lstlisting}[style=CStyle]
 #include <stdlib.h>
@@ -1063,7 +1095,7 @@ int checkBCC2(unsigned char *packet, int size);
 
 \pagebreak
 
-\subsection{stateMachines.c}
+\subsection{Anexo VIII - stateMachines.c}
 
 \begin{lstlisting}[style=CStyle]
 #include "stateMachines.h"
@@ -1589,7 +1621,7 @@ int checkBCC2(unsigned char *packet, int size){
 
 \pagebreak
 
-\subsection{application.h}
+\subsection{Anexo IX - application.h}
 
 \begin{lstlisting}[style=CStyle]
 #include <sys/types.h>
@@ -1682,7 +1714,7 @@ void createFile(unsigned char* data, unsigned int fileSize, char *filename);
 
 \pagebreak
 
-\subsection{application.c}
+\subsection{ Anexo X - application.c}
 
 \begin{lstlisting}[style=CStyle]
 #include "application.h"
@@ -1883,7 +1915,7 @@ void createFile(unsigned char* data, unsigned int fileSize, char *filename){
 
 
 
-\subsection{macros.h}
+\subsection{ Anexo XI - macros.h}
 
 \begin{lstlisting}[style=CStyle]
 
@@ -1930,7 +1962,7 @@ void createFile(unsigned char* data, unsigned int fileSize, char *filename){
 #define BCC2ERRORRATE 0
 \end{lstlisting}
 
-\subsection{Anexo I - Principais funções utilizadas no Protocolo de ligação Lógica(documentação encontra-se em llfunctions.h)}
+\subsection{ Anexo XII - Principais funções utilizadas no Protocolo de ligação Lógica (documentação encontra-se em llfunctions.h)}
 
 \begin{lstlisting}[style=CStyle]
 int llopen(int fd, int status);
@@ -1944,7 +1976,7 @@ int llclose(int fd, int status);
 
 \pagebreak
 
-\subsection{Anexo I - Principais funções utilizadas na camada de Aplicação(documentação encontra-se em applications.h)}
+\subsection{ Anexo XIII - Principais funções utilizadas na camada de Aplicação (documentação encontra-se em applications.h)}
 
 \begin{lstlisting}[style=CStyle]
 unsigned char* openFile(char *filename, off_t *fileSize);
@@ -1963,7 +1995,7 @@ unsigned char* assembleDataPacket(unsigned char* message, unsigned int messageSi
 
 \pagebreak
  
-\subsection{Variação do Baudrate}
+\subsection{ Anexo XIV - Variação do Baudrate}
 
 \includegraphics[width=\textwidth]{tabelaBaudrate.png}
 \captionof{figure}{Tabela com diferentes valores de Baudrate}
@@ -1976,7 +2008,7 @@ unsigned char* assembleDataPacket(unsigned char* message, unsigned int messageSi
 
 \pagebreak
 
-\subsection{Variação do tamanho das tramas}
+\subsection{ Anexo XV - Variação do tamanho das tramas}
 
 \includegraphics[width=\textwidth]{tabelaTamanho.png}
 \captionof{figure}{Tabela com diferentes tamanhos da trama de envio}
@@ -1989,7 +2021,7 @@ unsigned char* assembleDataPacket(unsigned char* message, unsigned int messageSi
 
 \pagebreak
 
-\subsection{Introdução de atraso de propagação}
+\subsection{ Anexo XVI - Introdução de atraso de propagação}
 
 \includegraphics[width=\textwidth]{tabelaAtraso.png}
 \captionof{figure}{Tabela com diferentes valores de atraso no envio de tramas}
@@ -2002,7 +2034,7 @@ unsigned char* assembleDataPacket(unsigned char* message, unsigned int messageSi
 
 \pagebreak
 
-\subsection{Introdução de erros nas tramas}
+\subsection{ Anexo XVII - Introdução de erros nas tramas}
 
 \includegraphics[width=\textwidth]{tabelaErro.png}
 \captionof{figure}{Tabela com diferentes valores percentuais de erro introduzido}
