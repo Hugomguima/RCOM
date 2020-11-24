@@ -1,0 +1,48 @@
+porta 1 - conexao net
+
+ligar gnu23 S0 ao rs232 - cisco
+ligar cisco - rs232 ao switch console
+ligar gnu23 eth0 a uma porta do switch
+ligar gnu24 eth0 a outra pota do switch
+esperar que os leds no switch fiquem verdes 
+
+pc3
+updateimage (pc3)
+ele reseta
+iniciar sessao
+mudar para pc4
+updateimage (pc4)
+
+# reboot switch
+
+no gkterm
+voltar ao pc3
+slide 43
+(comandos estao no autocolante ao lado dos pcs)
+en
+por pass: 8nortel
+conf t
+ctrl-z
+copy flash:gnu2-clean startup-config
+reload
+enter (demora um bocado depois)
+
+EXP1
+
+ifconfig eth0 172.16.20.1/24
+ifconfig eth0 
+mac adress(ether)-  00:21:5a:5a:78:c7
+mudar de maquina (4)
+ifconfig eth0 172.16.20.254/24
+ifconfig eth0
+mac adress(ether)- 00:22:64:a7:26:a2
+mudar para 3
+ping 172.16.20.254
+route -n 
+arp -a
+(pode-se testar estes ultimos 3 no 4 tambem)
+arp -d 172.16.20.254
+abrir wireshark e começar a capturar pacotes
+repetir comando ping e esperar uns segundos 
+guardar ficheiro resultante com nome gnu_expX.pcapng
+analizar resultados em casa no wireshark
