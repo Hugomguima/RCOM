@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "arguments_parser.h"
+#include "connection.h"
 
 
 int main(int argc, char* argv[]) {
@@ -12,8 +13,9 @@ int main(int argc, char* argv[]) {
     arguments args;
     char ipAddress[256];
     char fileName[128];
+    int sockfd;
 
-    if(parse_arguments(argv[1], &args) != 0) {
+    if(parseArguments(argv[1], &args) != 0) {
         printf("Error parsing introduced arguments\n");
         return -2;
     }
@@ -31,6 +33,13 @@ int main(int argc, char* argv[]) {
     printf("PATH: %s\n", args.path);
     printf("FILENAME: %s\n", fileName);
     printf("IP ADDRESS: %s\n", ipAddress);
+
+    if(initConnection(ipAddress, 21, &sockfd) != 0) {
+        printf("Error starting connection to server\n");
+        return -4;
+    }
+
+    printf("SOCKET FD: %i\n", sockfd);
 
     return 0;
 }

@@ -4,7 +4,7 @@ FLAGS = -Wall
 all: download
 	
 download: main.c
-	$(CC) $(FLAGS) main.c arguments_parser.c -o download
+	$(CC) $(FLAGS) main.c arguments_parser.c connection.c -o download
 clean:
 	rm -rf download
 	rm -rf *.exe

@@ -1,7 +1,7 @@
 #include "arguments_parser.h"
 
 // ftp://[<user>:<password>@]<host>/<url-path>
-int parse_arguments(char* url, arguments *args) {
+int parseArguments(char* url, arguments *args) {
     char *ftp = strtok(url, "/"); //ftp:
     char *first = strtok(NULL, "/"); //[<user>:<password>@]<host>
     char *path = strtok(NULL, ""); //<url-path>

@@ -1,5 +1,5 @@
-#ifndef ARGUMENTS_PARSER
-#define ARGUMENTS_PARSER
+#ifndef ARGUMENTS_PARSER_H
+#define ARGUMENTS_PARSER_H
 
 #include <stdio.h>
 #include <string.h>
@@ -16,7 +16,7 @@ typedef struct arguments {
     char* file_name;
 } arguments;
 
-int parse_arguments(char* url, arguments *args);
+int parseArguments(char* url, arguments *args);
 int getIP(char *ip, char *host);
 
 #endif
