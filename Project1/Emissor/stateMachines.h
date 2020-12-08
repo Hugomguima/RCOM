@@ -2,6 +2,8 @@
 #include <termios.h>
 #include <stdio.h>
 #include <errno.h>
+#include <unistd.h>
+
 
 #include "macros.h"
 
@@ -19,6 +21,8 @@ enum state {
 int sendMessage(int fd,unsigned char c);
 
 int readSetMessage(int fd);
+
+int readReceiverMessage(int fd);
 
 int receiveUA(int serialPort);
 

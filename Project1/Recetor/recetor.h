@@ -7,7 +7,10 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <time.h>
+
 
 // Created files
 
 #include "llfunctions.h"
+#include "application.h"
