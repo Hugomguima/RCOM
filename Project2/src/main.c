@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
     strcpy(fileName, args.file_name);
 
     if(getIP(ipAddress, args.host_name) != 0) {
-        printf("Error getting host IP address\n");
+        printf("< Error getting host IP address\n");
         return -3;
     }
 
@@ -41,21 +41,46 @@ int main(int argc, char* argv[]) {
         return -4;
     }
 
-    printf("SOCKET FD: %i\n", sockfd);
-
     socketFile = fdopen(sockfd, "r");
-    receiveAnswer(socketFile, answerBuffer);
+    receiveAnswer(answerBuffer);
 
     if(answerBuffer[0] == '2') {
-        printf("Expecting username...\n\n");
+        printf("< Expecting username...\n");
     }
     else {
-        printf("Error in socket connection\n");
+        printf("< Error in socket connection\n");
         return -5;
     }
 
-    sprintf(command, "user %s\r\n", args.user);
-    
+    sprintf(command, "USER %s\r\n", args.user);
+    if(sendData(sockfd, command) != 0) {
+        return -6;
+    }
+    receiveAnswer(answerBuffer);
+
+    if(answerBuffer[0] == '3') {
+        printf("< Expecting password...\n");
+    }
+    else {
+        printf("< Error sending username\n");
+        return -7;
+    }
+
+    sprintf(command, "PASS %s\r\n", args.password);
+    if(sendData(sockfd, command) != 0) {
+        return -6;
+    }
+    receiveAnswer(answerBuffer);
+
+    if(answerBuffer[0] == '2') {
+        printf("< Logged in...\n");
+    }
+    else {
+        printf("< Error sending password\n");
+        return -7;
+    }
+
+
 
     return 0;
 }

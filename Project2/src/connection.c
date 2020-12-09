@@ -32,3 +32,21 @@ int receiveAnswer(char *buffer) {
 
     return 0;
 }
+
+int sendData(int sockfd, char *command) {
+    printf("> %s\n", command);
+    int s = send(sockfd, command, strlen(command), 0);
+
+    if(s == 0) {
+        printf("sendData: Connection closed\n");
+        return -3;
+    }
+    else if(s == -1) {
+        printf("sendData: Error\n");
+        return -4;
+    }
+    
+    printf("> Command Sent\n");
+
+    return 0;
+}

@@ -14,5 +14,9 @@ FILE * socketFile;
 
 int initConnection(char *ip, int port, int *sockfd);
 
+int receiveAnswer(char *buffer);
+
+int sendData(int sockfd, char *command);
+
 
 #endif
