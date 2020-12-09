@@ -14,6 +14,8 @@ int main(int argc, char* argv[]) {
     char ipAddress[256];
     char fileName[128];
     int sockfd;
+    char answerBuffer[256];
+    char command[256];
 
     if(parseArguments(argv[1], &args) != 0) {
         printf("Error parsing introduced arguments\n");
@@ -40,6 +42,20 @@ int main(int argc, char* argv[]) {
     }
 
     printf("SOCKET FD: %i\n", sockfd);
+
+    socketFile = fdopen(sockfd, "r");
+    receiveAnswer(socketFile, answerBuffer);
+
+    if(answerBuffer[0] == '2') {
+        printf("Expecting username...\n\n");
+    }
+    else {
+        printf("Error in socket connection\n");
+        return -5;
+    }
+
+    sprintf(command, "user %s\r\n", args.user);
+    
 
     return 0;
 }

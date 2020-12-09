@@ -22,3 +22,13 @@ int initConnection(char *ip, int port, int *sockfd) {
 
     return 0;
 }
+
+int receiveAnswer(char *buffer) {
+    do {
+        memset(buffer, 0, 256);
+        buffer = fgets(buffer, 256, socketFile);
+        printf("< %s", buffer);
+    } while(buffer[3] != ' ');
+
+    return 0;
+}
