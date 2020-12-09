@@ -18,5 +18,6 @@ int receiveAnswer(char *buffer);
 
 int sendData(int sockfd, char *command);
 
+int parseIP_Port(char* buffer, char *ip, int *port);
 
 #endif

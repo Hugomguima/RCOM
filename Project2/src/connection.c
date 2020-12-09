@@ -25,8 +25,8 @@ int initConnection(char *ip, int port, int *sockfd) {
 
 int receiveAnswer(char *buffer) {
     do {
-        memset(buffer, 0, 256);
-        buffer = fgets(buffer, 256, socketFile);
+        memset(buffer, 0, 512);
+        buffer = fgets(buffer, 512, socketFile);
         printf("< %s", buffer);
     } while(buffer[3] != ' ');
 
@@ -45,8 +45,23 @@ int sendData(int sockfd, char *command) {
         printf("sendData: Error\n");
         return -4;
     }
-    
-    printf("> Command Sent\n");
+
+    return 0;
+}
+
+int parseIP_Port(char* buffer, char *ip, int *port) {
+    strtok(buffer, "(");
+    char *ip1 = strtok(NULL, ",");
+    char *ip2 = strtok(NULL, ",");
+    char *ip3 = strtok(NULL, ",");
+    char *ip4 = strtok(NULL, ",");
+    char *port1 = strtok(NULL, ",");
+    char *port2 = strtok(NULL, ")");
+
+    sprintf(ip, "%s.%s.%s.%s", ip1, ip2, ip3, ip4);
+    printf("IP: %s\n", ip);
+    *port = atoi(port1) * 256 + atoi(port2);
+    printf("PORT: %i\n", *port);
 
     return 0;
 }

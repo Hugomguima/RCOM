@@ -14,8 +14,8 @@ int main(int argc, char* argv[]) {
     char ipAddress[256];
     char fileName[128];
     int sockfd;
-    char answerBuffer[256];
-    char command[256];
+    char answerBuffer[512];
+    char command[512];
 
     if(parseArguments(argv[1], &args) != 0) {
         printf("Error parsing introduced arguments\n");
@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
     receiveAnswer(answerBuffer);
 
     if(answerBuffer[0] == '2') {
-        printf("< Expecting username...\n");
+        printf("\n< Expecting username...\n");
     }
     else {
         printf("< Error in socket connection\n");
@@ -68,19 +68,30 @@ int main(int argc, char* argv[]) {
 
     sprintf(command, "PASS %s\r\n", args.password);
     if(sendData(sockfd, command) != 0) {
-        return -6;
+        return -8;
     }
     receiveAnswer(answerBuffer);
 
     if(answerBuffer[0] == '2') {
-        printf("< Logged in...\n");
+        printf("< Logged in\n\n");
     }
     else {
         printf("< Error sending password\n");
-        return -7;
+        return -9;
     }
 
+    char *ip = malloc(16);
+    int port;
 
+    sprintf(command, "PASV \r\n");
+    if(sendData(sockfd, command) != 0) {
+        return -8;
+    }
+    receiveAnswer(answerBuffer);
+
+    parseIP_Port(answerBuffer, ip, &port);
+
+    printf("BUF: %s\n", answerBuffer);
 
     return 0;
 }
