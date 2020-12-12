@@ -80,8 +80,9 @@ int main(int argc, char* argv[]) {
         return -9;
     }
 
-    char *ip = malloc(16);
-    int port;
+    char *new_ip = malloc(16);
+    int new_port;
+    int new_sockfd;
 
     sprintf(command, "PASV \r\n");
     if(sendData(sockfd, command) != 0) {
@@ -89,9 +90,43 @@ int main(int argc, char* argv[]) {
     }
     receiveAnswer(answerBuffer);
 
-    parseIP_Port(answerBuffer, ip, &port);
+    if(parseIP_Port(answerBuffer, new_ip, &new_port) != 0) {
+        return -9;
+    }
 
-    printf("BUF: %s\n", answerBuffer);
+    printf("< New IP: %s\n", new_ip);
+    printf("< New port: %i\n", new_port);
+
+    if(initConnection(new_ip, new_port, &new_sockfd) != 0) {
+        printf("Error starting connection to server\n");
+        return -10;
+    }
+
+    sprintf(command, "RETR %s\r\n", args.path);
+    if(sendData(sockfd, command) != 0) {
+        return -11;
+    }
+
+    receiveAnswer(answerBuffer);
+
+    if(downloadFile(new_sockfd, fileName) != 0) {
+        printf("Error downloading file\n");
+        return -12;
+    }
+
+    printf("< File %s downloaded\n", fileName);
+
+    if(close(sockfd) < 0) {
+        printf("Error closing socket\n");
+        return -13;
+    }
+
+    if(close(new_sockfd) < 0) {
+        printf("Error closing data socket\n");
+        return -14;
+    }
+
+    //printf("BUF: %s\n", answerBuffer);
 
     return 0;
 }

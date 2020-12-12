@@ -59,9 +59,36 @@ int parseIP_Port(char* buffer, char *ip, int *port) {
     char *port2 = strtok(NULL, ")");
 
     sprintf(ip, "%s.%s.%s.%s", ip1, ip2, ip3, ip4);
-    printf("IP: %s\n", ip);
     *port = atoi(port1) * 256 + atoi(port2);
-    printf("PORT: %i\n", *port);
+
+    return 0;
+}
+
+int downloadFile(int socketfd, char * filename) {
+    printf("> filename: %s\n", filename);
+
+    int fd = open(filename, O_WRONLY | O_CREAT, 0777);
+
+    if(fd < 0) {
+        printf("FD: %i\n", fd);
+        printf("Error creating file\n");
+        return -5;
+    }
+
+    char buffer[1];
+    int numBytes;
+
+    while((numBytes = read(socketfd, buffer, 1)) > 0) {
+        if(write(fd, buffer, numBytes) < 0) {
+            printf("Error writing to file\n");
+            return -6;
+        }
+    }
+
+    if(close(fd) < 0) {
+        printf("Error closing file\n");
+        return -7;
+    }
 
     return 0;
 }

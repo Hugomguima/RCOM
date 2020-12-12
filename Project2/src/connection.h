@@ -20,4 +20,6 @@ int sendData(int sockfd, char *command);
 
 int parseIP_Port(char* buffer, char *ip, int *port);
 
+int downloadFile(int socketfd, char * filename);
+
 #endif
