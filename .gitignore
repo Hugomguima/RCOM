@@ -11,8 +11,12 @@ P2/recetor
 
 *.log
 
-Project1/docs/tex.ind
+*/docs/tex.ind
 
-Project1/docs/tex.toc
+*/docs/tex.toc
 
-Project1/docs/tex.synctex.gz
+*/docs/tex.synctex.gz
+*.dvi
+*.pdf
+*.gz
+*.toc
