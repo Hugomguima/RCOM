@@ -3,6 +3,8 @@
 #include "arguments_parser.h"
 #include "connection.h"
 
+extern FILE * socketFile;
+
 
 int main(int argc, char* argv[]) {
     if(argc != 2) {
@@ -86,12 +88,20 @@ int main(int argc, char* argv[]) {
 
     sprintf(command, "PASV \r\n");
     if(sendData(sockfd, command) != 0) {
-        return -8;
+        return -10;
     }
     receiveAnswer(answerBuffer);
 
+    if(answerBuffer[0] == '2') {
+        printf("< Started PASV\n\n");
+    }
+    else {
+        printf("< Error starting PASV\n");
+        return -11;
+    }
+
     if(parseIP_Port(answerBuffer, new_ip, &new_port) != 0) {
-        return -9;
+        return -12;
     }
 
     printf("< New IP: %s\n", new_ip);
@@ -99,31 +109,39 @@ int main(int argc, char* argv[]) {
 
     if(initConnection(new_ip, new_port, &new_sockfd) != 0) {
         printf("Error starting connection to server\n");
-        return -10;
+        return -13;
     }
 
     sprintf(command, "RETR %s\r\n", args.path);
     if(sendData(sockfd, command) != 0) {
-        return -11;
+        return -14;
     }
 
     receiveAnswer(answerBuffer);
 
+    if(answerBuffer[0] == '1') {
+        printf("< RETR correct\n\n");
+    }
+    else {
+        printf("< Invalid file\n");
+        return -15;
+    }
+
     if(downloadFile(new_sockfd, fileName) != 0) {
         printf("Error downloading file\n");
-        return -12;
+        return -16;
     }
 
     printf("< File %s downloaded\n", fileName);
 
     if(close(sockfd) < 0) {
         printf("Error closing socket\n");
-        return -13;
+        return -17;
     }
 
     if(close(new_sockfd) < 0) {
         printf("Error closing data socket\n");
-        return -14;
+        return -18;
     }
 
     //printf("BUF: %s\n", answerBuffer);

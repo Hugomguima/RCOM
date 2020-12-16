@@ -1,5 +1,7 @@
 #include "connection.h"
 
+FILE * socketFile;
+
 int initConnection(char *ip, int port, int *sockfd) {
     struct	sockaddr_in server_addr;
 

@@ -44,11 +44,11 @@
 		\vspace*{1cm}
 		
 		\Large
-		\textbf{Protocolo de Ligação de Dados}
+		\textbf{Rede de Computadores}
 		
 		\vspace{0.5cm}
 		\large
-		Primeiro Trabalho Laboratorial
+		Segundo Trabalho Laboratorial
 		
 		\vspace{1.5cm}
 		
@@ -62,7 +62,7 @@
 		
 		\vspace{0.8cm}
 	
-		Colocar imagem do logo aqui
+		\includegraphics[width=0.4 \textwidth]{feup_logo.png}
 		
 		\vspace{1.5cm}		
 		
@@ -70,7 +70,7 @@
 		Mestrado Integrado em Engenharia Informática e Computação\\
 		Faculdade de Engenharia da Universidade do Porto\\
 		Porto\\
-		17 de novembro de 2020
+		23 de dezembro de 2020
 	
 	\end{center}
 \end{titlepage}
@@ -100,25 +100,100 @@ O relatório pretende descrever detalhadamente a aplicação implementada, estan
 
 
 \section{Parte 1 - Aplicação de Download}
+A primeira parte deste trabalho consistiu em desenvolver uma aplicação de \emph{download} na linguagem de programação C. Para correr a aplicação, basta compilar os ficheiros usando o \emph{Makefile} e depois correr o comando \textbf{./download ftp://[$<$user$>$:$<$password$>$@]$<$host$>$/$<$url-path$>$}. Esta aplicação permite fazer o download de ficheiros a partir de um servidor do tipo \textbf{FTP}
 
 \subsection{Arquitetura}
+Para desenvolver a aplicação, decidimos dividi-la em duas partes: a primeira faz o processamento dos argumentos introduzidos no terminal e que vão ser utilizados para a transferência. A segunda parte é responsável pela conexão ao servidor para que se possa obter o ficheiro desejado.
+
+Para processar os argumentos, desenvolvemos a função \textit{\textbf{parseArguments}}, que divide o argumento nos seus vários componentes: \emph{username, password, host name, path e filename}. Estes componentes vão ser armazenados numa struct \textit{\textbf{arguments}} por nós criada, que vai ser acedida depois para que a transferência do ficheiro ocorra.
+
+Para implementar a segunda parte, primeiramente temos de obter o endereço IP a que o \emph{host} está associado. Para isso, recorremos à função \textit{\textbf{getIP}}, que utiliando maioritariamente código fornecido num exemplo das aulas teórico-práticas, obtém o IP, estando desta forma aptos a iniciar a conexão com o host. De seguida, chama-se a função \textit{\textbf{initConnection}}, que utilizando novamente código fornecido nas aulas, é responsável por ligar o cliente FTP ao servidor através de um socket, utilizando-se a porta 21.
+
+Após a conexão estar estabelecida, envia-se então o primeiro comando "\textbf{USER} 'username'\textbackslash r\textbackslash n" através da função \textit{\textbf{sendData}}, esperando-se pela resposta usando a função \textit{\textbf{receiveAnswer}}. No caso de ser a resposta esperada, envia-se entao o comando "\textbf{PASS} 'password'\textbackslash r\textbackslash n", esperando-se novamente pela resposta do servidor para se poder prosseguir.
+
+As chamadas à função \textit{\textbf{receiveAnswer}} podem retornar essencialmente 3 tipos de respostas diferentes que importa clarificar:
+
+\begin{itemize}
+    \item \textbf{Códigos começados por 2 -} Respostas positivas, ou seja, a operação realizada pelo comando enviado foi efetuada com sucesso;
+    \item \textbf{Códigod começados por 3 -} Respostas intermédias positivas, ou seja, a operação é válida, mas são necessárias mais informações para que o pedido seja terminado;
+    \item \textbf{Códigos começados por 5 -} Respostas negativas, ou seja, ocorreu um erro quando o comando foi enviado.
+\end{itemize}
+
+De seguida, são enviados os comandos \textbf{PASV}, que permite entrar no modo passivo e que retorna o endereço IP e a porta para que se possa iniciar um novo \emph{socket} que será responsável pela troca de dados, e "\textbf{RETR} 'path\textunderscore to\textunderscore file\textbackslash r\textbackslash n'", sendo de seguida feito o \emph{download} do ficheiro desejado através da função \textit{\textbf{downloadFile}}. 
+
+Após a transferência estar finalizada, as ligações são fechadas e a aplicação termina.
 
 \subsection{Resultados}
 
+O programa foi testado tanto em modo anónimo como em modo não anónimo, transferindo-se variados ficheiros de diferentes tamanhos e extensões, tendo o programa funcionado corretamente. Caso o ficheiro não exista, seja inválido ou tenha ocorrido algum erro no estabelecimento das ligações ou no envio dos comandos, o programa termina, sendo retornada uma mensagem de erro. 
+
+Ao longo da execução do programa vão sendo imprimidas no terminal diversas mensagens para que seja mais fácil ao utilizadpr acompanhar o desenvolvimento do programa.
 
 \section{Parte 2 - Configuração da Rede e Análise} 
 
 \subsection{Experiência 1 - Configuração de uma rede IP}
 
+\setsecnumdepth{1)} O que são pacotes ARP e qual é a sua finalidade?
+
+\setsecnumdepth{2)} Quais são os endereços IP e MAC dos pacotes ARP e porquê?
+
+\setsecnumdepth{3)} Que pacotes gera o comando \emph{ping}?
+
+\setsecnumdepth{4)} Quais são os endereços MAC e IP dos pacotes \emph{ping}?
+
+\setsecnumdepth{5)} Como determinar se uma trama Ethernet recebido é ARP, IP ou ICMP?
+
+\setsecnumdepth{6)} Como determinar o tamanho de uma trama recebida?
+
+\setsecnumdepth{7)} O que é a interface \emph{loopback} e porque é importante?
+
 \subsection{Experiência 2 - Implementação de 2 VLANS no SWITCH}
+
+\setsecnumdepth{1)} Como configurar a vlany0?
+
+\setsecnumdepth{2)} Quantos domínios \emph{broadcast} existem aqui? Como se pode concluir isso a partir dos registos?
 
 \subsection{Experiência 3 - Configuração de um Router em Linux}
 
+\setsecnumdepth{1)} Que rotas há nos tuxes? Qual o seu significado?
+
+\setsecnumdepth{2)} Que informações contém uma entrada de uma tabela de reencaminhamento?
+
+\setsecnumdepth{3)} Que mensagens ARP e endereços MAC associados são observados e porquê?
+
+\setsecnumdepth{4)} Que pacotes ICMP são observados e porquê?
+
+\setsecnumdepth{5)} Quais são os endereços IP e MAC associados aos pacotes ICMP e porquê?
+
 \subsection{Experiência 4 - Configuração de um Router Comercial e Implementação de NAT}
+
+\setsecnumdepth{1)} Como configurar um \emph{router} estático num \emph{router} comercial?
+
+\setsecnumdepth{2)} Quais são as rotas seguidas pelos pacotes durante a experiência? Explique.
+
+\setsecnumdepth{3)} Como configurar o NAT num \emph{router} comercial?
+
+\setsecnumdepth{4)} O que faz o NAT?
 
 \subsection{Experiência 5 - DNS (Domain Name System)}
 
+\setsecnumdepth{1)} Como configurar o DNS num \emph{host}?
+
+\setsecnumdepth{2)} Que pacotes são trocados pelo DNS e que informações são transportadas? 
+
 \subsection{Experiência 6 - Conexões TCP}
+
+\setsecnumdepth{1)} Quantas conexões TCP são abertas pela aplicação FTP?
+
+\setsecnumdepth{2)} Em que conexão é transportado a informação de controlo do FTP?
+
+\setsecnumdepth{3)} Quais são a fase de uma conexão TCP?
+
+\setsecnumdepth{4)} Como funciona o mecanismo ARQ TCP? Quais são os campos TCP relevantes? Que informação relevante pode ser observada nos logs?
+
+\setsecnumdepth{5)} Como funciona o mecanismo de controlo de congestão do TCP? Quais são os campos relevantes? Como é que o fluxo de dados da conexão evoluiu ao longo do tempo? Está de acordo com o mecanismo de controlo de congestão TCP?
+
+\setsecnumdepth{6)} O fluxo de dados da conexão TCP é afetada pelo aparecimento de uma segunda conexão TCP? Como?
 
 \section{Conclusões}
 

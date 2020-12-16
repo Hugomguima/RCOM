@@ -10,7 +10,7 @@
 #include <fcntl.h>
 #include "arguments_parser.h"
 
-FILE * socketFile;
+
 
 int initConnection(char *ip, int port, int *sockfd);
 
