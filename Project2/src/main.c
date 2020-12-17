@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) {
     }
     receiveAnswer(answerBuffer);
 
-    if(answerBuffer[0] == '3') {
+    if(answerBuffer[0] == '3' || answerBuffer[0] == '2') {
         printf("< Expecting password...\n");
     }
     else {
