@@ -144,7 +144,5 @@ int main(int argc, char* argv[]) {
         return -18;
     }
 
-    //printf("BUF: %s\n", answerBuffer);
-
     return 0;
 }
