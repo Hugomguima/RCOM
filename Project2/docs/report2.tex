@@ -37,11 +37,6 @@
 }
 
 
-
-
-
-
-
 \begin{document}
 
 \begin{titlepage}
@@ -120,7 +115,7 @@ As chamadas à função \textit{\textbf{receiveAnswer}} podem retornar essencial
 
 \begin{itemize}
     \item \textbf{Códigos começados por 2 -} Respostas positivas, ou seja, a operação realizada pelo comando enviado foi efetuada com sucesso;
-    \item \textbf{Códigod começados por 3 -} Respostas intermédias positivas, ou seja, a operação é válida, mas são necessárias mais informações para que o pedido seja terminado;
+    \item \textbf{Códigos começados por 3 -} Respostas intermédias positivas, ou seja, a operação é válida, mas são necessárias mais informações para que o pedido seja terminado;
     \item \textbf{Códigos começados por 5 -} Respostas negativas, ou seja, ocorreu um erro quando o comando foi enviado.
 \end{itemize}
 
@@ -156,8 +151,6 @@ A interface \textit{loopback} é uma interface de rede virtual que o computador 
 
 \subsection{Experiência 2 - Implementação de 2 VLANS no SWITCH}
 
-\subsection{2)} Quantos domínios \emph{broadcast} existem aqui? Como se pode concluir isso a partir dos registos?
-
 O objetivo desta experiência é criar duas \textit{LANs} virtuais no \textit{switch}, sendo uma constituída pelo tux23 e pelo tux24 (\textit{vlan20}) e outra formada pelo tux22 (\textit{vlan21}). Desta forma, as máquinas 3 e 4 deixam de ter acesso à máquina 2 pois encontram-se em sub-redes diferentes.
 
 Para se configurar a \textit{vlan20}, recorreu-se ao seguinte código: 
@@ -190,212 +183,189 @@ De seguida, analisam-se os respetivos registos no \textit{Wireshark}, concluindo
 
 \subsection{Experiência 3 - Configuração de um Router em Linux}
 
-Nesta experiência, estabeleceu-se uma ligação entre as duas VLans criadas anteriormente através da configuração do tux4 como um router
+Nesta experiência, estabeleceu-se uma ligação entre as duas VLans criadas anteriormente através da configuração do tux24 como um router.
 
-\subsection{1)} Que rotas há nos tuxes? Qual o seu significado?
+Para comunicar entre os Tuxes, foi necessário adicionar rotas em cada computador, sendo o resultado final o seguinte:
 
-Através do comando \emph{route -n} podemos verificar as seguintes rotas em cada Tux:
-
-
-Tux2:
+Tux22:
 \begin{itemize}
-\item Tem uma rota para a VLan0 (172.16.20.0) através da gateway 172.16.21.253
-\item Tem uma rota para a VLan1 (172.16.21.0) através da gateway 0.0.0.0 (default)
+\item Rota para a VLan0 (172.16.20.0) através da gateway 172.16.21.253
+\item Rota para a VLan1 (172.16.21.0) através da gateway 0.0.0.0 (default)
 
 \end{itemize}
 
-Tux3:
+Tux23:
 \begin{itemize}
-\item Tem uma rota para a VLan0 (172.16.20.0) através da gateway 0.0.0.0 (default)
-\item Tem uma rota para a VLan1 (172.16.20.0) através da gateway 172.16.21.254
+\item Rota para a VLan0 (172.16.20.0) através da gateway 0.0.0.0 (default)
+\item Rota para a VLan1 (172.16.20.0) através da gateway 172.16.21.254
 
 \end{itemize}
 
-Tux4:
+Tux24:
 \begin{itemize}
-\item Tem uma rota para a VLan0 (172.16.20.0) através da gateway 0.0.0.0 (default)
-\item Tem uma rota para a VLan1 (172.16.20.0) através da gateway 0.0.0.0 (default)
+\item Rota para a VLan0 (172.16.20.0) através da gateway 0.0.0.0 (default)
+\item Rota para a VLan1 (172.16.20.0) através da gateway 0.0.0.0 (default)
 	
 \end{itemize}
 
-Uma rota existente permite que seja enviada informação a partir de um determinado tux para um IP destino através de uma gateway.
+Uma rota existente permite que seja enviada informação a partir de um determinado tuxy para um IP destino através de uma gateway.
 
 
-\subsection{2)} Que informações contém uma entrada de uma tabela de reencaminhamento?
+A tabela de reencaminhamento contém outros parâmetros para além dda rota destino e da gateway. Pode ser visualizada através do comando "route -n" e contém os seguintes parâmetros:
 
-Uma tabela de reencaminhamento contém os seguintes dados:
+\begin{description}
 
-\begin{itemize}
+\item[Destination -] O destino da rota
 
-\item Destination: O destino da rota
+\item[Gateway -] O próximo ip por onde a rota passará
 
-\item Gateway: O próximo ip por onde a rota passará
+\item[NetMask -] Mácara de rede utilizada para encontrar o ID da rede a partir do endereço IP do destino
 
-\item NetMask: Mácara de rede utilizada para encontrar o ID da rede a partir do endereço IP do destino
+\item[Flags -] Informações sobre a rota
 
-\item Flags: Informações sobre a rota
+\item[Metric -] Escolha da melhor rota, caso existam várias
 
-\item Metric: Escolha da melhor rota, caso existam várias
+\item[Ref -] Número de referências para a rota
 
-\item Ref: Número de referências para a rota
+\item[Use -] Contador do número de sucessos e falhas de pesquisas pela rota
 
-\item Use: Contador do número de sucessos e falhas de pesquisas pela rota
+\item[Interface -] Placa de rede associada à gateway. Neste projeto foram apenas utilizadas as placas eth0 e eth1.
 
-\item Interface: Placa de rede associada à gateway. Neste projeto foram apenas utilizadas as placas eth0 e eth1.
-
-\end{itemize}
-
-\subsection{3)} Que mensagens ARP e endereços MAC associados são observados e porquê?
+\end{description}
 
 No processo de um tux dar ping a outro, é necessário que ambos conheçam o MAC address um do outro.
+Tal é feito através de mensagens ARP. O Tuxy de envio, ao iniciar a ligação, envia uma mensagem ARP transmitindo o seu endereço MAC ao tux com o IP escolhido e, de seguida, o tux que recebeu essa mensagem envia uma mensagem ARP de volta com o seu endereço MAC.
 
-Tal é feito através de mensagens ARP. O Tux de envio, ao iniciar a ligação, envia uma mensagem ARP transmitindo o seu endereço MAC ao tux com o IP escolhido e, de seguida, o tux que recebeu essa mensagem envia uma mensagem ARP de volta com o seu endereço MAC.
+São também observados dois pacotes ICMP, o de request e o de reply, dado que estes pacotes são utilizados para verificar se os tuxys conseguem transmitir mensagens entre eles. Existem então, para cada rota, um pacote para cada direção de envio para garantir o sucesso da transmissão
 
-\subsection{4)} Que pacotes ICMP são observados e porquê?
 
-São observados dois pacotes ICMP, o de request e o de reply, dado que estes pacotes são utilizados para verificar se os tuxs conseguem transmitir mensagens entre eles. Existem então, para cada rota, um pacote para cada direção de envio para garantir o sucesso da transmissão
-
-\subsection{5)} Quais são os endereços IP e MAC associados aos pacotes ICMP e porquê?
-
-Os endereços IP e Mac associados aos pacotes ICMP são os endereços dos tuxs de origem e destino, dado que são os endereços necessários para verificar se cada um dos tuxs consegue dar ping ao outro, que é a principal função de um pacote ICMP. 
+Os endereços IP e Mac associados aos pacotes ICMP são os endereços dos tuxys de origem e destino, dado que são os endereços necessários para verificar se cada um dos tuxys consegue dar ping ao outro, que é a principal função de um pacote ICMP. 
 
 \subsection{Experiência 4 - Configuração de um Router Comercial e Implementação de NAT}
 
-\subsection{1)} Como configurar um \emph{router} estático num \emph{router} comercial?
-
 Para configurar um router estático num router comercial, é necessário:
 
-Estabelecer as seguintes ligações por cabo RJ45
+Estabelecer a seguintes ligações por cabo RJ45:
 \begin{itemize}
-\item RouterGE0 -> Switch Porta 5
-\item ROUTERGE1  -> Prateleira Porta 1  
+\item RouterGE0 - Switch Porta 5
+\item ROUTERGE1 - Prateleira Porta 1  
 \end{itemize}
 
-De seguida, é necessario utilizar o router através do GTKTerm. Para isso, é necessário substituir a ligação com a Switch para o Router.(adicionar aqui as ligações de cabo necessárias, ainda tenho que verificar)
+De seguida, é necessário utilizar o router através do GTKTerm. Para isso, é necessário substituir a ligação com a Switch para o Router.
 
-É necessário configurar o endereço ip do router, o qual pode ser visto no anexo (INSERIR ANEXO AQUI NO FIM) (ver no guião do camoes o que é necessário que está lá bem explicado)
+É necessário configurar o endereço ip do router, o qual pode ser visto no anexo (INSERIR ANEXO AQUI NO FIM)
 
-É necessário adicionar novas rotas ao router, o qual pode ser visto no anexo (INSERIR ANEXO AQUI NO FIM) (ver no guião do camoes o que é necessário que está lá bem explicado)
+É também necessário adicionar novas rotas ao router, permitindo a comunicação com os restantes tuxys. As rotas necessárias são adicionas através dos comandos:
+\begin{lstlisting}[language=bash]
+    $ ip route 0.0.0.0 0.0.0.0 172.16.2.254
+    $ ip route 172.16.20.0 255.255.255.0 172.16.21.253
+\end{lstlisting}
 
-Voltar para a switch e adicionar a porta 5 à Vlan 21
+Voltar para a switch e adicionar a porta 5 à Vlan 21, tal como é indicado na experiência 2.
 
 
-\subsection{2)} Quais são as rotas seguidas pelos pacotes durante a experiência? Explique.
+Após as alterações, as rotas atuais são:
 
-As rotas existentes são:
-(É necessário fazer umas pequenas alterações aqui que acho que não meti os default bem)
-
-Tux2:
+Tux22:
 \begin{itemize}
-\item Tem uma rota para a VLan0 (172.16.20.0) através da gateway 172.16.21.253
+\item Rota para a VLan0 (172.16.20.0) através da gateway 172.16.21.253
 \item Tem uma rota para a VLan1 (172.16.21.0) através da gateway 0.0.0.0 (default)
 \item Tem uma rota para o router (172.16.2.0) através da gateway 172.16.21.254
-
 \end{itemize}
 
-Tux3:
+Tux23:
 \begin{itemize}
-\item Tem uma rota para a VLan0 (172.16.20.0) através da gateway 0.0.0.0 (default)
+\item Rota para a VLan0 (172.16.20.0) através da gateway 0.0.0.0 (default)
 \item Tem uma rota para a VLan1 (172.16.20.0) através da gateway 172.16.21.254
-
 \end{itemize}
 
-Tux4:
+Tux24:
 \begin{itemize}
-\item Tem uma rota para a VLan0 (172.16.20.0) através da gateway 0.0.0.0 (default)
-\item Tem uma rota para a VLan1 (172.16.20.0) através da gateway 0.0.0.0 (default)
-\item Tem uma rota para o router (172.16.2.0) através da gateway 172.16.21.254
-
+\item Rota para a VLan0 (172.16.20.0) através da gateway 0.0.0.0 (default)
+\item Rota para a VLan1 (172.16.20.0) através da gateway 0.0.0.0 (default)
+\item Rota para o router (172.16.2.0) através da gateway 172.16.21.254
 \end{itemize}
 
 Router:
 \begin{itemize}
-\item Tem uma rota para a VLan0 (172.16.20.0) através da gateway 172.16.21.253
-\item Tem uma rota para 0.0.0.0 através da gateway 172.16.1.254
+\item Rota para a VLan0 (172.16.20.0) através da gateway 172.16.21.253
+\item Rota para 0.0.0.0 (default) através da gateway 172.16.1.254
 \end{itemize}
 
-Deste modo podemos concluir que, durante a experiência, os pacotes tentam seguir estas rotas. Caso não conheça a rota para o destino, envia para o router, dado que é a rota default, e este verifica que o tux4 existe e envia a mensagem. 
-	
+Deste modo podemos concluir que, durante a experiência, os pacotes tentam seguir estas rotas. Caso não conheça a rota para o destino, envia para o router, dado que é a rota default, e este verifica se o tux24 existe e envia a mensagem. 
 
-\subsection{3)} Como configurar o NAT num \emph{router} comercial?
+Em seguida, para ser possível aceder à internet, é necessário configurar o NAT num router comercial. Tal é feito seguindo os passos descritos no anexo (INSERIR INDEX NUMBER).
 
-A configuração do NAT pode ser feita seguindo os passos descritos na pagína 46 do guião do trabalho.
-
-Porém, o guião contém uma explicação geral que varia consoante a sala e a bancada na FEUP. O anexo (INSERT INDEX NUMBER) contém os passos a executar no router para configurar o NAT de acordo com a nossa bancada e sala
-
-\subsection{4)} O que faz o NAT?
-
-O NAT \emph{(Network Address Translation)} é capaz de reescrever os endereços de IP de origem de um pacote, quando este passa por um router, traduzindo os endereços privados para endereços legais. Tem como objetivo permitir que um computador de uma rede IP privada se conecte á Internet ou a uma rede pública.
-
-Em geral o NAT mapeia vários IPs privados para um enderço exposto publicamente.
+O NAT \emph{(Network Address Translation)} é capaz de reescrever os endereços de IP de origem de um pacote, quando este passa por um router, traduzindo os endereços privados para endereços legais. Tem como objetivo permitir que um computador de uma rede IP privada se conecte á Internet ou a uma rede pública. Em geral o NAT mapeia vários IPs privados para um enderço exposto publicamente.
 
 \subsection{Experiência 5 - DNS (Domain Name System)}
 
-\subsection{1)} Como configurar o DNS num \emph{host}?
+Para configurar o DNS num host, é necessário alterar o ficheiro resolv.conf que se encontra em /etc/resolv.conf. Ao editar o ficheiro, deve-se adicionar, na ultima linha, o seguinte comando:
 
-Para configurar o DNS num host, é necessário alterar o ficheiro resolv.conf que se encontra em /etc/resolv.conf
+\begin{lstlisting}[language=bash]
+    services.netlab.fe.up.pt 172.16.2.1
+\end{lstlisting}
 
-Ao editar o ficheiro, deve-se adicionar, na ultima linha, o seguinte comando:
+Ao gravar as alterações no ficheiro, estamos a indicar que e netlab.fe.up.pt é o nome do servidor DNS e 172.16.2.1 é o seu endereço IP. É agora possível aceder á internet nos Tuxys tux22 e tux23.
 
-services.netlab.fe.up.pt 172.16.2.1
-
-Ao gravar as alterações no ficheiro, estamos a indicar que e netlab.fe.up.pt é o nome do servidor DNS e 172.16.2.1 é o seu endereço IP. É agora possível aceder á internet nos Tuxys 22 e 23
-
-
-\subsection{2)} Que pacotes são trocados pelo DNS e que informações são transportadas? 
-
-São trocados 2 pacotes pelo DNS, sendo o primeiro enviado do Host para o Server contendo o hostname desejado, requisitando o seu endereço IP. O segundo pacote corresponde a uma resposta do servidor contendo o endereço IP pedido
+O DNS troca 2 pacotes, sendo o primeiro enviado do Host para o Server contendo o hostname desejado, requisitando o seu endereço IP. O segundo pacote corresponde a uma resposta do servidor contendo o endereço IP pedido
 
 \subsection{Experiência 6 - Conexões TCP}
 
-\subsection{1)} Quantas conexões TCP são abertas pela aplicação FTP?
+A aplicação abre 2 conexões TCP. A primeira envia os comandos TCP ao servidor e recebe as respostas. A segunda recebe a informação transmitida pelo servidor e envia a resposta ao cliente. A informação de controlo do FTP é transportado na conexão TCP responsável pela troca de comandos.
 
-A aplicação abre 2 conexões TCP. A primeira envia os comandos TCP ao servidor e recebe as respostas. A segunda recebe a informação transmitida pelo servidor e envia a resposta ao cliente.
-
-\subsection{2)} Em que conexão é transportado a informação de controlo do FTP?
-
-A informação de controlo do FTP é transportado na conexão TCP responsável pela troca de comandos
-
-\subsection{3)} Quais são a fase de uma conexão TCP?
-A conexão TCP está dividida em 3 fases:
-
-\begin{itemize}
-\item Estabelecimento da ligação
-\item Troca de dados
-\item Finalização da ligação
-\end{itemize}
-
-\subsection{4)} Como funciona o mecanismo ARQ TCP? Quais são os campos TCP relevantes? Que informação relevante pode ser observada nos logs?
-
-O mecanismo ARQ TCP é um método de controlo de erros da transmissão de dados utilizando acknowledgements signals, ou seja, mensagens cujo único propósito é indicar se uma trama foi recebida corretamente.
-
-(Aqui a litteraly sofia falta também do método de janela deslizante mas eu nao sei como podemos garantir que é utilizado ou não
-
-PARA ESTAS ULTIMAS 2 EXPERIÊCNIAS PRECISO DE IR VER OS LOGS, FAZ-SE AGORA DE TARDE
-
-\subsection{5)} Como funciona o mecanismo de controlo de congestão do TCP? Quais são os campos relevantes? Como é que o fluxo de dados da conexão evoluiu ao longo do tempo? Está de acordo com o mecanismo de controlo de congestão TCP?
+Uma conexão TCP está dividida em 3 fases distintas, o \emph{Estabelecimento da ligação}, a \emph{Troca de dados} e a \emph{Finalização da ligação}
 
 
+De modo a gerir os erros de transmissão é usado o mecanismo ARQ TCP com Sliding Window, que utiliza acknowledgements numbers para controlo de erros, ou seja, mensagens cujo único propósito é indicar se uma trama foi recebida corretamente. Possui também um parâmetro window size responsável pelo controlo da congestão de dados e um sequence number, o numero do pacote a ser enviado.
 
-\subsection{6)} O fluxo de dados da conexão TCP é afetada pelo aparecimento de uma segunda conexão TCP? Como?
+O protocolo TCP possui um mecanismo de controlo de congestão, que consiste numa aproximação do número de octetos que é possível transmitir pela rede que está a ser utilizada, estabelecendo valores mínimos de envio de acordo com a janela definida pelo recetor e pela janela de congestão.
 
-O aparecimento de uma segunda conexão TCP funciona como esperado, sendo ambos os ficheiros transmitidos corretamente, porém, utilizando uma menor taxa de transmissão, dado que a taxa de transferência é divida pelos ficheiros.
+É possível verificar a existência deste mecanismo de congestão analisando as taxas de transferência durante o processo de envio de dois ficheiros em simultâneo. Inicialmente a taxa de transferência possui um valor elevado e desce bruscamente assim que o segundo download inicia.
+
+Podemos então concluir que o aparecimento de uma segunda conexão TCP funciona como esperado, sendo ambos os ficheiros transmitidos corretamente, porém, utilizando uma menor taxa de transmissão, dado que a taxa de transferência é divida pelos ficheiros.
 
 
 \section{Conclusões}
 
+Através deste trabalho, foi possível compreender não só o processo de transmissão de um ficheiro segundo o protocolo FTP, mas também todos os passos associados à configuração de uma rede. Durante este processo, o uso do wireshark permitiu-nos entender melhor todos os protocolos pacotes a ser enviados, nomeadamente os pacotes ARP, ICMP, DNS e TCP.
+
+Em suma, foi possível alcançar o objetivo proposto do trabalho, a implementação de uma aplicação que descarregasse um ficheiro de acordo com o protocolo FTP, e a configuração e análise de uma rede, complementando os conhecimentos abordados nas aulas, tanto teóricas como práticas.  
+
+
+\pagebreak
 
 \section{Anexos}
 
 \subsection{Capturas wireshark}
 
-\includegraphics[width=\textwidth]{feup_logo.png}
-\captionof{figure}{Imagem contendo}
+\includegraphics[width=\textwidth]{figura1.PNG}
+\captionof{figure}{caption}
+
+\includegraphics[width=\textwidth]{figura2.PNG}
+\captionof{figure}{caption}
+
+\includegraphics[width=\textwidth]{figura3.PNG}
+\captionof{figure}{caption}
+
+\includegraphics[width=\textwidth]{figura4.PNG}
+\captionof{figure}{caption}
+
+\includegraphics[width=\textwidth]{figura5.PNG}
+\captionof{figure}{caption}
+
+\includegraphics[width=\textwidth]{figura6.PNG}
+\captionof{figure}{caption}
+
+\includegraphics[width=\textwidth]{figura7.PNG}
+\captionof{figure}{caption}
 
 \subsection{Sequências de comandos}
 
 \includegraphics[width=\textwidth]{feup_logo.png}
 \captionof{figure}{Imagem contendo}
+
+\pagebreak
 
 \subsection{Código}
 
@@ -534,6 +504,8 @@ int downloadFile(int socketfd, char * filename) {
 
 \end{lstlisting}
 
+\pagebreak
+
 \subsection{ Anexo N - argumentsParser.h}
 
 \begin{lstlisting}[style=CStyle]
@@ -624,6 +596,8 @@ int getIP(char *ip, char *host) {
 }
 
 \end{lstlisting}
+
+\pagebreak
 
 \subsection{ Anexo N - main.c}
 
