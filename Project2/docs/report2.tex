@@ -107,7 +107,7 @@ Para desenvolver a aplicação, decidimos dividi-la em duas partes: a primeira f
 
 Para processar os argumentos, desenvolvemos a função \textit{\textbf{parseArguments}}, que divide o argumento nos seus vários componentes: \emph{username, password, host name, path e filename}. Estes componentes vão ser armazenados numa struct \textit{\textbf{arguments}} por nós criada, que vai ser acedida depois para que a transferência do ficheiro ocorra.
 
-Para implementar a segunda parte, primeiramente temos de obter o endereço IP a que o \emph{host} está associado. Para isso, recorremos à função \textit{\textbf{getIP}}, que utiliando maioritariamente código fornecido num exemplo das aulas teórico-práticas, obtém o IP, estando desta forma aptos a iniciar a conexão com o host. De seguida, chama-se a função \textit{\textbf{initConnection}}, que utilizando novamente código fornecido nas aulas, é responsável por ligar o cliente FTP ao servidor através de um socket, utilizando-se a porta 21.
+Para implementar a segunda parte, primeiramente temos de obter o endereço IP a que o \emph{host} está associado. Para isso, recorremos à função \textit{\textbf{getIP}}, que utilizando maioritariamente código fornecido num exemplo das aulas teórico-práticas, obtém o IP, estando desta forma aptos a iniciar a conexão com o host. De seguida, chama-se a função \textit{\textbf{initConnection}}, que utilizando novamente código fornecido nas aulas, é responsável por ligar o cliente FTP ao servidor através de um socket, utilizando-se a porta 21.
 
 Após a conexão estar estabelecida, envia-se então o primeiro comando "\textbf{USER} 'username'\textbackslash r\textbackslash n" através da função \textit{\textbf{sendData}}, esperando-se pela resposta usando a função \textit{\textbf{receiveAnswer}}. No caso de ser a resposta esperada, envia-se entao o comando "\textbf{PASS} 'password'\textbackslash r\textbackslash n", esperando-se novamente pela resposta do servidor para se poder prosseguir.
 
@@ -135,7 +135,7 @@ Ao longo da execução do programa vão sendo imprimidas no terminal diversas me
 
 O objetivo desta experiência é ligar o tux23 ao tux24 através de um switch, configurando os endereços de IP destes 2 computadores para que eles possam comunicar entre si.
 
-Para a configuração dos endereços IP utilizou-se o comando \textit{\textbf{ifconfig eth0 $<$ip$>$}}, sendo atribuído ao tux3 o IP 172.16.20.1 e ao tux4 o endereço 172.16.20.254. De seguida executa-se o comando \textit{\textbf{ping}} seguido do IP do tux4 para verificar a existência de uma ligação entre os dois computadores. 
+Para a configuração dos endereços IP utilizou-se o comando \textit{\textbf{ifconfig eth0 $<$ip$>$}}, sendo atribuído ao tux23 o IP 172.16.20.1 e ao tux24 o endereço 172.16.20.254. De seguida executa-se o comando \textit{\textbf{ping}} seguido do IP do tux24 para verificar a existência de uma ligação entre os dois computadores. 
 
 O comando \textit{\textbf{ping}} gera pacotes de dois tipos: \textbf{ARP} (\textit{Address Resolution Protocol}) e \textbf{ICMP} (\textit{Internet Control Message Protocol}).
 
@@ -194,24 +194,26 @@ Através do comando \emph{route -n} podemos verificar as seguintes rotas em cada
 
 Tux2:
 \begin{itemize}
-\item Tem uma rota para a VLan0 (172.16.y0.0) através da gateway 172.16.y1.253
-\item Tem uma rota para a VLan1 (172.16.y1.0) através da gateway 0.0.0.0 (default)
+\item Tem uma rota para a VLan0 (172.16.20.0) através da gateway 172.16.21.253
+\item Tem uma rota para a VLan1 (172.16.21.0) através da gateway 0.0.0.0 (default)
 
 \end{itemize}
 
 Tux3:
 \begin{itemize}
-\item Tem uma rota para a VLan0 (172.16.y0.0) através da gateway 0.0.0.0 (default)
-\item Tem uma rota para a VLan1 (172.16.y0.0) através da gateway 172.16.y1.254
+\item Tem uma rota para a VLan0 (172.16.20.0) através da gateway 0.0.0.0 (default)
+\item Tem uma rota para a VLan1 (172.16.20.0) através da gateway 172.16.21.254
 
 \end{itemize}
 
 Tux4:
 \begin{itemize}
-\item Tem uma rota para a VLan0 (172.16.y0.0) através da gateway 0.0.0.0 (default)
-\item Tem uma rota para a VLan1 (172.16.y0.0) através da gateway 0.0.0.0 (default)
+\item Tem uma rota para a VLan0 (172.16.20.0) através da gateway 0.0.0.0 (default)
+\item Tem uma rota para a VLan1 (172.16.20.0) através da gateway 0.0.0.0 (default)
 	
 \end{itemize}
+
+Uma rota existente permite que seja enviada informação a partir de um determinado tux para um IP destino através de uma gateway.
 
 
 \subsection{2)} Que informações contém uma entrada de uma tabela de reencaminhamento?
@@ -232,7 +234,7 @@ Uma tabela de reencaminhamento contém os seguintes dados:
 
 \item Ref: Número de referências para a rota
 
-\item Use: Contador do número de sucessos e falhas de de pesquisas pela rota
+\item Use: Contador do número de sucessos e falhas de pesquisas pela rota
 
 \item Interface: Placa de rede associada à gateway. Neste projeto foram apenas utilizadas as placas eth0 e eth1.
 
@@ -280,36 +282,35 @@ As rotas existentes são:
 
 Tux2:
 \begin{itemize}
-\item Tem uma rota para a VLan0 (172.16.y0.0) através da gateway 172.16.y1.253
-\item Tem uma rota para a VLan1 (172.16.y1.0) através da gateway 0.0.0.0 (default)
-\item Tem uma rota para o router (172.16.2.0) através da gateway 172.16.y1.254
+\item Tem uma rota para a VLan0 (172.16.20.0) através da gateway 172.16.21.253
+\item Tem uma rota para a VLan1 (172.16.21.0) através da gateway 0.0.0.0 (default)
+\item Tem uma rota para o router (172.16.2.0) através da gateway 172.16.21.254
 
 \end{itemize}
 
 Tux3:
 \begin{itemize}
-\item Tem uma rota para a VLan0 (172.16.y0.0) através da gateway 0.0.0.0 (default)
-\item Tem uma rota para a VLan1 (172.16.y0.0) através da gateway 172.16.y1.254
+\item Tem uma rota para a VLan0 (172.16.20.0) através da gateway 0.0.0.0 (default)
+\item Tem uma rota para a VLan1 (172.16.20.0) através da gateway 172.16.21.254
 
 \end{itemize}
 
 Tux4:
 \begin{itemize}
-\item Tem uma rota para a VLan0 (172.16.y0.0) através da gateway 0.0.0.0 (default)
-\item Tem uma rota para a VLan1 (172.16.y0.0) através da gateway 0.0.0.0 (default)
-\item Tem uma rota para o router (172.16.2.0) através da gateway 172.16.y1.254
+\item Tem uma rota para a VLan0 (172.16.20.0) através da gateway 0.0.0.0 (default)
+\item Tem uma rota para a VLan1 (172.16.20.0) através da gateway 0.0.0.0 (default)
+\item Tem uma rota para o router (172.16.2.0) através da gateway 172.16.21.254
 
 \end{itemize}
 
 Router:
 \begin{itemize}
-\item Tem uma rota para a VLan0 (172.16.y0.0) através da gateway 172.16.y1.253
+\item Tem uma rota para a VLan0 (172.16.20.0) através da gateway 172.16.21.253
 \item Tem uma rota para 0.0.0.0 através da gateway 172.16.1.254
 \end{itemize}
 
-Deste modo podemos concluir que, durante a experiência, os pacotes tentam seguir estas rotas e, caso contrário, vão para o router, dado que é a rota default
+Deste modo podemos concluir que, durante a experiência, os pacotes tentam seguir estas rotas. Caso não conheça a rota para o destino, envia para o router, dado que é a rota default, e este verifica que o tux4 existe e envia a mensagem. 
 	
-
 
 \subsection{3)} Como configurar o NAT num \emph{router} comercial?
 
@@ -319,7 +320,7 @@ Porém, o guião contém uma explicação geral que varia consoante a sala e a b
 
 \subsection{4)} O que faz o NAT?
 
-O NAT é capaz de reescrever os endereços de IP de origem de um pacote, quando este passa por um router, traduzindo os endereços privados para endereços legais. Tem como objetivo permitir que um computador de uma rede IP privada se conecte á Internet ou a uma rede pública.
+O NAT \emph{(Network Address Translation)} é capaz de reescrever os endereços de IP de origem de um pacote, quando este passa por um router, traduzindo os endereços privados para endereços legais. Tem como objetivo permitir que um computador de uma rede IP privada se conecte á Internet ou a uma rede pública.
 
 Em geral o NAT mapeia vários IPs privados para um enderço exposto publicamente.
 
@@ -333,7 +334,7 @@ Ao editar o ficheiro, deve-se adicionar, na ultima linha, o seguinte comando:
 
 services.netlab.fe.up.pt 172.16.2.1
 
-Ao gravar as alterações no ficheiro, estamos a indicar que e netlab.fe.up.pt é o nome do servidor DNS e 172.16.2.1 é o seu endereço IP. É agora possível aceder á internet nos Tux 2 e 3
+Ao gravar as alterações no ficheiro, estamos a indicar que e netlab.fe.up.pt é o nome do servidor DNS e 172.16.2.1 é o seu endereço IP. É agora possível aceder á internet nos Tuxys 22 e 23
 
 
 \subsection{2)} Que pacotes são trocados pelo DNS e que informações são transportadas? 
