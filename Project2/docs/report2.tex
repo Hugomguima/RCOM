@@ -133,67 +133,248 @@ Ao longo da execução do programa vão sendo imprimidas no terminal diversas me
 
 \subsection{Experiência 1 - Configuração de uma rede IP}
 
-\setsecnumdepth{1)} O que são pacotes ARP e qual é a sua finalidade?
+O objetivo desta experiência é ligar o tux23 ao tux24 através de um switch, configurando os endereços de IP destes 2 computadores para que eles possam comunicar entre si.
 
-\setsecnumdepth{2)} Quais são os endereços IP e MAC dos pacotes ARP e porquê?
+Para a configuração dos endereços IP utilizou-se o comando \textit{\textbf{ifconfig eth0 $<$ip$>$}}, sendo atribuído ao tux3 o IP 172.16.20.1 e ao tux4 o endereço 172.16.20.254. De seguida executa-se o comando \textit{\textbf{ping}} seguido do IP do tux4 para verificar a existência de uma ligação entre os dois computadores. 
 
-\setsecnumdepth{3)} Que pacotes gera o comando \emph{ping}?
+O comando \textit{\textbf{ping}} gera pacotes de dois tipos: \textbf{ARP} (\textit{Address Resolution Protocol}) e \textbf{ICMP} (\textit{Internet Control Message Protocol}).
 
-\setsecnumdepth{4)} Quais são os endereços MAC e IP dos pacotes \emph{ping}?
+Para enviar uma trama para um computador na rede, o emissor(tux23) primeiro necessita de conhecer o endereço MAC correspondente ao endereço IP do recetor(tux24). Para isso, inicialmente envia um pacote \textbf{ARP} em \textit{broadcast}, que contém os seus próprios endereços IP e MAC (172.16.20.1 e 00:21:5a:5a:78:c7, respetivamente) e os endereços IP e MAC do outro computador (respetivamente, 172.16.20.254 e 00:00:00:00:00:00 (desconhecido)) e espera receber como resposta um pacote semelhante, mas no qual o emissor é o tux24 e o recetor é o tux23, e o enderço MAC do tux24 ja se encontra preenchido (00:22:64:a7:26:a2). Assim, o \textbf{ARP} é um protocolo utilizado para a conversão de endereços da camada da internet (endereços IP) em endereços da camada de ligação de dados (endereços MAC). 
 
-\setsecnumdepth{5)} Como determinar se uma trama Ethernet recebido é ARP, IP ou ICMP?
+Conhecidos então os endereços dos \textit{tuxys}, o comando \textit{\textbf{ping}} passa a enviar pacotes \textbf{ICMP}, que transfere mensagens de controlo entre endereços IP. Estes pacotes contêm tanto os endereços IP e MAC do emissor como do recetor.
 
-\setsecnumdepth{6)} Como determinar o tamanho de uma trama recebida?
+Para se determinar o tipo de trama recebida, é necessário analisar o \textit{Ethernet header}. Caso o valor da variável \textit{type} seja 0x0806, então trata-se de uma trama do tipo \textbf{ARP}. Caso o valor seja 0x0800, então trata-se de uma trama \textbf{IP}, podendo-se analisar o respetivo \textit{IP header}. Caso o seu valor seja 1, significa que se trata de uma trama \textbf{ICMP}.
 
-\setsecnumdepth{7)} O que é a interface \emph{loopback} e porque é importante?
+O tamanho da trama recebida pode ser obtido analisando-a no \textit{Wireshark}, no bloco do \textit{Frame}.
+
+A interface \textit{loopback} é uma interface de rede virtual que o computador utiliza para comunicar com ele próprio, com o objectivo de realizar testes de diagnóstico, ou aceder a servidores na própria máquina, como se fosse um cliente.
 
 \subsection{Experiência 2 - Implementação de 2 VLANS no SWITCH}
 
-\setsecnumdepth{1)} Como configurar a vlany0?
+\subsection{2)} Quantos domínios \emph{broadcast} existem aqui? Como se pode concluir isso a partir dos registos?
 
-\setsecnumdepth{2)} Quantos domínios \emph{broadcast} existem aqui? Como se pode concluir isso a partir dos registos?
+O objetivo desta experiência é criar duas \textit{LANs} virtuais no \textit{switch}, sendo uma constituída pelo tux23 e pelo tux24 (\textit{vlan20}) e outra formada pelo tux22 (\textit{vlan21}). Desta forma, as máquinas 3 e 4 deixam de ter acesso à máquina 2 pois encontram-se em sub-redes diferentes.
+
+Para se configurar a \textit{vlan20}, recorreu-se ao seguinte código: 
+
+\begin{lstlisting}[language=bash]
+    $ configure terminal
+    $ vlan 20
+    $ end
+    $ show vlan id 20
+\end{lstlisting}
+
+De seguida, é necessário adicionar os respetivos \textit{tuxys} a esta \textit{VLAN}. Para isso, utilizamos o seguinte código, sendo que o tux23 está ligado à porta 1 do \textit{switch} e o tux24 na porta 2:
+
+\begin{lstlisting}[language=bash]
+    $ configure terminal
+    $ interface fastethernet 0/1
+    $ switchport mode access
+    $ switchport access vlan 20
+    $ end
+    $ configure terminal
+    $ interface fastethernet 0/2            
+    $ switchport mode access
+    $ switchport access vlan 20
+    $ end
+\end{lstlisting}
+
+Depois da \textit{vlan21} estar configurada, envia-se o comando \textit{ping} do tux23 para o tux24 e depois para o tux22, sendo a seguir enviado o comando \textit{ping broadcast} a partir do mesmo tux.
+
+De seguida, analisam-se os respetivos registos no \textit{Wireshark}, concluindo-se que existem dois domínios \textit{broadcast}. O tux23 recebe resposta do tux24 quando executa o comando \textit{ping broadcast}, mas não do tux22, assim como o tux22 não recebe resposta de nenhum dos outros \textit{tuxys} quando executa esse comand, pois estão ligados a sub-redes diferentes. Assim, existem dois domínios de \textit{broadcast}: a \textit{vlan20} e a \textit{vlan21}. 
 
 \subsection{Experiência 3 - Configuração de um Router em Linux}
 
-\setsecnumdepth{1)} Que rotas há nos tuxes? Qual o seu significado?
+Nesta experiência, estabeleceu-se uma ligação entre as duas VLans criadas anteriormente através da configuração do tux4 como um router
 
-\setsecnumdepth{2)} Que informações contém uma entrada de uma tabela de reencaminhamento?
+\subsection{1)} Que rotas há nos tuxes? Qual o seu significado?
 
-\setsecnumdepth{3)} Que mensagens ARP e endereços MAC associados são observados e porquê?
+Através do comando \emph{route -n} podemos verificar as seguintes rotas em cada Tux:
 
-\setsecnumdepth{4)} Que pacotes ICMP são observados e porquê?
 
-\setsecnumdepth{5)} Quais são os endereços IP e MAC associados aos pacotes ICMP e porquê?
+Tux2:
+\begin{itemize}
+\item Tem uma rota para a VLan0 (172.16.y0.0) através da gateway 172.16.y1.253
+\item Tem uma rota para a VLan1 (172.16.y1.0) através da gateway 0.0.0.0 (default)
+
+\end{itemize}
+
+Tux3:
+\begin{itemize}
+\item Tem uma rota para a VLan0 (172.16.y0.0) através da gateway 0.0.0.0 (default)
+\item Tem uma rota para a VLan1 (172.16.y0.0) através da gateway 172.16.y1.254
+
+\end{itemize}
+
+Tux4:
+\begin{itemize}
+\item Tem uma rota para a VLan0 (172.16.y0.0) através da gateway 0.0.0.0 (default)
+\item Tem uma rota para a VLan1 (172.16.y0.0) através da gateway 0.0.0.0 (default)
+	
+\end{itemize}
+
+
+\subsection{2)} Que informações contém uma entrada de uma tabela de reencaminhamento?
+
+Uma tabela de reencaminhamento contém os seguintes dados:
+
+\begin{itemize}
+
+\item Destination: O destino da rota
+
+\item Gateway: O próximo ip por onde a rota passará
+
+\item NetMask: Mácara de rede utilizada para encontrar o ID da rede a partir do endereço IP do destino
+
+\item Flags: Informações sobre a rota
+
+\item Metric: Escolha da melhor rota, caso existam várias
+
+\item Ref: Número de referências para a rota
+
+\item Use: Contador do número de sucessos e falhas de de pesquisas pela rota
+
+\item Interface: Placa de rede associada à gateway. Neste projeto foram apenas utilizadas as placas eth0 e eth1.
+
+\end{itemize}
+
+\subsection{3)} Que mensagens ARP e endereços MAC associados são observados e porquê?
+
+No processo de um tux dar ping a outro, é necessário que ambos conheçam o MAC address um do outro.
+
+Tal é feito através de mensagens ARP. O Tux de envio, ao iniciar a ligação, envia uma mensagem ARP transmitindo o seu endereço MAC ao tux com o IP escolhido e, de seguida, o tux que recebeu essa mensagem envia uma mensagem ARP de volta com o seu endereço MAC.
+
+\subsection{4)} Que pacotes ICMP são observados e porquê?
+
+São observados dois pacotes ICMP, o de request e o de reply, dado que estes pacotes são utilizados para verificar se os tuxs conseguem transmitir mensagens entre eles. Existem então, para cada rota, um pacote para cada direção de envio para garantir o sucesso da transmissão
+
+\subsection{5)} Quais são os endereços IP e MAC associados aos pacotes ICMP e porquê?
+
+Os endereços IP e Mac associados aos pacotes ICMP são os endereços dos tuxs de origem e destino, dado que são os endereços necessários para verificar se cada um dos tuxs consegue dar ping ao outro, que é a principal função de um pacote ICMP. 
 
 \subsection{Experiência 4 - Configuração de um Router Comercial e Implementação de NAT}
 
-\setsecnumdepth{1)} Como configurar um \emph{router} estático num \emph{router} comercial?
+\subsection{1)} Como configurar um \emph{router} estático num \emph{router} comercial?
 
-\setsecnumdepth{2)} Quais são as rotas seguidas pelos pacotes durante a experiência? Explique.
+Para configurar um router estático num router comercial, é necessário:
 
-\setsecnumdepth{3)} Como configurar o NAT num \emph{router} comercial?
+Estabelecer as seguintes ligações por cabo RJ45
+\begin{itemize}
+\item RouterGE0 -> Switch Porta 5
+\item ROUTERGE1  -> Prateleira Porta 1  
+\end{itemize}
 
-\setsecnumdepth{4)} O que faz o NAT?
+De seguida, é necessario utilizar o router através do GTKTerm. Para isso, é necessário substituir a ligação com a Switch para o Router.(adicionar aqui as ligações de cabo necessárias, ainda tenho que verificar)
+
+É necessário configurar o endereço ip do router, o qual pode ser visto no anexo (INSERIR ANEXO AQUI NO FIM) (ver no guião do camoes o que é necessário que está lá bem explicado)
+
+É necessário adicionar novas rotas ao router, o qual pode ser visto no anexo (INSERIR ANEXO AQUI NO FIM) (ver no guião do camoes o que é necessário que está lá bem explicado)
+
+Voltar para a switch e adicionar a porta 5 à Vlan 21
+
+
+\subsection{2)} Quais são as rotas seguidas pelos pacotes durante a experiência? Explique.
+
+As rotas existentes são:
+(É necessário fazer umas pequenas alterações aqui que acho que não meti os default bem)
+
+Tux2:
+\begin{itemize}
+\item Tem uma rota para a VLan0 (172.16.y0.0) através da gateway 172.16.y1.253
+\item Tem uma rota para a VLan1 (172.16.y1.0) através da gateway 0.0.0.0 (default)
+\item Tem uma rota para o router (172.16.2.0) através da gateway 172.16.y1.254
+
+\end{itemize}
+
+Tux3:
+\begin{itemize}
+\item Tem uma rota para a VLan0 (172.16.y0.0) através da gateway 0.0.0.0 (default)
+\item Tem uma rota para a VLan1 (172.16.y0.0) através da gateway 172.16.y1.254
+
+\end{itemize}
+
+Tux4:
+\begin{itemize}
+\item Tem uma rota para a VLan0 (172.16.y0.0) através da gateway 0.0.0.0 (default)
+\item Tem uma rota para a VLan1 (172.16.y0.0) através da gateway 0.0.0.0 (default)
+\item Tem uma rota para o router (172.16.2.0) através da gateway 172.16.y1.254
+
+\end{itemize}
+
+Router:
+\begin{itemize}
+\item Tem uma rota para a VLan0 (172.16.y0.0) através da gateway 172.16.y1.253
+\item Tem uma rota para 0.0.0.0 através da gateway 172.16.1.254
+\end{itemize}
+
+Deste modo podemos concluir que, durante a experiência, os pacotes tentam seguir estas rotas e, caso contrário, vão para o router, dado que é a rota default
+	
+
+
+\subsection{3)} Como configurar o NAT num \emph{router} comercial?
+
+A configuração do NAT pode ser feita seguindo os passos descritos na pagína 46 do guião do trabalho.
+
+Porém, o guião contém uma explicação geral que varia consoante a sala e a bancada na FEUP. O anexo (INSERT INDEX NUMBER) contém os passos a executar no router para configurar o NAT de acordo com a nossa bancada e sala
+
+\subsection{4)} O que faz o NAT?
+
+O NAT é capaz de reescrever os endereços de IP de origem de um pacote, quando este passa por um router, traduzindo os endereços privados para endereços legais. Tem como objetivo permitir que um computador de uma rede IP privada se conecte á Internet ou a uma rede pública.
+
+Em geral o NAT mapeia vários IPs privados para um enderço exposto publicamente.
 
 \subsection{Experiência 5 - DNS (Domain Name System)}
 
-\setsecnumdepth{1)} Como configurar o DNS num \emph{host}?
+\subsection{1)} Como configurar o DNS num \emph{host}?
 
-\setsecnumdepth{2)} Que pacotes são trocados pelo DNS e que informações são transportadas? 
+Para configurar o DNS num host, é necessário alterar o ficheiro resolv.conf que se encontra em /etc/resolv.conf
+
+Ao editar o ficheiro, deve-se adicionar, na ultima linha, o seguinte comando:
+
+services.netlab.fe.up.pt 172.16.2.1
+
+Ao gravar as alterações no ficheiro, estamos a indicar que e netlab.fe.up.pt é o nome do servidor DNS e 172.16.2.1 é o seu endereço IP. É agora possível aceder á internet nos Tux 2 e 3
+
+
+\subsection{2)} Que pacotes são trocados pelo DNS e que informações são transportadas? 
+
+São trocados 2 pacotes pelo DNS, sendo o primeiro enviado do Host para o Server contendo o hostname desejado, requisitando o seu endereço IP. O segundo pacote corresponde a uma resposta do servidor contendo o endereço IP pedido
 
 \subsection{Experiência 6 - Conexões TCP}
 
-\setsecnumdepth{1)} Quantas conexões TCP são abertas pela aplicação FTP?
+\subsection{1)} Quantas conexões TCP são abertas pela aplicação FTP?
 
-\setsecnumdepth{2)} Em que conexão é transportado a informação de controlo do FTP?
+A aplicação abre 2 conexões TCP. A primeira envia os comandos TCP ao servidor e recebe as respostas e a segunda para receber a informação transmitida pelo servidor e enviar a resposta ao cliente
 
-\setsecnumdepth{3)} Quais são a fase de uma conexão TCP?
+\subsection{2)} Em que conexão é transportado a informação de controlo do FTP?
 
-\setsecnumdepth{4)} Como funciona o mecanismo ARQ TCP? Quais são os campos TCP relevantes? Que informação relevante pode ser observada nos logs?
+A informação de controlo do FTP é transportado na conexão TCP responsável pela troca de comandos
 
-\setsecnumdepth{5)} Como funciona o mecanismo de controlo de congestão do TCP? Quais são os campos relevantes? Como é que o fluxo de dados da conexão evoluiu ao longo do tempo? Está de acordo com o mecanismo de controlo de congestão TCP?
+\subsection{3)} Quais são a fase de uma conexão TCP?
+A conexão TCP está dividida em 3 fases:
 
-\setsecnumdepth{6)} O fluxo de dados da conexão TCP é afetada pelo aparecimento de uma segunda conexão TCP? Como?
+\begin{itemize}
+\item Estabelecimento da ligação
+\item Troca de dados
+\item Finalização da ligação
+\end{itemize}
+
+\subsection{4)} Como funciona o mecanismo ARQ TCP? Quais são os campos TCP relevantes? Que informação relevante pode ser observada nos logs?
+
+O mecanismo ARQ TCP é um método de controlo de erros da transmissão de dados utilizando acknowledgements signals, ou seja, mensagens cujo único propósito é indicar se uma trama foi recebida corretamente.
+
+(Aqui a litteraly sofia falta também do método de janela deslizante mas eu nao sei como podemos garantir que é utilizado ou não
+
+PARA ESTAS ULTIMAS 2 EXPERIÊCNIAS PRECISO DE IR VER OS LOGS, FAZ-SE AGORA DE TARDE
+
+\subsection{5)} Como funciona o mecanismo de controlo de congestão do TCP? Quais são os campos relevantes? Como é que o fluxo de dados da conexão evoluiu ao longo do tempo? Está de acordo com o mecanismo de controlo de congestão TCP?
+
+
+
+\subsection{6)} O fluxo de dados da conexão TCP é afetada pelo aparecimento de uma segunda conexão TCP? Como?
+
+O aparecimento de uma segunda conexão TCP funciona como esperado, sendo ambos os ficheiros transmitidos corretamente, porém, utilizando uma menor taxa de transmissão, dado que a taxa de transferência é divida pelos ficheiros.
+
 
 \section{Conclusões}
 
