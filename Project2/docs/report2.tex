@@ -100,14 +100,14 @@ O relatório pretende descrever detalhadamente a aplicação implementada, estan
 
 
 \section{Parte 1 - Aplicação de Download}
-A primeira parte deste trabalho consistiu em desenvolver uma aplicação de \emph{download} na linguagem de programação C. Para correr a aplicação, basta compilar os ficheiros usando o \emph{Makefile} e depois correr o comando \textbf{./download ftp://[$<$user$>$:$<$password$>$@]$<$host$>$/$<$url-path$>$}. Esta aplicação permite fazer o download de ficheiros a partir de um servidor do tipo \textbf{FTP}
+A primeira parte deste trabalho consistiu em desenvolver uma aplicação de \emph{download} na linguagem de programação C. Para correr a aplicação, basta compilar os ficheiros usando o \emph{Makefile} e depois correr o comando \textbf{./download ftp://[$<$user$>$:$<$password$>$@]$<$host$>$/$<$url-path$>$}. Esta aplicação permite fazer o \textit{download} de ficheiros a partir de um servidor do tipo \textbf{FTP}
 
 \subsection{Arquitetura}
 Para desenvolver a aplicação, decidimos dividi-la em duas partes: a primeira faz o processamento dos argumentos introduzidos no terminal e que vão ser utilizados para a transferência. A segunda parte é responsável pela conexão ao servidor para que se possa obter o ficheiro desejado.
 
-Para processar os argumentos, desenvolvemos a função \textit{\textbf{parseArguments}}, que divide o argumento nos seus vários componentes: \emph{username, password, host name, path e filename}. Estes componentes vão ser armazenados numa struct \textit{\textbf{arguments}} por nós criada, que vai ser acedida depois para que a transferência do ficheiro ocorra.
+Para processar os argumentos, desenvolvemos a função \textit{\textbf{parseArguments}}, que divide o argumento nos seus vários componentes: \emph{username, password, host name, path e filename}. Estes componentes vão ser armazenados numa \textit{struct} \textit{\textbf{arguments}} por nós criada, que vai ser acedida depois para que a transferência do ficheiro ocorra.
 
-Para implementar a segunda parte, primeiramente temos de obter o endereço IP a que o \emph{host} está associado. Para isso, recorremos à função \textit{\textbf{getIP}}, que utilizando maioritariamente código fornecido num exemplo das aulas teórico-práticas, obtém o IP, estando desta forma aptos a iniciar a conexão com o host. De seguida, chama-se a função \textit{\textbf{initConnection}}, que utilizando novamente código fornecido nas aulas, é responsável por ligar o cliente FTP ao servidor através de um socket, utilizando-se a porta 21.
+Para implementar a segunda parte, primeiramente temos de obter o endereço IP a que o \emph{host} está associado. Para isso, recorremos à função \textit{\textbf{getIP}}, que utilizando maioritariamente código fornecido num exemplo das aulas teórico-práticas, obtém o IP, estando desta forma aptos a iniciar a conexão com o host. De seguida, chama-se a função \textit{\textbf{initConnection}}, que utilizando novamente código fornecido nas aulas, é responsável por ligar o cliente FTP ao servidor através de um \textit{socket}, utilizando-se a porta 21.
 
 Após a conexão estar estabelecida, envia-se então o primeiro comando "\textbf{USER} 'username'\textbackslash r\textbackslash n" através da função \textit{\textbf{sendData}}, esperando-se pela resposta usando a função \textit{\textbf{receiveAnswer}}. No caso de ser a resposta esperada, envia-se entao o comando "\textbf{PASS} 'password'\textbackslash r\textbackslash n", esperando-se novamente pela resposta do servidor para se poder prosseguir.
 
@@ -133,23 +133,23 @@ Ao longo da execução do programa vão sendo imprimidas no terminal diversas me
 
 \subsection{Experiência 1 - Configuração de uma rede IP}
 
-O objetivo desta experiência é ligar o tux23 ao tux24 através de um switch, configurando os endereços de IP destes 2 computadores para que eles possam comunicar entre si.
+O objetivo desta experiência é ligar o tux23 ao tux24 através de um \textit{switch}, configurando os endereços de IP destes 2 computadores para que eles possam comunicar entre si.
 
 Para a configuração dos endereços IP utilizou-se o comando \textit{\textbf{ifconfig eth0 $<$ip$>$}}, sendo atribuído ao tux23 o IP 172.16.20.1 e ao tux24 o endereço 172.16.20.254. De seguida executa-se o comando \textit{\textbf{ping}} seguido do IP do tux24 para verificar a existência de uma ligação entre os dois computadores. 
 
 O comando \textit{\textbf{ping}} gera pacotes de dois tipos: \textbf{ARP} (\textit{Address Resolution Protocol}) e \textbf{ICMP} (\textit{Internet Control Message Protocol}).
 
-Para enviar uma trama para um computador na rede, o emissor(tux23) primeiro necessita de conhecer o endereço MAC correspondente ao endereço IP do recetor(tux24). Para isso, inicialmente envia um pacote \textbf{ARP} em \textit{broadcast}, que contém os seus próprios endereços IP e MAC (172.16.20.1 e 00:21:5a:5a:78:c7, respetivamente) e os endereços IP e MAC do outro computador (respetivamente, 172.16.20.254 e 00:00:00:00:00:00 (desconhecido)) e espera receber como resposta um pacote semelhante, mas no qual o emissor é o tux24 e o recetor é o tux23, e o enderço MAC do tux24 ja se encontra preenchido (00:22:64:a7:26:a2). Assim, o \textbf{ARP} é um protocolo utilizado para a conversão de endereços da camada da internet (endereços IP) em endereços da camada de ligação de dados (endereços MAC). 
+Para enviar uma trama para um computador na rede, o emissor (tux23) primeiro necessita de conhecer o endereço MAC correspondente ao endereço IP do recetor (tux24). Para isso, inicialmente envia um pacote \textbf{ARP} em \textit{broadcast} \textit{(ver Figura 1)}, que contém os seus próprios endereços IP e MAC (172.16.20.1 e 00:21:5a:5a:78:c7, respetivamente) e os endereços IP e MAC do outro computador (respetivamente, 172.16.20.254 e 00:00:00:00:00:00 - desconhecido) \textit{(ver Figura 2)} e espera receber como resposta um pacote semelhante, mas no qual o emissor é o tux24 e o recetor é o tux23, e o enderço MAC do tux24 ja se encontra preenchido (00:22:64:a7:26:a2) \textit{(ver Figura 3)}. Assim, o \textbf{ARP} é um protocolo utilizado para a conversão de endereços da camada da \textit{internet} (endereços IP) em endereços da camada de ligação de dados (endereços MAC). 
 
-Conhecidos então os endereços dos \textit{tuxys}, o comando \textit{\textbf{ping}} passa a enviar pacotes \textbf{ICMP}, que transfere mensagens de controlo entre endereços IP. Estes pacotes contêm tanto os endereços IP e MAC do emissor como do recetor.
+Conhecidos então os endereços dos \textit{tuxys}, o comando \textit{\textbf{ping}} passa a enviar pacotes \textbf{ICMP}, que transfere mensagens de controlo entre endereços IP. Estes pacotes contêm tanto os endereços IP e MAC do emissor como do recetor \textit{(ver Figura 4)}.
 
-Para se determinar o tipo de trama recebida, é necessário analisar o \textit{Ethernet header}. Caso o valor da variável \textit{type} seja 0x0806, então trata-se de uma trama do tipo \textbf{ARP}. Caso o valor seja 0x0800, então trata-se de uma trama \textbf{IP}, podendo-se analisar o respetivo \textit{IP header}. Caso o seu valor seja 1, significa que se trata de uma trama \textbf{ICMP}.
+Para se determinar o tipo de trama recebida, é necessário analisar o \textit{Ethernet header}. Caso o valor da variável \textit{type} seja 0x0806, então trata-se de uma trama do tipo \textbf{ARP} \textit{(ver Figura 5)}. Caso o valor seja 0x0800, então trata-se de uma trama \textbf{IP}, podendo-se analisar o respetivo \textit{IP header}. Caso o seu valor seja 1, significa que se trata de uma trama \textbf{ICMP} \textit{(ver Figura 6)}.
 
-O tamanho da trama recebida pode ser obtido analisando-a no \textit{Wireshark}, no bloco do \textit{Frame}.
+O tamanho da trama recebida pode ser obtido analisando-a no \textit{Wireshark}, no bloco do \textit{Frame} \textit{(ver Figura 7)}.
 
 A interface \textit{loopback} é uma interface de rede virtual que o computador utiliza para comunicar com ele próprio, com o objectivo de realizar testes de diagnóstico, ou aceder a servidores na própria máquina, como se fosse um cliente.
 
-\subsection{Experiência 2 - Implementação de 2 VLANS no SWITCH}
+\subsection{Experiência 2 - Implementação de 2 VLANs no SWITCH}
 
 O objetivo desta experiência é criar duas \textit{LANs} virtuais no \textit{switch}, sendo uma constituída pelo tux23 e pelo tux24 (\textit{vlan20}) e outra formada pelo tux22 (\textit{vlan21}). Desta forma, as máquinas 3 e 4 deixam de ter acesso à máquina 2 pois encontram-se em sub-redes diferentes.
 
@@ -183,9 +183,9 @@ De seguida, analisam-se os respetivos registos no \textit{Wireshark}, concluindo
 
 \subsection{Experiência 3 - Configuração de um Router em Linux}
 
-Nesta experiência, estabeleceu-se uma ligação entre as duas VLans criadas anteriormente através da configuração do tux24 como um router.
+Nesta experiência, estabeleceu-se uma ligação entre as duas VLANs criadas anteriormente através da configuração do tux24 como um \textit{router}.
 
-Para comunicar entre os Tuxes, foi necessário adicionar rotas em cada computador, sendo o resultado final o seguinte:
+Para comunicar entre os \textit{tuxys}, foi necessário adicionar rotas em cada computador, sendo o resultado final o seguinte:
 
 Tux22:
 \begin{itemize}
@@ -208,10 +208,10 @@ Tux24:
 	
 \end{itemize}
 
-Uma rota existente permite que seja enviada informação a partir de um determinado tuxy para um IP destino através de uma gateway.
+Uma rota existente permite que seja enviada informação a partir de um determinado tux para um IP destino através de uma \textit{gateway}.
 
 
-A tabela de reencaminhamento contém outros parâmetros para além dda rota destino e da gateway. Pode ser visualizada através do comando "route -n" e contém os seguintes parâmetros:
+A tabela de reencaminhamento contém outros parâmetros para além dda rota destino e da \textit{gateway}. Pode ser visualizada através do comando "\textbf{route -n}" e contém os seguintes parâmetros:
 
 \begin{description}
 
@@ -229,39 +229,39 @@ A tabela de reencaminhamento contém outros parâmetros para além dda rota dest
 
 \item[Use -] Contador do número de sucessos e falhas de pesquisas pela rota
 
-\item[Interface -] Placa de rede associada à gateway. Neste projeto foram apenas utilizadas as placas eth0 e eth1.
+\item[Interface -] Placa de rede associada à \textit{gateway}. Neste projeto foram apenas utilizadas as placas eth0 e eth1.
 
 \end{description}
 
-No processo de um tux dar ping a outro, é necessário que ambos conheçam o MAC address um do outro.
-Tal é feito através de mensagens ARP. O Tuxy de envio, ao iniciar a ligação, envia uma mensagem ARP transmitindo o seu endereço MAC ao tux com o IP escolhido e, de seguida, o tux que recebeu essa mensagem envia uma mensagem ARP de volta com o seu endereço MAC.
+No processo de um tux dar \textit{ping} a outro, é necessário que ambos conheçam o endereço MAC um do outro.
+Tal é feito através de mensagens ARP. O tux emissor, ao iniciar a ligação, envia uma mensagem ARP em \textit{broadcast} transmitindo o seu endereço IP e MAC à rede, assim como o endereço IP do tux recetor e, de seguida, o tux com o IP destino envia uma mensagem ARP de volta com o seu endereço MAC.
 
-São também observados dois pacotes ICMP, o de request e o de reply, dado que estes pacotes são utilizados para verificar se os tuxys conseguem transmitir mensagens entre eles. Existem então, para cada rota, um pacote para cada direção de envio para garantir o sucesso da transmissão
+São também observados dois pacotes ICMP, o de \textit{request} e o de \textit{reply}, dado que estes pacotes são utilizados para verificar se os \textit{tuxys} conseguem transmitir mensagens entre eles. Existem então, para cada rota, um pacote para cada direção de envio para garantir o sucesso da transmissão
 
 
-Os endereços IP e Mac associados aos pacotes ICMP são os endereços dos tuxys de origem e destino, dado que são os endereços necessários para verificar se cada um dos tuxys consegue dar ping ao outro, que é a principal função de um pacote ICMP. 
+Os endereços IP e Mac associados aos pacotes ICMP são os endereços dos \textit{tuxys} de origem e destino, dado que são os endereços necessários para verificar se cada um dos \textit{tuxys} consegue dar \textit{ping} ao outro, que é a principal função de um pacote ICMP. 
 
 \subsection{Experiência 4 - Configuração de um Router Comercial e Implementação de NAT}
 
-Para configurar um router estático num router comercial, é necessário:
+Para configurar um \textit{router} estático num \textit{router} comercial, é necessário:
 
 Estabelecer a seguintes ligações por cabo RJ45:
 \begin{itemize}
-\item RouterGE0 - Switch Porta 5
+\item RouterGE0 - \textit{Switch} Porta 5
 \item ROUTERGE1 - Prateleira Porta 1  
 \end{itemize}
 
-De seguida, é necessário utilizar o router através do GTKTerm. Para isso, é necessário substituir a ligação com a Switch para o Router.
+De seguida, é necessário utilizar o \textit{router} através do \textit{GTKTerm}. Para isso, é necessário substituir a ligação com o \textit{switch} para o \textit{router}.
 
-É necessário configurar o endereço ip do router, o qual pode ser visto no anexo (INSERIR ANEXO AQUI NO FIM)
+É necessário configurar o endereço IP do \textit{router}, o qual pode ser visto no anexo (INSERIR ANEXO AQUI NO FIM)
 
-É também necessário adicionar novas rotas ao router, permitindo a comunicação com os restantes tuxys. As rotas necessárias são adicionas através dos comandos:
+É também necessário adicionar novas rotas ao \textit{router}, permitindo a comunicação com os restantes \textit{tuxys}. As rotas necessárias são adicionadas através dos comandos:
 \begin{lstlisting}[language=bash]
     $ ip route 0.0.0.0 0.0.0.0 172.16.2.254
     $ ip route 172.16.20.0 255.255.255.0 172.16.21.253
 \end{lstlisting}
 
-Voltar para a switch e adicionar a porta 5 à Vlan 21, tal como é indicado na experiência 2.
+De seguida, retorna-se para o switch e adiciona-se a porta 5 à VLAN 21, tal como é indicado na experiência 2.
 
 
 Após as alterações, as rotas atuais são:
@@ -292,43 +292,43 @@ Router:
 \item Rota para 0.0.0.0 (default) através da gateway 172.16.1.254
 \end{itemize}
 
-Deste modo podemos concluir que, durante a experiência, os pacotes tentam seguir estas rotas. Caso não conheça a rota para o destino, envia para o router, dado que é a rota default, e este verifica se o tux24 existe e envia a mensagem. 
+Deste modo podemos concluir que os pacotes tentam seguir estas rotas. Caso o tux não conheça a rota para o destino, envia para o \textit{router}, dado que é a rota \textit{default}, e este verifica se o tux24 existe e envia a mensagem. 
 
-Em seguida, para ser possível aceder à internet, é necessário configurar o NAT num router comercial. Tal é feito seguindo os passos descritos no anexo (INSERIR INDEX NUMBER).
+Em seguida, para ser possível aceder à \textit{internet}, é necessário configurar o NAT num router comercial. Tal é feito seguindo os passos descritos no anexo (INSERIR INDEX NUMBER).
 
-O NAT \emph{(Network Address Translation)} é capaz de reescrever os endereços de IP de origem de um pacote, quando este passa por um router, traduzindo os endereços privados para endereços legais. Tem como objetivo permitir que um computador de uma rede IP privada se conecte á Internet ou a uma rede pública. Em geral o NAT mapeia vários IPs privados para um enderço exposto publicamente.
+O NAT \emph{(Network Address Translation)} é capaz de reescrever os endereços de IP de origem de um pacote, quando este passa por um \textit{router}, traduzindo os endereços privados para endereços legais. Tem como objetivo permitir que um computador de uma rede IP privada se conecte à \textit{internet} ou a uma rede pública. Em geral o NAT mapeia vários IPs privados para um enderço exposto publicamente.
 
 \subsection{Experiência 5 - DNS (Domain Name System)}
 
-Para configurar o DNS num host, é necessário alterar o ficheiro resolv.conf que se encontra em /etc/resolv.conf. Ao editar o ficheiro, deve-se adicionar, na ultima linha, o seguinte comando:
+Para configurar o DNS num host, é necessário alterar o ficheiro \textit{resolv.conf} que se encontra em \textit{/etc/resolv.conf}. Ao editar o ficheiro, deve-se adicionar, na última linha, o seguinte comando:
 
 \begin{lstlisting}[language=bash]
-    services.netlab.fe.up.pt 172.16.2.1
+    $ services.netlab.fe.up.pt 172.16.2.1
 \end{lstlisting}
 
-Ao gravar as alterações no ficheiro, estamos a indicar que e netlab.fe.up.pt é o nome do servidor DNS e 172.16.2.1 é o seu endereço IP. É agora possível aceder á internet nos Tuxys tux22 e tux23.
+Ao gravar as alterações no ficheiro, estamos a indicar que \textit{netlab.fe.up.pt} é o nome do servidor DNS e 172.16.2.1 é o seu endereço IP. É agora possível aceder à \textit{internet} nos \textit{tuxys} 22 e 23.
 
-O DNS troca 2 pacotes, sendo o primeiro enviado do Host para o Server contendo o hostname desejado, requisitando o seu endereço IP. O segundo pacote corresponde a uma resposta do servidor contendo o endereço IP pedido
+O DNS troca 2 pacotes, sendo o primeiro enviado do \textit{Host} para o \textit{Server} contendo o \textit{hostname} desejado, requisitando o seu endereço IP. O segundo pacote corresponde a uma resposta do servidor contendo o endereço IP que foi pedido.
 
 \subsection{Experiência 6 - Conexões TCP}
 
-A aplicação abre 2 conexões TCP. A primeira envia os comandos TCP ao servidor e recebe as respostas. A segunda recebe a informação transmitida pelo servidor e envia a resposta ao cliente. A informação de controlo do FTP é transportado na conexão TCP responsável pela troca de comandos.
+A aplicação abre 2 conexões TCP. A primeira envia os comandos TCP ao servidor e recebe as respostas. A segunda recebe a informação transmitida pelo servidor e envia a resposta ao cliente. A informação de controlo do FTP é transportada na conexão TCP responsável pela troca de comandos.
 
-Uma conexão TCP está dividida em 3 fases distintas, o \emph{Estabelecimento da ligação}, a \emph{Troca de dados} e a \emph{Finalização da ligação}
+Uma conexão TCP está dividida em 3 fases distintas: o \emph{Estabelecimento da ligação}, a \emph{Troca de dados} e a \emph{Finalização da ligação}
 
 
-De modo a gerir os erros de transmissão é usado o mecanismo ARQ TCP com Sliding Window, que utiliza acknowledgements numbers para controlo de erros, ou seja, mensagens cujo único propósito é indicar se uma trama foi recebida corretamente. Possui também um parâmetro window size responsável pelo controlo da congestão de dados e um sequence number, o numero do pacote a ser enviado.
+De modo a gerir os erros de transmissão é usado o mecanismo ARQ TCP com \textbf{Sliding Window}, que utiliza \textbf{acknowledgements numbers} para controlo de erros, ou seja, mensagens cujo único propósito é indicar se uma trama foi recebida corretamente. Possui também um parâmetro \textbf{window size} responsável pelo controlo da congestão de dados e um \textbf{sequence number}, que representa o número do pacote a ser enviado.
 
 O protocolo TCP possui um mecanismo de controlo de congestão, que consiste numa aproximação do número de octetos que é possível transmitir pela rede que está a ser utilizada, estabelecendo valores mínimos de envio de acordo com a janela definida pelo recetor e pela janela de congestão.
 
-É possível verificar a existência deste mecanismo de congestão analisando as taxas de transferência durante o processo de envio de dois ficheiros em simultâneo. Inicialmente a taxa de transferência possui um valor elevado e desce bruscamente assim que o segundo download inicia.
+É possível verificar a existência deste mecanismo de congestão analisando as taxas de transferência durante o processo de envio de dois ficheiros em simultâneo. Inicialmente a taxa de transferência possui um valor elevado e desce bruscamente assim que o segundo \textit{download} inicia.
 
 Podemos então concluir que o aparecimento de uma segunda conexão TCP funciona como esperado, sendo ambos os ficheiros transmitidos corretamente, porém, utilizando uma menor taxa de transmissão, dado que a taxa de transferência é divida pelos ficheiros.
 
 
 \section{Conclusões}
 
-Através deste trabalho, foi possível compreender não só o processo de transmissão de um ficheiro segundo o protocolo FTP, mas também todos os passos associados à configuração de uma rede. Durante este processo, o uso do wireshark permitiu-nos entender melhor todos os protocolos pacotes a ser enviados, nomeadamente os pacotes ARP, ICMP, DNS e TCP.
+Através deste trabalho, foi possível compreender não só o processo de transmissão de um ficheiro segundo o protocolo FTP, mas também todos os passos associados à configuração de uma rede. Durante este processo, o uso do \textit{Wireshark} permitiu-nos entender melhor todos os protocolos pacotes a ser enviados, nomeadamente os pacotes ARP, ICMP, DNS e TCP.
 
 Em suma, foi possível alcançar o objetivo proposto do trabalho, a implementação de uma aplicação que descarregasse um ficheiro de acordo com o protocolo FTP, e a configuração e análise de uma rede, complementando os conhecimentos abordados nas aulas, tanto teóricas como práticas.  
 
@@ -339,26 +339,49 @@ Em suma, foi possível alcançar o objetivo proposto do trabalho, a implementaç
 
 \subsection{Capturas wireshark}
 
+\bigskip
+
 \includegraphics[width=\textwidth]{figura1.PNG}
-\captionof{figure}{caption}
+\captionof{figure}{Mensagens ARP para obter endereços}
+
+\bigskip
+\bigskip
 
 \includegraphics[width=\textwidth]{figura2.PNG}
-\captionof{figure}{caption}
+\captionof{figure}{Endereços do pacote ARP enviado pelo tux23}
+
+\bigskip
+\bigskip
 
 \includegraphics[width=\textwidth]{figura3.PNG}
-\captionof{figure}{caption}
+\captionof{figure}{Endereços do pacote ARP enviado pelo tux24}
+
+\bigskip
+\bigskip
 
 \includegraphics[width=\textwidth]{figura4.PNG}
-\captionof{figure}{caption}
+\captionof{figure}{Endereços MAC e IP nos pacotes ICMP}
+
+\bigskip
+\bigskip
 
 \includegraphics[width=\textwidth]{figura5.PNG}
-\captionof{figure}{caption}
+\captionof{figure}{Pacote do tipo ARP}
+
+\bigskip
+\bigskip
 
 \includegraphics[width=\textwidth]{figura6.PNG}
-\captionof{figure}{caption}
+\captionof{figure}{Pacote do tipo ICMP}
+
+\bigskip
+\bigskip
 
 \includegraphics[width=\textwidth]{figura7.PNG}
-\captionof{figure}{caption}
+\captionof{figure}{Tamanho do pacote enviado}
+
+\bigskip
+\bigskip
 
 \subsection{Sequências de comandos}
 
