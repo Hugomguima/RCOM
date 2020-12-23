@@ -169,9 +169,9 @@ A interface \textit{loopback} é uma interface de rede virtual que o computador 
 
 O objetivo desta experiência é criar duas \textit{LANs} virtuais no \textit{switch}, sendo uma constituída pelo tux23 e pelo tux24 (\textit{vlan20}) e outra formada pelo tux22 (\textit{vlan21}). Desta forma, as máquinas 3 e 4 deixam de ter acesso à máquina 2 pois encontram-se em sub-redes diferentes.
 
-Para se configurar a \textit{vlan20}, recorreu-se ao código que se encontra no anexo(INSERIR INDEX AQUI) 
+Para se configurar a \textit{vlan20}, recorreu-se ao código que se encontra no anexo II.
 
-De seguida, é necessário adicionar os respetivos \textit{tuxys} a esta \textit{VLAN}. Tendo em consideração que o tux23 está ligado à porta 1 do \textit{switch} e o tux24 na porta 2, a adição das portas á VLan pode ser vista no anexo(INSERIR INDEX AQUI) 
+De seguida, é necessário adicionar os respetivos \textit{tuxys} a esta \textit{VLAN}. Tendo em consideração que o tux23 está ligado à porta 1 do \textit{switch} e o tux24 na porta 2, a adição das portas á VLan pode ser vista no anexo III.
 
 Depois da \textit{vlan21} estar configurada, envia-se o comando \textit{ping} do tux23 para o tux24 e depois para o tux22, sendo a seguir enviado o comando \textit{ping broadcast} a partir do mesmo tux.
 
@@ -249,9 +249,9 @@ Estabelecer a seguintes ligações por cabo RJ45:
 
 De seguida, é necessário utilizar o \textit{router} através do \textit{GTKTerm}. Para isso, é necessário substituir a ligação com o \textit{switch} para o \textit{router}.
 
-É necessário configurar o endereço IP do \textit{router}, o qual pode ser visto no anexo (INSERIR ANEXO AQUI NO FIM)
+É necessário configurar o endereço IP do \textit{router}, o qual pode ser visto no anexo IV.
 
-É também necessário adicionar novas rotas ao \textit{router}, permitindo a comunicação com os restantes \textit{tuxys}. As rotas necessárias são adicionadas através dos comandos que se encontram no anexo (INSERIR INDICE AQUI).
+É também necessário adicionar novas rotas ao \textit{router}, permitindo a comunicação com os restantes \textit{tuxys}. As rotas necessárias são adicionadas através dos comandos que se encontram no anexo V.
 
 De seguida, retorna-se para o switch e adiciona-se a porta 5 à VLAN 21, tal como é indicado na experiência 2.
 
@@ -285,7 +285,7 @@ Router:
 
 Deste modo podemos concluir que os pacotes tentam seguir estas rotas. Caso o tux não conheça a rota para o destino, envia para o \textit{router}, dado que é a rota \textit{default}, e este verifica se o tux24 existe e envia a mensagem. 
 
-Em seguida, para ser possível aceder à \textit{internet}, é necessário configurar o NAT num router comercial. Tal é feito seguindo os passos descritos no anexo (INSERIR INDEX NUMBER).
+Em seguida, para ser possível aceder à \textit{internet}, é necessário configurar o NAT num router comercial. Tal é feito seguindo os passos descritos no anexo VI.
 
 O NAT \emph{(Network Address Translation)} é capaz de reescrever os endereços de IP de origem de um pacote, quando este passa por um \textit{router}, traduzindo os endereços privados para endereços legais. Tem como objetivo permitir que um computador de uma rede IP privada se conecte à \textit{internet} ou a uma rede pública. Em geral o NAT mapeia vários IPs privados para um enderço exposto publicamente.
 
@@ -314,7 +314,7 @@ O protocolo TCP possui um mecanismo de controlo de congestão, que consiste numa
 
 É possível verificar a existência deste mecanismo de congestão analisando as taxas de transferência durante o processo de envio de dois ficheiros em simultâneo. Inicialmente a taxa de transferência possui um valor elevado e desce bruscamente assim que o segundo \textit{download} inicia.
 
-Podemos então concluir que o aparecimento de uma segunda conexão TCP funciona como esperado, sendo ambos os ficheiros transmitidos corretamente, porém, utilizando uma menor taxa de transmissão, dado que a taxa de transferência é divida pelos ficheiros.
+Podemos então concluir, analisando o gráfico da figura 8, que o aparecimento de uma segunda conexão TCP funciona como esperado, sendo ambos os ficheiros transmitidos corretamente, porém, utilizando uma menor taxa de transmissão, dado que a taxa de transferência é divida pelos ficheiros.
 
 
 \section{Conclusões}
@@ -328,7 +328,7 @@ Em suma, foi possível alcançar o objetivo proposto do trabalho, a implementaç
 
 \section{Anexos}
 
-\subsection{Capturas wireshark}
+\subsection{Anexo I - Capturas wireshark}
 
 \bigskip
 
@@ -371,13 +371,19 @@ Em suma, foi possível alcançar o objetivo proposto do trabalho, a implementaç
 \includegraphics[width=\textwidth]{figura7.PNG}
 \captionof{figure}{Tamanho do pacote enviado}
 
+\bigskip
+\bigskip
+
+\includegraphics[width=\textwidth]{figura8.PNG}
+\captionof{figure}{Taxa de transmissão no download de 2 ficheiros em simultâneo}
+
 \pagebreak
 
 \subsection{Sequências de comandos}
 
 \bigskip
 
-\subsubsection{Adicionar a VLan 20}
+\subsubsection{Anexo II - Adicionar a VLan 20}
 
 \begin{lstlisting}[style=bashStyle]
     $ configure terminal
@@ -388,7 +394,7 @@ Em suma, foi possível alcançar o objetivo proposto do trabalho, a implementaç
 
 \bigskip
 
-\subsubsection{Adicionar Portas 1 e 2 à Vlan 20}
+\subsubsection{Anexo III - Adicionar Portas 1 e 2 à Vlan 20}
 
 \begin{lstlisting}[style=bashStyle]
     $ configure terminal
@@ -405,7 +411,29 @@ Em suma, foi possível alcançar o objetivo proposto do trabalho, a implementaç
 
 \bigskip
 
-\subsubsection{Adicionar rotas no router}
+\subsubsection{Anexo IV - Configurar o IP do router}
+
+\begin{lstlisting}[style=bashStyle]
+#Configurar o IP do router
+
+interface fastethernet 0/0                 
+ip address 172.16.21.254    255.255.255.0   
+no shutdown
+exit
+show interface fastethernet 0/0
+
+#dar um Ip ao router para poder ligar com a porta GE0, falta dar um ip para comunicacao exterior a partir da porta GE1:
+
+interfacefastethernet 0/1                 
+ip address 172.16.2.29    255.255.255.0      
+no shutdown
+exit
+show interface fastethernet 0/1  
+\end{lstlisting}
+
+\bigskip
+
+\subsubsection{Anexo V - Adicionar rotas no router}
 
 \begin{lstlisting}[style=bashStyle]
     $ ip route 0.0.0.0 0.0.0.0 172.16.2.254
@@ -414,7 +442,7 @@ Em suma, foi possível alcançar o objetivo proposto do trabalho, a implementaç
 
 \bigskip
 
-\subsubsection{Adicionar NAT}
+\subsubsection{Anexo VI - Adicionar NAT}
 
 \begin{lstlisting}[style=bashStyle]
 # Defines Ethernet 0 with an IP address and as a NAT inside interface.
@@ -445,34 +473,14 @@ $ access-list 1 permit 172.16.21.0 0.0.0.7
 
 \end{lstlisting}
 
-\bigskip
 
-\subsubsection{Configurar o IP do router}
-
-\begin{lstlisting}[style=bashStyle]
-#Configurar o IP do router
-
-interface fastethernet 0/0                 
-ip address 172.16.21.254    255.255.255.0   
-no shutdown
-exit
-show interface fastethernet 0/0
-
-#dar um Ip ao router para poder ligar com a porta GE0, falta dar um ip para comunicacao exterior a partir da porta GE1:
-
-interfacefastethernet 0/1                 
-ip address 172.16.2.29    255.255.255.0      
-no shutdown
-exit
-show interface fastethernet 0/1  
-\end{lstlisting}
 
 \pagebreak
 
 
 \subsection{Código}
 
-\subsubsection{ Anexo N - connections.h}
+\subsubsection{Anexo VII - connections.h}
 
 \begin{lstlisting}[style=CStyle]
 
@@ -504,7 +512,7 @@ int downloadFile(int socketfd, char * filename);
 
 \end{lstlisting}
 
-\subsubsection{ Anexo N - connections.c}
+\subsubsection{Anexo VIII - connections.c}
 
 \begin{lstlisting}[style=CStyle]
 
@@ -609,7 +617,7 @@ int downloadFile(int socketfd, char * filename) {
 
 \pagebreak
 
-\subsubsection{N - argumentsParser.h}
+\subsubsection{Anexo IX - argumentsParser.h}
 
 \begin{lstlisting}[style=CStyle]
 
@@ -638,7 +646,7 @@ int getIP(char *ip, char *host);
 
 \end{lstlisting}
 
-\subsubsection{Anexo N - argumentsParser.c}
+\subsubsection{Anexo X - argumentsParser.c}
 
 \begin{lstlisting}[style=CStyle]
 
@@ -702,7 +710,7 @@ int getIP(char *ip, char *host) {
 
 \pagebreak
 
-\subsubsection{ Anexo N - main.c}
+\subsubsection{Anexo XI - main.c}
 
 \begin{lstlisting}[style=CStyle]
 
