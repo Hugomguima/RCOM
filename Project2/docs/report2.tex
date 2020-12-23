@@ -36,6 +36,22 @@
     language=C
 }
 
+\lstdefinestyle{bashStyle}{
+    backgroundcolor=\color{backgroundColour},   
+    commentstyle=\color{mGreen},
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    language=bash
+}
+
 
 \begin{document}
 
@@ -153,29 +169,9 @@ A interface \textit{loopback} é uma interface de rede virtual que o computador 
 
 O objetivo desta experiência é criar duas \textit{LANs} virtuais no \textit{switch}, sendo uma constituída pelo tux23 e pelo tux24 (\textit{vlan20}) e outra formada pelo tux22 (\textit{vlan21}). Desta forma, as máquinas 3 e 4 deixam de ter acesso à máquina 2 pois encontram-se em sub-redes diferentes.
 
-Para se configurar a \textit{vlan20}, recorreu-se ao seguinte código: 
+Para se configurar a \textit{vlan20}, recorreu-se ao código que se encontra no anexo(INSERIR INDEX AQUI) 
 
-\begin{lstlisting}[language=bash]
-    $ configure terminal
-    $ vlan 20
-    $ end
-    $ show vlan id 20
-\end{lstlisting}
-
-De seguida, é necessário adicionar os respetivos \textit{tuxys} a esta \textit{VLAN}. Para isso, utilizamos o seguinte código, sendo que o tux23 está ligado à porta 1 do \textit{switch} e o tux24 na porta 2:
-
-\begin{lstlisting}[language=bash]
-    $ configure terminal
-    $ interface fastethernet 0/1
-    $ switchport mode access
-    $ switchport access vlan 20
-    $ end
-    $ configure terminal
-    $ interface fastethernet 0/2            
-    $ switchport mode access
-    $ switchport access vlan 20
-    $ end
-\end{lstlisting}
+De seguida, é necessário adicionar os respetivos \textit{tuxys} a esta \textit{VLAN}. Tendo em consideração que o tux23 está ligado à porta 1 do \textit{switch} e o tux24 na porta 2, a adição das portas á VLan pode ser vista no anexo(INSERIR INDEX AQUI) 
 
 Depois da \textit{vlan21} estar configurada, envia-se o comando \textit{ping} do tux23 para o tux24 e depois para o tux22, sendo a seguir enviado o comando \textit{ping broadcast} a partir do mesmo tux.
 
@@ -255,14 +251,9 @@ De seguida, é necessário utilizar o \textit{router} através do \textit{GTKTer
 
 É necessário configurar o endereço IP do \textit{router}, o qual pode ser visto no anexo (INSERIR ANEXO AQUI NO FIM)
 
-É também necessário adicionar novas rotas ao \textit{router}, permitindo a comunicação com os restantes \textit{tuxys}. As rotas necessárias são adicionadas através dos comandos:
-\begin{lstlisting}[language=bash]
-    $ ip route 0.0.0.0 0.0.0.0 172.16.2.254
-    $ ip route 172.16.20.0 255.255.255.0 172.16.21.253
-\end{lstlisting}
+É também necessário adicionar novas rotas ao \textit{router}, permitindo a comunicação com os restantes \textit{tuxys}. As rotas necessárias são adicionadas através dos comandos que se encontram no anexo (INSERIR INDICE AQUI).
 
 De seguida, retorna-se para o switch e adiciona-se a porta 5 à VLAN 21, tal como é indicado na experiência 2.
-
 
 Após as alterações, as rotas atuais são:
 
@@ -330,7 +321,7 @@ Podemos então concluir que o aparecimento de uma segunda conexão TCP funciona 
 
 Através deste trabalho, foi possível compreender não só o processo de transmissão de um ficheiro segundo o protocolo FTP, mas também todos os passos associados à configuração de uma rede. Durante este processo, o uso do \textit{Wireshark} permitiu-nos entender melhor todos os protocolos pacotes a ser enviados, nomeadamente os pacotes ARP, ICMP, DNS e TCP.
 
-Em suma, foi possível alcançar o objetivo proposto do trabalho, a implementação de uma aplicação que descarregasse um ficheiro de acordo com o protocolo FTP, e a configuração e análise de uma rede, complementando os conhecimentos abordados nas aulas, tanto teóricas como práticas.  
+Em suma, foi possível alcançar o objetivo proposto do trabalho, a implementação de uma aplicação que descarregasse um ficheiro de acordo com o protocolo FTP, e a configuração e análise de uma rede, complementando os conhecimentos abordados nas aulas, tanto teóricas como práticas.
 
 
 \pagebreak
@@ -380,19 +371,108 @@ Em suma, foi possível alcançar o objetivo proposto do trabalho, a implementaç
 \includegraphics[width=\textwidth]{figura7.PNG}
 \captionof{figure}{Tamanho do pacote enviado}
 
-\bigskip
-\bigskip
+\pagebreak
 
 \subsection{Sequências de comandos}
 
-\includegraphics[width=\textwidth]{feup_logo.png}
-\captionof{figure}{Imagem contendo}
+\bigskip
+
+\subsubsection{Adicionar a VLan 20}
+
+\begin{lstlisting}[style=bashStyle]
+    $ configure terminal
+    $ vlan 20
+    $ end
+    $ show vlan id 20
+\end{lstlisting}
+
+\bigskip
+
+\subsubsection{Adicionar Portas 1 e 2 à Vlan 20}
+
+\begin{lstlisting}[style=bashStyle]
+    $ configure terminal
+    $ interface fastethernet 0/1
+    $ switchport mode access
+    $ switchport access vlan 20
+    $ end
+    $ configure terminal
+    $ interface fastethernet 0/2            
+    $ switchport mode access
+    $ switchport access vlan 20
+    $ end
+\end{lstlisting}
+
+\bigskip
+
+\subsubsection{Adicionar rotas no router}
+
+\begin{lstlisting}[style=bashStyle]
+    $ ip route 0.0.0.0 0.0.0.0 172.16.2.254
+    $ ip route 172.16.20.0 255.255.255.0 172.16.21.253
+\end{lstlisting}
+
+\bigskip
+
+\subsubsection{Adicionar NAT}
+
+\begin{lstlisting}[style=bashStyle]
+# Defines Ethernet 0 with an IP address and as a NAT inside interface.
+$ conf t            
+$ interface fastethernet 0/0
+$ ip address 172.16.21.254 255.255.255.0
+$ no shutdown
+$ ip nat inside        
+$ exit
+ 
+# Defines Ethernet 1 with an IP address and as a NAT outside interface.
+
+$ conf t
+$ interface fastethernet 0/1
+$ ip address 172.16.2.29 255.255.255.0
+$ no shutdown
+$ ip nat outside       
+exit
+ 
+# Defines a NAT pool named ovrld with a range of a single IP  address, 172.16.2.29.
+$ ip nat pool ovrld 172.16.2.29 172.16.2.29 prefix 24
+# Indicates that any packets received on the inside interface that are permitted by access-list 1 has the source address translated to an address out of the NAT pool named ovrld. Translations are overloaded, which allows multiple inside devices to be translated to the same valid IP address.
+ip nat inside source list 1 pool ovrld overload
+ 
+# Access-list 1 permits packets with source addresses ranging from 172.16.20.0 through 172.16.20.7 and 172.16.21.0 through 172.16.21.7.
+$ access-list 1 permit 172.16.20.0 0.0.0.7
+$ access-list 1 permit 172.16.21.0 0.0.0.7
+
+\end{lstlisting}
+
+\bigskip
+
+\subsubsection{Configurar o IP do router}
+
+\begin{lstlisting}[style=bashStyle]
+#Configurar o IP do router
+
+interface fastethernet 0/0                 
+ip address 172.16.21.254    255.255.255.0   
+no shutdown
+exit
+show interface fastethernet 0/0
+
+#dar um Ip ao router para poder ligar com a porta GE0, falta dar um ip para comunicacao exterior a partir da porta GE1:
+
+interfacefastethernet 0/1                 
+ip address 172.16.2.29    255.255.255.0      
+no shutdown
+exit
+show interface fastethernet 0/1  
+\end{lstlisting}
 
 \pagebreak
 
+
 \subsection{Código}
 
-\subsection{ Anexo N - connections.h}
+\subsubsection{ Anexo N - connections.h}
 
 \begin{lstlisting}[style=CStyle]
 
@@ -424,7 +504,7 @@ int downloadFile(int socketfd, char * filename);
 
 \end{lstlisting}
 
-\subsection{ Anexo N - connections.c}
+\subsubsection{ Anexo N - connections.c}
 
 \begin{lstlisting}[style=CStyle]
 
@@ -529,7 +609,7 @@ int downloadFile(int socketfd, char * filename) {
 
 \pagebreak
 
-\subsection{ Anexo N - argumentsParser.h}
+\subsubsection{N - argumentsParser.h}
 
 \begin{lstlisting}[style=CStyle]
 
@@ -558,7 +638,7 @@ int getIP(char *ip, char *host);
 
 \end{lstlisting}
 
-\subsection{ Anexo N - argumentsParser.c}
+\subsubsection{Anexo N - argumentsParser.c}
 
 \begin{lstlisting}[style=CStyle]
 
@@ -622,7 +702,7 @@ int getIP(char *ip, char *host) {
 
 \pagebreak
 
-\subsection{ Anexo N - main.c}
+\subsubsection{ Anexo N - main.c}
 
 \begin{lstlisting}[style=CStyle]
 
